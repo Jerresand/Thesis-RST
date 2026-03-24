@@ -8,9 +8,22 @@ MACRO_COLS = [
     'CPI',
 ]
 
-GPR_COLS = ['GPR_Global', 'GPR_Sweden']
+GPR_COLS = ['GPR_Global']
 
+N_LAGS = 4  # one lag per quarter (Q1…Q4)
+
+LAGGED_MACRO_COLS = [f'{col}_lag{k}' for col in MACRO_COLS for k in range(1, N_LAGS + 1)]
+LAGGED_GPR_COLS = [f'{col}_lag{k}' for col in GPR_COLS for k in range(1, N_LAGS + 1)]
+
+# Current + lagged versions of each variable group
+ALL_MACRO_COLS = MACRO_COLS + LAGGED_MACRO_COLS
+ALL_GPR_COLS = GPR_COLS + LAGGED_GPR_COLS
+
+# Without lags – used for scenario/covariance analysis (unchanged)
 ALL_PREDICTOR_COLS = MACRO_COLS + GPR_COLS
+
+# With lags – used for regression and LASSO
+ALL_PREDICTOR_COLS_WITH_LAGS = ALL_MACRO_COLS + ALL_GPR_COLS
 
 PD_MATURITY_COLS = ['12_month']
 

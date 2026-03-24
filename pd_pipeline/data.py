@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Dict, Iterable, Tuple
+from pathlib import Path
+from typing import Dict, Iterable, Optional, Tuple
 
 import pandas as pd
 
@@ -15,7 +16,9 @@ def clean_dataframe(df: pd.DataFrame, date_col_idx: int, value_col_idx: int) -> 
     date_col = df.columns[date_col_idx]
     value_col = df.columns[value_col_idx]
 
-    df[date_col] = pd.to_datetime(df[date_col], format='%Y-%m', errors='coerce')
+    parsed = pd.to_datetime(df[date_col], format='%Y-%m', errors='coerce')
+    fallback = pd.to_datetime(df[date_col], errors='coerce')
+    df[date_col] = parsed.where(parsed.notna(), fallback).dt.to_period('M').dt.to_timestamp()
 
     if df[value_col].dtype == 'object':
         df[value_col] = (
@@ -100,16 +103,14 @@ def load_gpr_data(gpr_path: str, verbose: bool = True) -> pd.DataFrame:
     df_gpr.columns = df_gpr.columns.str.replace('\ufeff', '', regex=False)
     df_gpr['month'] = pd.to_datetime(df_gpr['month'], format='%Y-%m-%d', errors='coerce')
 
-    df_gpr_cleaned = df_gpr[['month', 'GPR', 'GPRC_SWE']].copy()
+    df_gpr_cleaned = df_gpr[['month', 'GPR']].copy()
     df_gpr_cleaned = df_gpr_cleaned.rename(columns={
         'month': 'Date',
         'GPR': 'GPR_Global',
-        'GPRC_SWE': 'GPR_Sweden',
     })
 
     df_gpr_cleaned['GPR_Global'] = pd.to_numeric(df_gpr_cleaned['GPR_Global'], errors='coerce')
-    df_gpr_cleaned['GPR_Sweden'] = pd.to_numeric(df_gpr_cleaned['GPR_Sweden'], errors='coerce')
-    df_gpr_cleaned = df_gpr_cleaned.dropna(subset=['Date', 'GPR_Global', 'GPR_Sweden'])
+    df_gpr_cleaned = df_gpr_cleaned.dropna(subset=['Date', 'GPR_Global'])
 
     if verbose:
         print("\nCleaned df_gpr head:")
@@ -148,8 +149,28 @@ def summarize_macro_data(df_merged: pd.DataFrame, cols: Iterable[str], verbose: 
     return covariance_matrix, correlation_matrix, mean_vector
 
 
-def load_pds_data(pds_path: str, verbose: bool = True) -> pd.DataFrame:
-    """Load PD data, normalize date column, and add PDzero column."""
+def load_pds_data(
+    pds_path: str,
+    verbose: bool = True,
+    use_sic_sectors: bool = False,
+    company_lookup_file: Optional[str | Path] = None,
+    isin_to_sic_file: Optional[str | Path] = None,
+    sic_codes_file: Optional[str | Path] = None,
+) -> pd.DataFrame:
+    """Load PD data, normalize date column, and add PDzero column.
+    
+    Args:
+        pds_path: Path to PD data CSV
+        verbose: Print diagnostic information
+        use_sic_sectors: If True, map sectors using SIC major groups
+        company_lookup_file: Path to sectors/issuers CSV with issuer_identifier and issuer_name
+                            (required if use_sic_sectors=True)
+        isin_to_sic_file: Path to ISIN-to-SIC mapping CSV (required if use_sic_sectors=True)
+        sic_codes_file: Path to SIC codes CSV (required if use_sic_sectors=True)
+        
+    Returns:
+        DataFrame with Company_number, Date, PD columns, Sector, and PDzero
+    """
     df_pds = pd.read_csv(pds_path)
     df_pds.columns = df_pds.columns.str.replace('\ufeff', '', regex=False)
 
@@ -160,13 +181,40 @@ def load_pds_data(pds_path: str, verbose: bool = True) -> pd.DataFrame:
         df_pds[date_col_name] = pd.to_datetime(df_pds[date_col_name], format='%Y-%m')
         df_pds = df_pds.rename(columns={date_col_name: 'Date'})
 
-    df_pds = df_pds[['Company_number', 'Date', '12_month', 'Sector']]
+    if 'Sector' in df_pds.columns and not use_sic_sectors:
+        df_pds = df_pds[['Company_number', 'Date', '12_month', 'Sector']]
+    else:
+        df_pds = df_pds[['Company_number', 'Date', '12_month']]
+    
+    if use_sic_sectors:
+        if not all([company_lookup_file, isin_to_sic_file, sic_codes_file]):
+            raise ValueError(
+                "When use_sic_sectors=True, must provide company_lookup_file, "
+                "isin_to_sic_file, and sic_codes_file"
+            )
+        
+        from pd_pipeline.sensitivity import map_company_to_sector
+        
+        df_pds = map_company_to_sector(
+            df_pds,
+            company_lookup_file=company_lookup_file,
+            isin_to_sic_file=isin_to_sic_file,
+            sic_codes_file=sic_codes_file,
+            company_col='Company_number',
+            sector_col='Sector',
+            verbose=verbose,
+        )
+    
     df_pds = df_pds.sort_values(['Company_number', 'Date'])
-    first_pd = df_pds.groupby('Company_number')['12_month'].first()
+    first_pd = (
+        df_pds.dropna(subset=['12_month'])
+        .groupby('Company_number')['12_month']
+        .first()
+    )
     df_pds['PDzero'] = df_pds['Company_number'].map(first_pd)
 
     if verbose:
-        print("Columns in df_pds:", df_pds.columns.tolist())
+        print("\nColumns in df_pds:", df_pds.columns.tolist())
         print("\nFirst few rows of df_pds:")
         print(df_pds.head())
 
@@ -217,6 +265,104 @@ def prepare_model_data(
         df_cleaned.info()
 
     return df_cleaned
+
+
+SIC_DIV2_RANGES = [
+    (1000, 1999, 'Mining & Construction'),
+    (2000, 2999, 'Light Manufacturing'),
+    (3000, 3999, 'Heavy Manufacturing'),
+    (4000, 4799, 'Transportation'),
+    (4800, 4899, 'Communications'),
+    (4900, 4999, 'Utilities'),
+    (5000, 5999, 'Wholesale & Retail Trade'),
+    (6000, 6999, 'Finance, Insurance & Real Estate'),
+    (7000, 7999, 'Services'),
+    (8000, 8999, 'Health, Legal & Educational Services'),
+    (9000, 9999, 'Public Administration'),
+]
+
+
+def sic_to_div2_sector(sic) -> str:
+    """Map a 4-digit SIC code to a div2 sector name."""
+    try:
+        sic_int = int(str(sic).strip())
+    except (ValueError, TypeError):
+        return 'Unassigned'
+    for lo, hi, name in SIC_DIV2_RANGES:
+        if lo <= sic_int <= hi:
+            return name
+    return 'Unassigned'
+
+
+def build_sic_div2_pds_file(
+    pds_path: str,
+    isin_path: str,
+    output_path: str,
+    verbose: bool = True,
+) -> pd.DataFrame:
+    """Generate a PD data file with SIC div2 sector classification.
+
+    Reads the base PD file and the ISIN→SIC mapping file, maps each company
+    to its div2 sector using 4-digit SIC code ranges, and writes the result.
+
+    Div2 sectors:
+        Mining & Construction      1000–1999
+        Light Manufacturing        2000–2999
+        Heavy Manufacturing        3000–3999
+        Transportation             4000–4799
+        Communications             4800–4899
+        Utilities                  4900–4999
+        Wholesale & Retail Trade   5000–5999
+        Finance, Insurance & RE    6000–6999
+        Services                   7000–7999
+        Health/Legal/Education     8000–8999
+        Public Administration      9000–9999
+        Unassigned                 (no SIC / outside ranges)
+    """
+    df_pds = pd.read_csv(pds_path)
+    df_pds.columns = df_pds.columns.str.replace('\ufeff', '', regex=False)
+
+    df_isin = pd.read_csv(isin_path, sep=';')
+    df_isin.columns = df_isin.columns.str.replace('\ufeff', '', regex=False)
+
+    df_isin['Company_number'] = pd.to_numeric(df_isin['issuer_identifier'], errors='coerce')
+    company_sic = (
+        df_isin[['Company_number', 'SIC']]
+        .dropna(subset=['Company_number'])
+        .drop_duplicates(subset=['Company_number'])
+        .set_index('Company_number')['SIC']
+    )
+
+    df_pds['Sector'] = df_pds['Company_number'].map(company_sic).apply(sic_to_div2_sector)
+
+    df_pds.to_csv(output_path, index=False)
+
+    if verbose:
+        print(f"✓ Saved {len(df_pds):,} rows to {output_path}")
+        print("\nSector distribution:")
+        print(df_pds['Sector'].value_counts().to_string())
+
+    return df_pds
+
+
+def add_macro_lags(
+    df_macro: pd.DataFrame,
+    cols_to_lag: Iterable[str],
+    n_lags: int = 12,
+) -> pd.DataFrame:
+    """Add lagged columns for each macro variable up to n_lags months back.
+
+    The input DataFrame must have a 'Date' column at monthly frequency.
+    For each column in cols_to_lag, creates columns named '{col}_lag1' through
+    '{col}_lag{n_lags}' where lag k is the value k months prior to the current date.
+    """
+    df = df_macro.sort_values('Date').copy()
+    for col in cols_to_lag:
+        if col not in df.columns:
+            continue
+        for k in range(1, n_lags + 1):
+            df[f'{col}_lag{k}'] = df[col].shift(k)
+    return df
 
 
 def export_dataframe(df: pd.DataFrame, output_file: str, verbose: bool = True) -> None:

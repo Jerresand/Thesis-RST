@@ -18,7 +18,7 @@ def run_lasso_feature_selection(
     sector_col: str,
     pd_maturity_cols: Iterable[str],
     pdzero_col: str = 'PDzero',
-    min_obs: int = 10,
+    min_obs: int = 100,
     cv: int = 5,
     random_state: int = 42,
     n_alphas: int = 100,
@@ -67,7 +67,7 @@ def run_lasso_feature_selection(
                     cv=cv,
                     random_state=random_state,
                     n_alphas=n_alphas,
-                    max_iter=10000,
+                    max_iter=100000,
                     tol=0.0001,
                 )
                 lasso_cv.fit(X_scaled, y)
@@ -308,6 +308,30 @@ def print_feature_recommendations(
     print("4. Validate selected features against economic theory and domain expertise")
     print("5. Re-run sensitivity analysis with selected features only (optional)")
     print("=" * 80)
+
+
+def get_lasso_selected_cols(
+    df_lasso: pd.DataFrame,
+    macro_cols: List[str],
+    gpr_cols: List[str],
+) -> Tuple[List[str], List[str]]:
+    """Return the union of LASSO-selected features across all sectors.
+
+    A feature is included if LASSO selected it (non-zero coefficient) in at
+    least one sector.  The returned lists preserve the original column order.
+
+    Returns:
+        (macro_selected, gpr_selected)
+    """
+    macro_selected = [
+        col for col in macro_cols
+        if f'β_selected_{col}' in df_lasso.columns and df_lasso[f'β_selected_{col}'].sum() > 0
+    ]
+    gpr_selected = [
+        col for col in gpr_cols
+        if f'δ_selected_{col}' in df_lasso.columns and df_lasso[f'δ_selected_{col}'].sum() > 0
+    ]
+    return macro_selected, gpr_selected
 
 
 def export_lasso_outputs(

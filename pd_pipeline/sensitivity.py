@@ -2,11 +2,231 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Iterable, List
 
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
+
+
+MAJOR_GROUP_SECTOR_NAMES = {
+    '01': 'Agricultural Production - Crops',
+    '02': 'Agricultural Production - Livestock',
+    '07': 'Agricultural Services',
+    '08': 'Forestry',
+    '09': 'Fishing & Aquaculture',
+    '10': 'Metal Mining',
+    '12': 'Coal Mining',
+    '13': 'Oil & Gas Extraction',
+    '14': 'Nonmetallic Minerals Mining',
+    '15': 'General Building Contractors',
+    '16': 'Heavy Construction',
+    '17': 'Special Trade Contractors',
+    '20': 'Food & Beverage Manufacturing',
+    '21': 'Tobacco Manufacturing',
+    '22': 'Textile Manufacturing',
+    '23': 'Apparel Manufacturing',
+    '24': 'Lumber & Wood Products',
+    '25': 'Furniture Manufacturing',
+    '26': 'Paper Manufacturing',
+    '27': 'Printing & Publishing',
+    '28': 'Chemicals Manufacturing',
+    '29': 'Petroleum Refining',
+    '30': 'Rubber & Plastics Products',
+    '31': 'Leather Manufacturing',
+    '32': 'Stone, Clay & Glass Products',
+    '33': 'Primary Metal Industries',
+    '34': 'Fabricated Metal Products',
+    '35': 'Industrial Machinery & Equipment',
+    '36': 'Electronic & Electrical Equipment',
+    '37': 'Transportation Equipment Manufacturing',
+    '38': 'Instruments & Related Products',
+    '39': 'Miscellaneous Manufacturing',
+    '40': 'Railroad Transportation',
+    '41': 'Local Passenger Transportation',
+    '42': 'Trucking & Warehousing',
+    '43': 'Postal Service',
+    '44': 'Water Transportation',
+    '45': 'Air Transportation',
+    '46': 'Pipelines',
+    '47': 'Transportation Services',
+    '48': 'Communications',
+    '49': 'Electric, Gas & Sanitary Services',
+    '50': 'Wholesale Trade - Durable Goods',
+    '51': 'Wholesale Trade - Nondurable Goods',
+    '52': 'Building Materials & Garden Supplies',
+    '53': 'General Merchandise Stores',
+    '54': 'Food Stores',
+    '55': 'Automotive Dealers & Service Stations',
+    '56': 'Apparel & Accessory Stores',
+    '57': 'Home Furniture & Equipment Stores',
+    '58': 'Eating & Drinking Places',
+    '59': 'Miscellaneous Retail',
+    '60': 'Depository Institutions',
+    '61': 'Nondepository Credit Institutions',
+    '62': 'Security & Commodity Brokers',
+    '63': 'Insurance Carriers',
+    '64': 'Insurance Agents & Brokers',
+    '65': 'Real Estate',
+    '67': 'Holding & Investment Offices',
+    '70': 'Hotels & Lodging',
+    '72': 'Personal Services',
+    '73': 'Business Services',
+    '75': 'Automotive Repair & Services',
+    '76': 'Miscellaneous Repair Services',
+    '78': 'Motion Pictures',
+    '79': 'Amusement & Recreation Services',
+    '80': 'Health Services',
+    '81': 'Legal Services',
+    '82': 'Educational Services',
+    '83': 'Social Services',
+    '84': 'Museums & Cultural Services',
+    '86': 'Membership Organizations',
+    '87': 'Engineering & Management Services',
+    '88': 'Private Households',
+    '89': 'Miscellaneous Services',
+    '91': 'Executive & Legislative Offices',
+    '92': 'Justice & Public Safety',
+    '93': 'Public Finance',
+    '94': 'Administration of Programs',
+    '95': 'Environmental Programs',
+    '96': 'Regulation & Administration',
+    '97': 'National Security & International Affairs',
+    '99': 'Nonclassifiable Establishments',
+}
+
+
+def load_sic_to_major_group_mapping(sic_codes_file: str | Path) -> dict:
+    """Load SIC codes file and create mapping from SIC code to Major Group sector.
+    
+    Args:
+        sic_codes_file: Path to the SIC codes CSV file
+        
+    Returns:
+        Dictionary mapping 4-digit SIC codes to sector names
+    """
+    df_sic = pd.read_csv(sic_codes_file)
+    
+    df_sic['Major_Group'] = df_sic['Major Group'].astype(str).str.zfill(2)
+    df_sic['SIC_str'] = df_sic['SIC'].astype(str).str.zfill(4)
+    df_sic['Sector_Name'] = df_sic['Major_Group'].map(MAJOR_GROUP_SECTOR_NAMES)
+    df_sic['Sector_Name'] = df_sic['Sector_Name'].fillna('Unclassified')
+    
+    sic_to_sector = dict(zip(df_sic['SIC_str'], df_sic['Sector_Name']))
+    return sic_to_sector
+
+
+def load_company_to_sic_mapping(isin_to_sic_file: str | Path) -> pd.DataFrame:
+    """Load ISIN to SIC mapping and extract company name to SIC mapping.
+    
+    Args:
+        isin_to_sic_file: Path to the ISIN to SIC CSV file
+        
+    Returns:
+        DataFrame with issuer_name and SIC columns
+    """
+    df_isin = pd.read_csv(isin_to_sic_file, sep=';')
+    
+    df_isin = df_isin[['issuer_name', 'SIC']].copy()
+    df_isin['SIC'] = df_isin['SIC'].astype(str).str.strip()
+    
+    df_isin = df_isin[df_isin['SIC'] != 'na'].drop_duplicates()
+    
+    return df_isin
+
+
+def normalize_company_name(name: str) -> str:
+    """Normalize company name for matching by removing common variations."""
+    if pd.isna(name):
+        return ''
+    
+    name = str(name).strip().lower()
+    
+    suffixes_to_remove = [
+        r'\s+inc\.?$', r'\s+corp\.?$', r'\s+corporation$', r'\s+company$',
+        r'\s+ltd\.?$', r'\s+limited$', r'\s+plc$', r'\s+ag$', r'\s+nv$',
+        r'\s+sa$', r'\s+s\.a\.?$', r'\s+ab$', r'\s+asa$', r'\s+gmbh$',
+        r'\s+llc$', r'\s+lp$', r'\s+b\.v\.?$', r'\s+spa$', r'\s+s\.p\.a\.?$',
+        r'\s+co\.?$', r'\s+the$', r'\(the\)$',
+    ]
+    
+    import re
+    for suffix in suffixes_to_remove:
+        name = re.sub(suffix, '', name)
+    
+    name = re.sub(r'[^\w\s]', ' ', name)
+    name = re.sub(r'\s+', ' ', name).strip()
+    
+    return name
+
+
+def map_company_to_sector(
+    df: pd.DataFrame,
+    company_lookup_file: str | Path,
+    isin_to_sic_file: str | Path,
+    sic_codes_file: str | Path,
+    company_col: str = 'Company_number',
+    sector_col: str = 'Sector',
+    verbose: bool = True,
+) -> pd.DataFrame:
+    """Map Company_number to sectors based on SIC major groups.
+    
+    This function performs the following mapping chain:
+    Company_number -> issuer_identifier -> issuer_name -> SIC -> Major_Group -> Sector
+    
+    Uses fuzzy name matching to handle variations in company names.
+    
+    Args:
+        df: DataFrame containing Company_number
+        company_lookup_file: Path to company/issuer names lookup CSV with issuer_identifier
+        isin_to_sic_file: Path to ISIN-to-SIC mapping CSV
+        sic_codes_file: Path to SIC codes CSV
+        company_col: Name of company number column in df
+        sector_col: Name of sector column to create
+        verbose: Print mapping statistics
+        
+    Returns:
+        DataFrame with sector column added based on SIC major groups
+    """
+    df_issuers = pd.read_csv(company_lookup_file, sep=';')
+    if 'issuer_identifier' in df_issuers.columns:
+        df_issuers = df_issuers.rename(columns={'issuer_identifier': 'Company_number'})
+    
+    df_company_to_sic = load_company_to_sic_mapping(isin_to_sic_file)
+    
+    sic_to_sector_dict = load_sic_to_major_group_mapping(sic_codes_file)
+    
+    df = df.merge(df_issuers[['Company_number', 'issuer_name']], on='Company_number', how='left')
+    
+    df['issuer_name_normalized'] = df['issuer_name'].apply(normalize_company_name)
+    df_company_to_sic['issuer_name_normalized'] = df_company_to_sic['issuer_name'].apply(normalize_company_name)
+    
+    df = df.merge(
+        df_company_to_sic[['issuer_name_normalized', 'SIC']],
+        on='issuer_name_normalized',
+        how='left'
+    )
+    
+    df['SIC_4digit'] = df['SIC'].astype(str).str.strip().str.zfill(4)
+    df[sector_col] = df['SIC_4digit'].map(sic_to_sector_dict)
+    df[sector_col] = df[sector_col].fillna('Unclassified')
+    
+    if verbose:
+        total_companies = df[company_col].nunique()
+        mapped_companies = df[df[sector_col] != 'Unclassified'][company_col].nunique()
+        print(f"\n✓ Sector mapping complete:")
+        print(f"  - Total unique companies: {total_companies}")
+        print(f"  - Companies mapped to sectors: {mapped_companies} ({100*mapped_companies/total_companies:.1f}%)")
+        print(f"  - Companies unclassified: {total_companies - mapped_companies}")
+        print(f"\n  Sector distribution (top 15):")
+        sector_counts = df.drop_duplicates(subset=company_col)[sector_col].value_counts()
+        for sector, count in sector_counts.head(15).items():
+            print(f"    {sector}: {count}")
+    
+    df = df.drop(columns=['issuer_name', 'issuer_name_normalized', 'SIC', 'SIC_4digit'], errors='ignore')
+    
+    return df
 
 
 def calculate_logit(p: np.ndarray | pd.Series) -> np.ndarray:
