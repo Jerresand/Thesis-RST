@@ -67,7 +67,7 @@ def run_lasso_feature_selection(
                     cv=cv,
                     random_state=random_state,
                     n_alphas=n_alphas,
-                    max_iter=100000,
+                    max_iter=1000000,
                     tol=0.0001,
                 )
                 lasso_cv.fit(X_scaled, y)

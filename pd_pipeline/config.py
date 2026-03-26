@@ -3,8 +3,8 @@
 MACRO_COLS = [
     'GDP_Growth',
     'Interest_Rate',
-    'Unemployment_Rate',
-    'Housing_Prices',
+    'Brent_Oil',
+    'Fuel_Index',
     'CPI',
 ]
 

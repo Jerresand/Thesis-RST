@@ -34,16 +34,16 @@ def clean_dataframe(df: pd.DataFrame, date_col_idx: int, value_col_idx: int) -> 
 def load_macro_data(
     gdp_path: str,
     interest_path: str,
-    unemployment_path: str,
-    housing_path: str,
+    brent_path: str,
+    fuel_path: str,
     cpi_path: str,
     verbose: bool = True,
 ) -> Dict[str, pd.DataFrame]:
     """Load and clean macroeconomic datasets."""
     df_gdp = pd.read_csv(gdp_path, sep=None, engine='python')
     df_interest = pd.read_csv(interest_path, sep=None, engine='python')
-    df_unemployment = pd.read_csv(unemployment_path, sep=None, engine='python')
-    df_housing = pd.read_csv(housing_path, sep=None, engine='python')
+    df_brent = pd.read_csv(brent_path, sep=None, engine='python')
+    df_fuel = pd.read_csv(fuel_path, sep=None, engine='python')
     df_cpi = pd.read_csv(cpi_path, sep=None, engine='python')
 
     df_gdp_cleaned = clean_dataframe(df_gdp, 0, 1)
@@ -58,17 +58,17 @@ def load_macro_data(
         df_interest_cleaned.columns[1]: 'Interest_Rate',
     })
 
-    df_unemployment_cleaned = clean_dataframe(df_unemployment, 0, 1)
-    df_unemployment_cleaned = df_unemployment_cleaned.rename(columns={
-        df_unemployment_cleaned.columns[0]: 'Date',
-        df_unemployment_cleaned.columns[1]: 'Unemployment_Rate',
-    })
+    df_brent_cleaned = clean_dataframe(df_brent, 0, 1)
+    df_brent_cleaned = df_brent_cleaned.rename(columns={
+        df_brent_cleaned.columns[0]: 'Date',
+        df_brent_cleaned.columns[1]: 'Brent_Oil',
+    }).dropna(subset=['Date', 'Brent_Oil'])
 
-    df_housing_cleaned = clean_dataframe(df_housing, 0, 1)
-    df_housing_cleaned = df_housing_cleaned.rename(columns={
-        df_housing_cleaned.columns[0]: 'Date',
-        df_housing_cleaned.columns[1]: 'Housing_Prices',
-    }).dropna(subset=['Date', 'Housing_Prices'])
+    df_fuel_cleaned = clean_dataframe(df_fuel, 0, 1)
+    df_fuel_cleaned = df_fuel_cleaned.rename(columns={
+        df_fuel_cleaned.columns[0]: 'Date',
+        df_fuel_cleaned.columns[1]: 'Fuel_Index',
+    }).dropna(subset=['Date', 'Fuel_Index'])
 
     df_cpi_cleaned = clean_dataframe(df_cpi, 0, 1)
     df_cpi_cleaned = df_cpi_cleaned.rename(columns={
@@ -81,18 +81,18 @@ def load_macro_data(
         print(df_gdp_cleaned.head())
         print("\nCleaned df_interest head:")
         print(df_interest_cleaned.head())
-        print("\nCleaned df_unemployment head:")
-        print(df_unemployment_cleaned.head())
-        print("\nCleaned df_housing head:")
-        print(df_housing_cleaned.head())
+        print("\nCleaned df_brent head:")
+        print(df_brent_cleaned.head())
+        print("\nCleaned df_fuel head:")
+        print(df_fuel_cleaned.head())
         print("\nCleaned df_cpi head:")
         print(df_cpi_cleaned.head())
 
     return {
         'gdp': df_gdp_cleaned,
         'interest': df_interest_cleaned,
-        'unemployment': df_unemployment_cleaned,
-        'housing': df_housing_cleaned,
+        'brent': df_brent_cleaned,
+        'fuel': df_fuel_cleaned,
         'cpi': df_cpi_cleaned,
     }
 
@@ -124,8 +124,8 @@ def merge_macro_data(frames: Dict[str, pd.DataFrame], df_gpr: pd.DataFrame) -> p
     df_merged = (
         frames['gdp']
         .merge(frames['interest'], on='Date', how='outer')
-        .merge(frames['unemployment'], on='Date', how='outer')
-        .merge(frames['housing'], on='Date', how='outer')
+        .merge(frames['brent'], on='Date', how='outer')
+        .merge(frames['fuel'], on='Date', how='outer')
         .merge(df_gpr, on='Date', how='outer')
         .merge(frames['cpi'], on='Date', how='outer')
     )
@@ -134,9 +134,10 @@ def merge_macro_data(frames: Dict[str, pd.DataFrame], df_gpr: pd.DataFrame) -> p
 
 def summarize_macro_data(df_merged: pd.DataFrame, cols: Iterable[str], verbose: bool = True) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series]:
     """Compute covariance/correlation matrices and mean vector."""
-    covariance_matrix = df_merged[list(cols)].cov()
-    correlation_matrix = df_merged[list(cols)].corr()
-    mean_vector = df_merged[list(cols)].mean()
+    df_complete = df_merged[list(cols)].dropna()
+    covariance_matrix = df_complete.cov()
+    correlation_matrix = df_complete.corr()
+    mean_vector = df_complete.mean()
 
     if verbose:
         print("\nCovariance Matrix (All variables):")

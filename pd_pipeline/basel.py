@@ -51,6 +51,7 @@ def calculate_capital_requirement(
     lgd: float | np.ndarray,
     correlation: float | np.ndarray,
     maturity: float = 2.5,
+    quantile: float = 0.999,
 ) -> np.ndarray:
     pd = np.asarray(pd)
     lgd = np.asarray(lgd)
@@ -58,11 +59,11 @@ def calculate_capital_requirement(
 
     b = calculate_maturity_adjustment(pd)
     g_pd = norm.ppf(pd)
-    g_999 = norm.ppf(0.999)
+    g_q = norm.ppf(quantile)
 
     conditional_pd_term = (
         g_pd / np.sqrt(1 - correlation)
-        + np.sqrt(correlation / (1 - correlation)) * g_999
+        + np.sqrt(correlation / (1 - correlation)) * g_q
     )
     n_term = norm.cdf(conditional_pd_term)
     base_capital = lgd * n_term - pd * lgd
@@ -76,8 +77,9 @@ def calculate_rwa(
     ead: float | np.ndarray,
     correlation: float | np.ndarray,
     maturity: float = 2.5,
+    quantile: float = 0.999,
 ) -> np.ndarray:
-    k = calculate_capital_requirement(pd, lgd, correlation, maturity)
+    k = calculate_capital_requirement(pd, lgd, correlation, maturity, quantile)
     return k * 12.5 * ead
 
 
@@ -86,8 +88,9 @@ def calculate_risk_weight(
     lgd: float | np.ndarray,
     correlation: float | np.ndarray,
     maturity: float = 2.5,
+    quantile: float = 0.999,
 ) -> np.ndarray:
-    k = calculate_capital_requirement(pd, lgd, correlation, maturity)
+    k = calculate_capital_requirement(pd, lgd, correlation, maturity, quantile)
     return k * 12.5
 
 
@@ -97,6 +100,7 @@ def compute_rwa_by_tenor(
     lgd: float,
     ead: float,
     maturity: float,
+    quantile: float = 0.999,
 ) -> Dict[str, Dict[str, object]]:
     """Compute RWA metrics per tenor and return a results dictionary."""
     results_by_tenor: Dict[str, Dict[str, object]] = {}
@@ -118,12 +122,14 @@ def compute_rwa_by_tenor(
             lgd=lgd,
             correlation=df_valid[corr_col].values,
             maturity=maturity,
+            quantile=quantile,
         )
         df_valid['RW'] = calculate_risk_weight(
             pd=df_valid[pd_col].values,
             lgd=lgd,
             correlation=df_valid[corr_col].values,
             maturity=maturity,
+            quantile=quantile,
         )
         df_valid['RWA'] = calculate_rwa(
             pd=df_valid[pd_col].values,
@@ -131,6 +137,7 @@ def compute_rwa_by_tenor(
             ead=ead,
             correlation=df_valid[corr_col].values,
             maturity=maturity,
+            quantile=quantile,
         )
 
         results_by_tenor[tenor] = {
