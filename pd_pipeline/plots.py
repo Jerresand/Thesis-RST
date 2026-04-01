@@ -2,12 +2,145 @@
 
 from __future__ import annotations
 
-from typing import List
+from typing import List, Optional
 
 import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
 import numpy as np
 import pandas as pd
 import seaborn as sns
+
+# ── Publication-quality defaults ──────────────────────────────────────────────
+plt.rcParams.update({
+    'axes.spines.top': False,
+    'axes.spines.right': False,
+    'axes.linewidth': 0.75,
+    'grid.alpha': 0.2,
+    'grid.linewidth': 0.55,
+    'xtick.major.width': 0.75,
+    'ytick.major.width': 0.75,
+    'figure.facecolor': 'white',
+    'axes.facecolor': 'white',
+    'savefig.bbox': 'tight',
+    'savefig.dpi': 150,
+})
+
+
+def _add_row_bands(ax: "plt.Axes", n: int, color: str = '#F5F5F5') -> None:
+    """Add subtle alternating horizontal bands behind forest plot rows."""
+    for k in range(0, n, 2):
+        ax.axhspan(k - 0.5, k + 0.5, color=color, alpha=0.55, zorder=0, linewidth=0)
+
+
+_PRETTY_LABELS = {
+    'GDP_Growth':    'GDP Growth',
+    'Interest_Rate': 'Interest Rate',
+    'Brent_Oil':     'Brent Oil',
+    'Fuel_Index':    'Fuel Index',
+    'CPI':           'CPI',
+    'GPR_Global':    'GPR Global',
+}
+
+# Confidence levels to draw: 50 %, 90 %, 95 %, 99 %
+_CONTOUR_LEVELS = [0.50, 0.90, 0.95, 0.99]
+
+
+def plot_normal_contours_pairwise(
+    cov_matrix: pd.DataFrame,
+    mean_vector: pd.Series,
+    cols: List[str],
+    title: str = 'Bivariate normal contours — macro & geopolitical variables',
+    figsize: Optional[tuple] = None,
+) -> None:
+    """Pairwise bivariate-normal contour grid based on the covariance matrix.
+
+    Each panel shows the 50 %, 90 %, 95 %, and 99 % probability contour
+    ellipses of the fitted bivariate normal for that pair of variables.
+    Nothing else is drawn — no scatter, no annotations.
+
+    Parameters
+    ----------
+    cov_matrix : DataFrame
+        Full covariance matrix (rows and columns = variable names).
+    mean_vector : Series
+        Mean of each variable (index = variable names).
+    cols : list of str
+        Variables to include (subset of cov_matrix columns).
+    """
+    sns.set_theme(style='white', context='notebook')
+    from scipy.stats import chi2 as _chi2
+
+    n = len(cols)
+    labels = [_PRETTY_LABELS.get(c, c.replace('_', ' ')) for c in cols]
+
+    # Lower-triangular pairs only  (i > j)
+    pairs = [(i, j) for i in range(n) for j in range(n) if i > j]
+    n_pairs = len(pairs)
+
+    # Arrange in a grid — as square as possible
+    n_cols_grid = int(np.ceil(np.sqrt(n_pairs)))
+    n_rows_grid = int(np.ceil(n_pairs / n_cols_grid))
+
+    if figsize is None:
+        figsize = (3.2 * n_cols_grid, 3.0 * n_rows_grid)
+
+    fig, axes = plt.subplots(n_rows_grid, n_cols_grid, figsize=figsize, squeeze=False)
+    axes_flat = list(axes.flat)
+    fig.patch.set_facecolor('white')
+
+    # Radii for each confidence level from chi²(2) distribution
+    radii = [np.sqrt(_chi2.ppf(p, df=2)) for p in _CONTOUR_LEVELS]
+    line_styles = [':', '--', '-', '-']
+    line_widths = [0.9, 1.0, 1.2, 1.5]
+    alphas      = [0.6, 0.7, 0.85, 1.0]
+
+    theta = np.linspace(0, 2 * np.pi, 300)
+    unit_circle = np.column_stack([np.cos(theta), np.sin(theta)])
+
+    for idx, (i, j) in enumerate(pairs):
+        ax = axes_flat[idx]
+
+        mu = np.array([mean_vector[cols[j]], mean_vector[cols[i]]])
+        sigma = cov_matrix.loc[[cols[j], cols[i]], [cols[j], cols[i]]].values
+
+        # Cholesky decomposition to map unit circle → ellipse
+        try:
+            L = np.linalg.cholesky(sigma)
+        except np.linalg.LinAlgError:
+            ax.set_visible(False)
+            continue
+
+        for r, ls, lw, alpha in zip(radii, line_styles, line_widths, alphas):
+            ellipse = (L @ (r * unit_circle).T).T + mu
+            ax.plot(ellipse[:, 0], ellipse[:, 1],
+                    color='#2166AC', linestyle=ls, linewidth=lw, alpha=alpha)
+
+        ax.set_xlabel(labels[j], fontsize=8, labelpad=3)
+        ax.set_ylabel(labels[i], fontsize=8, labelpad=3)
+        ax.tick_params(labelsize=7)
+        for spine in ('top', 'right'):
+            ax.spines[spine].set_visible(False)
+        ax.spines['left'].set_linewidth(0.5)
+        ax.spines['bottom'].set_linewidth(0.5)
+
+    # Hide unused panels
+    for idx in range(n_pairs, n_rows_grid * n_cols_grid):
+        axes_flat[idx].set_visible(False)
+
+    # Legend for confidence levels
+    from matplotlib.lines import Line2D
+    legend_handles = [
+        Line2D([0], [0], color='#2166AC', linestyle=ls, linewidth=lw, alpha=alpha,
+               label=f'{int(p*100)} %')
+        for p, ls, lw, alpha in zip(_CONTOUR_LEVELS, line_styles, line_widths, alphas)
+    ]
+    fig.legend(handles=legend_handles, title='Confidence level',
+               loc='lower right', fontsize=8, title_fontsize=8,
+               framealpha=0.9, edgecolor='#cccccc')
+
+    fig.suptitle(title, fontsize=12, fontweight='bold', y=1.01)
+    plt.tight_layout()
+    plt.show()
 
 
 def plot_lasso_summary(
@@ -72,8 +205,8 @@ def plot_lasso_summary(
 
     fig.suptitle('LASSO Feature Selection Analysis', fontsize=16, fontweight='bold')
 
-    colors = ['steelblue' if 'β' in idx else 'coral' for idx in feature_freq_df.index]
-    ax1.barh(feature_freq_df.index, feature_freq_df['Times Selected'], color=colors, edgecolor='black')
+    colors = ['#4C72B0' if 'β' in idx else '#DD8452' for idx in feature_freq_df.index]
+    ax1.barh(feature_freq_df.index, feature_freq_df['Times Selected'], color=colors, edgecolor='none')
     ax1.axvline(len(df_lasso) / 2, color='red', linestyle='--', linewidth=2, label='50% threshold')
     ax1.set_xlabel('Number of Sectors', fontsize=12, fontweight='bold')
     ax1.set_ylabel('Feature', fontsize=12, fontweight='bold')
@@ -86,7 +219,7 @@ def plot_lasso_summary(
 
     sector_names = [s[:25] for s in df_lasso['Sector']]
     colors_sector = plt.cm.viridis(np.linspace(0, 1, n_sectors))
-    ax2.barh(sector_names, df_lasso['N_features_selected'], color=colors_sector, edgecolor='black')
+    ax2.barh(sector_names, df_lasso['N_features_selected'], color=colors_sector, edgecolor='none')
     ax2.axvline(len(macro_cols) + len(gpr_cols), color='red', linestyle='--', linewidth=2, label='All features')
     ax2.set_xlabel('Number of Features Selected', fontsize=12, fontweight='bold')
     ax2.set_ylabel('Sector', fontsize=10, fontweight='bold')
@@ -125,31 +258,922 @@ def plot_lasso_summary(
     ax3.tick_params(axis='y', labelsize=8)
     plt.setp(ax3.get_xticklabels(), rotation=45, ha='right')
 
+    sens_cols = ['Sector', 'R_squared']
+    if 'R_squared_adj' in df_sensitivities.columns:
+        sens_cols.append('R_squared_adj')
     comparison_df = df_lasso.merge(
-        df_sensitivities[['Sector', 'R_squared']],
+        df_sensitivities[sens_cols],
         on='Sector',
         suffixes=('_lasso', '_ols'),
     )
+    use_adj = (
+        'R_squared_adj_ols' in comparison_df.columns
+        and 'R_squared_adj_lasso' in comparison_df.columns
+        and comparison_df[['R_squared_adj_ols', 'R_squared_adj_lasso']].notna().all(axis=None)
+    )
+    if use_adj:
+        xcol, ycol = 'R_squared_adj_ols', 'R_squared_adj_lasso'
+        xlabel, ylabel = 'OLS adjusted R²', 'LASSO adjusted R²'
+        diag_label = 'y = x (same adjusted R²)'
+        plot_title = 'Model fit: LASSO vs OLS (adjusted R²)'
+    else:
+        xcol, ycol = 'R_squared_ols', 'R_squared_lasso'
+        xlabel, ylabel = 'OLS R²', 'LASSO R²'
+        diag_label = 'y = x (same R²)'
+        plot_title = 'Model fit: LASSO vs OLS (R²)'
     sc = ax4.scatter(
-        comparison_df['R_squared_ols'],
-        comparison_df['R_squared_lasso'],
-        s=100,
-        alpha=0.7,
-        edgecolors='black',
+        comparison_df[xcol],
+        comparison_df[ycol],
+        s=80,
+        alpha=0.82,
+        edgecolors='white',
+        linewidths=0.7,
         c=comparison_df['N_features_selected'],
         cmap='viridis',
     )
-    max_r2 = max(comparison_df['R_squared_ols'].max(), comparison_df['R_squared_lasso'].max())
-    ax4.plot([0, max_r2], [0, max_r2], 'r--', linewidth=2, label='y=x (same R²)')
-    ax4.set_xlabel('OLS R²', fontsize=12, fontweight='bold')
-    ax4.set_ylabel('LASSO R²', fontsize=12, fontweight='bold')
-    ax4.set_title('Model Performance: LASSO vs OLS', fontsize=13, fontweight='bold')
+    max_r2 = max(comparison_df[xcol].max(), comparison_df[ycol].max())
+    ax4.plot([0, max_r2], [0, max_r2], 'r--', linewidth=2, label=diag_label)
+    ax4.set_xlabel(xlabel, fontsize=12, fontweight='bold')
+    ax4.set_ylabel(ylabel, fontsize=12, fontweight='bold')
+    ax4.set_title(plot_title, fontsize=13, fontweight='bold')
     ax4.legend()
     ax4.grid(True, alpha=0.3)
 
     cbar = plt.colorbar(sc, ax=ax4)
     cbar.set_label('Features Selected', fontsize=10, fontweight='bold')
 
+    plt.show()
+
+
+def _filter_sensitivity_horizon(df: pd.DataFrame, pd_horizon: Optional[str]) -> pd.DataFrame:
+    out = df.copy()
+    if pd_horizon is not None and 'PD_Horizon' in out.columns:
+        out = out[out['PD_Horizon'] == pd_horizon]
+    return out.sort_values('Sector').reset_index(drop=True)
+
+
+def _short_sector(name: str, max_len: int = 34) -> str:
+    name = str(name)
+    return name if len(name) <= max_len else name[: max_len - 1] + '…'
+
+
+def _short_predictor_label(name: str) -> str:
+    s = name.replace('GPR_Global', 'GPR')
+    s = s.replace('_lag1', ' (−1Q)').replace('_lag2', ' (−2Q)').replace('_lag3', ' (−3Q)').replace('_lag4', ' (−4Q)')
+    return s.replace('_', ' ')
+
+
+def plot_sensitivity_model_fit(
+    df_sensitivities: pd.DataFrame,
+    pd_horizon: Optional[str] = None,
+    figsize: tuple[float, float] = (12, 7),
+) -> None:
+    """Bar comparison of R² vs adjusted R² by sector, plus sample size vs fit scatter."""
+    sns.set_theme(style='whitegrid', context='notebook')
+    df = _filter_sensitivity_horizon(df_sensitivities, pd_horizon)
+    if df.empty:
+        print('No sensitivity rows to plot (check PD horizon filter).')
+        return
+    if 'R_squared_adj' not in df.columns:
+        print('Re-run sensitivity analysis to populate R_squared_adj.')
+        return
+
+    df = df.sort_values('R_squared_adj', ascending=True)
+    y = np.arange(len(df))
+    h = 0.35
+    fig, axes = plt.subplots(1, 2, figsize=figsize)
+
+    ax = axes[0]
+    _add_row_bands(ax, len(df))
+    ax.barh(y - h / 2, df['R_squared'], height=h, label='R²', color='#4C72B0', edgecolor='none')
+    ax.barh(
+        y + h / 2,
+        df['R_squared_adj'],
+        height=h,
+        label='Adjusted R²',
+        color='#DD8452',
+        edgecolor='none',
+    )
+    ax.set_yticks(y)
+    ax.set_yticklabels([_short_sector(s) for s in df['Sector']], fontsize=9)
+    ax.set_xlabel('Share of variance explained', fontsize=11, fontweight='bold')
+    ax.set_title('In-sample fit by sector (OLS)', fontsize=12, fontweight='bold')
+    xmax = float(max(df['R_squared'].max(), df['R_squared_adj'].max(), 0.01)) * 1.12
+    ax.set_xlim(0, min(1.0, xmax))
+    ax.legend(loc='lower right', frameon=True)
+    ax.grid(True, axis='x', alpha=0.3)
+
+    ax2 = axes[1]
+    sc = ax2.scatter(
+        df['N_observations'],
+        df['R_squared_adj'],
+        s=70,
+        c=df['R_squared'],
+        cmap='viridis',
+        edgecolors='white',
+        linewidths=0.7,
+        alpha=0.88,
+    )
+    ax2.set_xlabel('Regression sample size (N)', fontsize=11, fontweight='bold')
+    ax2.set_ylabel('Adjusted R²', fontsize=11, fontweight='bold')
+    ax2.set_title('Fit vs sample size (color = R²)', fontsize=12, fontweight='bold')
+    ax2.grid(True, alpha=0.3)
+    plt.colorbar(sc, ax=ax2, label='R²')
+
+    sub = (
+        f'PD horizon: {pd_horizon}' if pd_horizon else 'All horizons in frame'
+    )
+    fig.suptitle(f'OLS sensitivity — model fit overview\n({sub})', fontsize=13, fontweight='bold', y=1.02)
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_cumulative_coefficient_forest(
+    df_sensitivities: pd.DataFrame,
+    base_cols: List[str],
+    all_cols: List[str],
+    kind: str = 'macro',
+    pd_horizon: Optional[str] = None,
+    n_lags: int = 4,
+    fig_width: float = 7.5,
+) -> None:
+    """One thesis-ready forest plot per base variable showing the cumulative (summed) OLS coefficient.
+
+    For each base variable the contemporaneous term and its *n_lags* quarterly lags are summed:
+        β_total = β + β_lag1 + β_lag2 + … + β_lag{n_lags}
+
+    The 95 % CI is propagated in quadrature (independent-lags approximation):
+        SE_total = sqrt( SE² + SE_lag1² + … )   where SE_i = (CI_upper_i - CI_lower_i) / (2 × 1.96)
+
+    One matplotlib figure is produced per base variable — paste each directly into a thesis chapter.
+
+    Parameters
+    ----------
+    base_cols : list of str
+        Variable names *without* lag suffixes (e.g. config.MACRO_COLS or config.GPR_COLS).
+    all_cols : list of str
+        Full list including lag-suffixed names used during estimation (e.g. config.ALL_MACRO_COLS).
+    kind : 'macro' | 'gpr'
+        Selects column prefix (β_ or δ_) and axis label.
+    n_lags : int
+        Number of quarterly lags that were included in the regression (default 4).
+    fig_width : float
+        Figure width in inches. Height is set automatically from the number of sectors.
+    """
+    sns.set_theme(style='whitegrid', context='notebook')
+    df = _filter_sensitivity_horizon(df_sensitivities, pd_horizon)
+    if df.empty:
+        print('No sensitivity rows to plot (check PD horizon filter).')
+        return
+
+    prefix = 'β_' if kind == 'macro' else 'δ_'
+    letter = 'β' if kind == 'macro' else 'δ'
+    y_pos = np.arange(len(df))
+    sectors_short = [_short_sector(s, 34) for s in df['Sector']]
+    fig_height = max(0.45 * len(df) + 1.8, 4.0)
+
+    for base in base_cols:
+        # Collect all lag-variant column names that belong to this base variable
+        lag_cols: List[str] = [base] + [f'{base}_lag{k}' for k in range(1, n_lags + 1)]
+        lag_cols = [c for c in lag_cols if c in all_cols]  # keep only what was actually regressed
+
+        coef_cols = [f'{prefix}{c}' for c in lag_cols]
+        lo_cols   = [f'{prefix}{c}_CI_lower' for c in lag_cols]
+        hi_cols   = [f'{prefix}{c}_CI_upper' for c in lag_cols]
+
+        # Skip if none of the expected columns exist
+        if not any(c in df.columns for c in coef_cols):
+            print(f'Skipping {base}: no regression columns found.')
+            continue
+
+        # Sum point estimates; propagate SE in quadrature
+        beta_sum = np.zeros(len(df))
+        var_sum  = np.zeros(len(df))
+        for cc, lc, hc in zip(coef_cols, lo_cols, hi_cols):
+            if cc not in df.columns:
+                continue
+            b  = df[cc].values.astype(float)
+            lo = df[lc].values.astype(float) if lc in df.columns else b
+            hi = df[hc].values.astype(float) if hc in df.columns else b
+            se = (hi - lo) / (2 * 1.96)
+            beta_sum += np.nan_to_num(b)
+            var_sum  += np.nan_to_num(se ** 2)
+
+        se_sum = np.sqrt(var_sum)
+        ci_lo  = beta_sum - 1.96 * se_sum
+        ci_hi  = beta_sum + 1.96 * se_sum
+        sig    = (ci_lo > 0) | (ci_hi < 0)
+        colors = np.where(sig, '#2166AC', '#9E9E9E')
+        xerr   = np.row_stack([beta_sum - ci_lo, ci_hi - beta_sum])
+
+        fig, ax = plt.subplots(figsize=(fig_width, fig_height))
+        _add_row_bands(ax, len(df))
+
+        ax.errorbar(
+            beta_sum, y_pos,
+            xerr=xerr,
+            fmt='none',
+            ecolor='#555555',
+            capsize=3,
+            linewidth=0.9,
+            alpha=0.7,
+            zorder=2,
+        )
+        ax.scatter(beta_sum, y_pos, c=colors, s=50, zorder=3, edgecolors='white', linewidths=0.6)
+        ax.axvline(0.0, color='#444444', linestyle='--', linewidth=0.85, alpha=0.5)
+
+        ax.set_yticks(y_pos)
+        ax.set_yticklabels(sectors_short, fontsize=8)
+        ax.set_ylim(y_pos.min() - 0.6, y_pos.max() + 0.6)
+
+        n_terms = len(lag_cols)
+        lag_range = f'lag 0–{n_terms - 1}' if n_terms > 1 else 'lag 0'
+        ax.set_xlabel(
+            f'Cumulative {letter} ({lag_range}, 95 % CI)  —  Δ logit PD per unit {_short_predictor_label(base)}',
+            fontsize=9,
+        )
+
+        sig_patch = plt.scatter([], [], c='#2166AC', s=40, edgecolors='white', linewidths=0.5,
+                                label='Significant (95 % CI)')
+        ns_patch  = plt.scatter([], [], c='#9E9E9E', s=40, edgecolors='white', linewidths=0.5,
+                                label='Not significant')
+        ax.legend(handles=[sig_patch, ns_patch], fontsize=8, loc='lower right',
+                  framealpha=0.9, edgecolor='#cccccc')
+        ax.grid(True, axis='x', alpha=0.2)
+
+        horizon_str = f' · horizon {pd_horizon}' if pd_horizon else ''
+        fig.suptitle(
+            f'Cumulative effect: {_short_predictor_label(base)}{horizon_str}',
+            fontsize=11,
+            fontweight='bold',
+            y=1.01,
+        )
+        plt.tight_layout()
+        plt.show()
+
+
+def _forest_grid_n_cols(n_predictors: int, n_cols: Optional[int], max_cols: int = 5) -> int:
+    if n_predictors <= 0:
+        return 1
+    if n_cols is not None:
+        return max(1, min(int(n_cols), n_predictors))
+    if n_predictors <= 4:
+        return min(3, n_predictors)
+    return min(max_cols, n_predictors)
+
+
+def plot_sensitivity_coefficient_forest(
+    df_sensitivities: pd.DataFrame,
+    predictor_cols: List[str],
+    kind: str = 'macro',
+    pd_horizon: Optional[str] = None,
+    figsize: tuple[float, float] | None = None,
+    n_cols: Optional[int] = None,
+    max_cols: int = 5,
+) -> None:
+    """Forest plots: one panel per regressor, sectors on the y-axis, 95% CIs.
+
+    kind: 'macro' → columns β_<name>; 'gpr' → columns δ_<name>.
+    """
+    sns.set_theme(style='whitegrid', context='notebook')
+    df = _filter_sensitivity_horizon(df_sensitivities, pd_horizon)
+    if df.empty:
+        print('No sensitivity rows to plot.')
+        return
+
+    prefix = 'β_' if kind == 'macro' else 'δ_'
+    letter = 'β' if kind == 'macro' else 'δ'
+    n_p = len(predictor_cols)
+    n_cols = _forest_grid_n_cols(n_p, n_cols, max_cols=max_cols)
+    n_rows = int(np.ceil(n_p / n_cols))
+    if figsize is None:
+        figsize = (5.2 * n_cols, max(2.8 * n_rows, 0.45 * len(df) * n_rows / n_cols + 2))
+
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=figsize, squeeze=False)
+    title_kind = 'Macro (β)' if kind == 'macro' else 'GPR (δ)'
+    fig.suptitle(
+        f'OLS coefficients with 95% CI — {title_kind}\n'
+        f'(Δ logit PD; horizon: {pd_horizon or "all rows"})',
+        fontsize=13,
+        fontweight='bold',
+        y=1.01,
+    )
+
+    y_pos = np.arange(len(df))
+    sectors_short = [_short_sector(s, 28) for s in df['Sector']]
+
+    for i, col in enumerate(predictor_cols):
+        ax = axes.flat[i]
+        cname = f'{prefix}{col}'
+        lo, hi = f'{cname}_CI_lower', f'{cname}_CI_upper'
+        if cname not in df.columns:
+            ax.set_visible(False)
+            continue
+        _add_row_bands(ax, len(df))
+        coefs = df[cname].values
+        xerr = np.row_stack([coefs - df[lo].values, df[hi].values - coefs])
+        colors = np.where((df[lo].values > 0) | (df[hi].values < 0), '#2166AC', '#9E9E9E')
+        ax.scatter(coefs, y_pos, c=colors, s=42, zorder=3, edgecolors='white', linewidths=0.5)
+        ax.errorbar(
+            coefs,
+            y_pos,
+            xerr=xerr,
+            fmt='none',
+            ecolor='#555555',
+            capsize=2.5,
+            linewidth=0.9,
+            alpha=0.75,
+        )
+        ax.axvline(0.0, color='#444444', linestyle='--', linewidth=0.85, alpha=0.5)
+        ax.set_yticks(y_pos)
+        if i % n_cols == 0:
+            ax.set_yticklabels(sectors_short, fontsize=7)
+        else:
+            ax.set_yticklabels([])
+        ax.set_title(_short_predictor_label(col), fontsize=10, fontweight='bold')
+        ax.set_xlabel(f'{letter} (95% CI)', fontsize=9)
+        ax.grid(True, axis='x', alpha=0.2)
+
+    for j in range(len(predictor_cols), len(axes.flat)):
+        axes.flat[j].set_visible(False)
+
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_sensitivity_forests_all_predictors(
+    df_sensitivities: pd.DataFrame,
+    macro_cols: List[str],
+    gpr_cols: List[str],
+    pd_horizon: Optional[str] = None,
+    n_cols_macro: Optional[int] = None,
+    n_cols_gpr: Optional[int] = None,
+    max_cols: int = 5,
+) -> None:
+    """OLS forests for every macro regressor, then every GPR regressor (two figures)."""
+    plot_sensitivity_coefficient_forest(
+        df_sensitivities,
+        macro_cols,
+        kind='macro',
+        pd_horizon=pd_horizon,
+        n_cols=n_cols_macro,
+        max_cols=max_cols,
+    )
+    plot_sensitivity_coefficient_forest(
+        df_sensitivities,
+        gpr_cols,
+        kind='gpr',
+        pd_horizon=pd_horizon,
+        n_cols=n_cols_gpr,
+        max_cols=max_cols,
+    )
+
+
+def plot_lasso_coefficient_forest(
+    df_lasso: pd.DataFrame,
+    predictor_cols: List[str],
+    kind: str = 'macro',
+    pd_horizon: Optional[str] = None,
+    figsize: tuple[float, float] | None = None,
+    n_cols: Optional[int] = None,
+    max_cols: int = 5,
+) -> None:
+    """Forest of LASSO slopes in native X units (same interpretation as OLS β/δ); no CIs.
+
+    Non-selected features are shown as a small gray marker at zero. Re-run LASSO after
+    updating the pipeline to populate LASSO_NATIVE_* columns.
+    """
+    sns.set_theme(style='whitegrid', context='notebook')
+    df = _filter_sensitivity_horizon(df_lasso, pd_horizon)
+    if df.empty:
+        print('No LASSO rows to plot.')
+        return
+
+    native_p = 'LASSO_NATIVE_β_' if kind == 'macro' else 'LASSO_NATIVE_δ_'
+    sel_p = 'β_selected_' if kind == 'macro' else 'δ_selected_'
+    test_col = f'{native_p}{predictor_cols[0]}' if predictor_cols else ''
+    if predictor_cols and test_col not in df.columns:
+        print(
+            'LASSO_NATIVE_* columns missing — re-run lasso.run_lasso_feature_selection '
+            'to export native-scale coefficients for comparison with OLS.'
+        )
+        return
+
+    letter = 'β' if kind == 'macro' else 'δ'
+    n_p = len(predictor_cols)
+    n_cols = _forest_grid_n_cols(n_p, n_cols, max_cols=max_cols)
+    n_rows = int(np.ceil(n_p / n_cols))
+    if figsize is None:
+        figsize = (5.2 * n_cols, max(2.8 * n_rows, 0.45 * len(df) * n_rows / n_cols + 2))
+
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=figsize, squeeze=False)
+    title_kind = 'Macro (β)' if kind == 'macro' else 'GPR (δ)'
+    fig.suptitle(
+        f'LASSO coefficients (native units, same as OLS) — {title_kind}\n'
+        f'Orange diamond = selected; gray dot = shrunk to zero. Horizon: {pd_horizon or "all rows"}',
+        fontsize=12,
+        fontweight='bold',
+        y=1.02,
+    )
+
+    y_pos = np.arange(len(df))
+    sectors_short = [_short_sector(s, 28) for s in df['Sector']]
+
+    for i, col in enumerate(predictor_cols):
+        ax = axes.flat[i]
+        nc = f'{native_p}{col}'
+        if nc not in df.columns:
+            ax.set_visible(False)
+            continue
+        _add_row_bands(ax, len(df))
+        native = np.nan_to_num(df[nc].values.astype(float), nan=0.0)
+        selected = df[f'{sel_p}{col}'].values.astype(int) == 1
+        ax.axvline(0.0, color='#444444', linestyle='--', linewidth=0.85, alpha=0.5)
+        ax.scatter(
+            native[selected],
+            y_pos[selected],
+            c='#DD8452',
+            s=44,
+            marker='D',
+            zorder=3,
+            edgecolors='white',
+            linewidths=0.5,
+        )
+        ax.scatter(
+            native[~selected],
+            y_pos[~selected],
+            c='#cccccc',
+            s=24,
+            marker='o',
+            zorder=2,
+            edgecolors='none',
+            linewidths=0,
+        )
+        ax.set_yticks(y_pos)
+        if i % n_cols == 0:
+            ax.set_yticklabels(sectors_short, fontsize=7)
+        else:
+            ax.set_yticklabels([])
+        ax.set_title(_short_predictor_label(col), fontsize=10, fontweight='bold')
+        ax.set_xlabel(f'{letter} (native units)', fontsize=9)
+        ax.grid(True, axis='x', alpha=0.2)
+
+    for j in range(len(predictor_cols), len(axes.flat)):
+        axes.flat[j].set_visible(False)
+
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_lasso_forests_all_predictors(
+    df_lasso: pd.DataFrame,
+    macro_cols: List[str],
+    gpr_cols: List[str],
+    pd_horizon: Optional[str] = None,
+    n_cols_macro: Optional[int] = None,
+    n_cols_gpr: Optional[int] = None,
+    max_cols: int = 5,
+) -> None:
+    """LASSO forests: all macro panels, then all GPR panels."""
+    plot_lasso_coefficient_forest(
+        df_lasso,
+        macro_cols,
+        kind='macro',
+        pd_horizon=pd_horizon,
+        n_cols=n_cols_macro,
+        max_cols=max_cols,
+    )
+    plot_lasso_coefficient_forest(
+        df_lasso,
+        gpr_cols,
+        kind='gpr',
+        pd_horizon=pd_horizon,
+        n_cols=n_cols_gpr,
+        max_cols=max_cols,
+    )
+
+
+def _merge_sens_lasso(
+    df_sensitivities: pd.DataFrame,
+    df_lasso: pd.DataFrame,
+) -> pd.DataFrame:
+    keys = (
+        ['Sector', 'PD_Horizon']
+        if 'PD_Horizon' in df_sensitivities.columns and 'PD_Horizon' in df_lasso.columns
+        else ['Sector']
+    )
+    return df_sensitivities.merge(df_lasso, on=keys, suffixes=('_ols', '_lasso'))
+
+
+def plot_ols_lasso_forest_comparison(
+    df_sensitivities: pd.DataFrame,
+    df_lasso: pd.DataFrame,
+    predictor_cols: List[str],
+    kind: str = 'macro',
+    pd_horizon: Optional[str] = None,
+    figsize: tuple[float, float] | None = None,
+    n_cols: Optional[int] = None,
+    max_cols: int = 5,
+) -> None:
+    """Per regressor: OLS point ±95% CI (lower y) vs LASSO native coefficient (upper y).
+
+    LASSO has no standard inferential CI here; orange diamonds = selected, gray = not selected.
+    """
+    sns.set_theme(style='whitegrid', context='notebook')
+    comp = _merge_sens_lasso(df_sensitivities, df_lasso)
+    if pd_horizon is not None and 'PD_Horizon' in comp.columns:
+        comp = comp[comp['PD_Horizon'] == pd_horizon]
+    comp = comp.sort_values('Sector').reset_index(drop=True)
+    if comp.empty:
+        print('No merged OLS/LASSO rows to plot.')
+        return
+
+    native_p = 'LASSO_NATIVE_β_' if kind == 'macro' else 'LASSO_NATIVE_δ_'
+    sel_p = 'β_selected_' if kind == 'macro' else 'δ_selected_'
+    ols_p = 'β_' if kind == 'macro' else 'δ_'
+    if predictor_cols and f'{native_p}{predictor_cols[0]}' not in comp.columns:
+        print('LASSO_NATIVE_* columns missing — re-run LASSO feature selection.')
+        return
+
+    n_p = len(predictor_cols)
+    n_cols = _forest_grid_n_cols(n_p, n_cols, max_cols=max_cols)
+    n_rows = int(np.ceil(n_p / n_cols))
+    if figsize is None:
+        figsize = (5.4 * n_cols, max(3.0 * n_rows, 0.5 * len(comp) * n_rows / n_cols + 2))
+
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=figsize, squeeze=False)
+    title_kind = 'Macro (β)' if kind == 'macro' else 'GPR (δ)'
+    fig.suptitle(
+        f'OLS vs LASSO — {title_kind}\n'
+        f'Lower marker: OLS ±95% CI. Upper: LASSO native (Δ logit per unit X). '
+        f'Horizon: {pd_horizon or "all rows"}',
+        fontsize=12,
+        fontweight='bold',
+        y=1.02,
+    )
+
+    y_base = np.arange(len(comp), dtype=float)
+    dy = 0.2
+    y_lo = y_base - dy
+    y_hi = y_base + dy
+    sectors_short = [_short_sector(s, 28) for s in comp['Sector']]
+
+    for i, col in enumerate(predictor_cols):
+        ax = axes.flat[i]
+        cname = f'{ols_p}{col}'
+        lo_n, hi_n = f'{cname}_CI_lower', f'{cname}_CI_upper'
+        nn = f'{native_p}{col}'
+        if cname not in comp.columns or nn not in comp.columns:
+            ax.set_visible(False)
+            continue
+
+        _add_row_bands(ax, len(comp))
+        ols_c = comp[cname].values.astype(float)
+        lo = comp[lo_n].values.astype(float)
+        hi = comp[hi_n].values.astype(float)
+        xerr = np.row_stack([ols_c - lo, hi - ols_c])
+        lasso_v = np.nan_to_num(comp[nn].values.astype(float), nan=0.0)
+        selected = comp[f'{sel_p}{col}'].values.astype(int) == 1
+        ols_sig = (lo > 0) | (hi < 0)
+        ols_colors = np.where(ols_sig, '#2166AC', '#9E9E9E')
+
+        lbl = 'OLS ±95% CI' if i == 0 else None
+        ax.errorbar(
+            ols_c,
+            y_lo,
+            xerr=xerr,
+            fmt='none',
+            ecolor='#555555',
+            capsize=2.5,
+            linewidth=0.85,
+            label=lbl,
+            zorder=2,
+            alpha=0.75,
+        )
+        ax.scatter(ols_c, y_lo, c=ols_colors, s=36, zorder=3, edgecolors='white', linewidths=0.5)
+
+        sel_mask = selected
+        if i == 0:
+            ax.scatter(
+                lasso_v[sel_mask],
+                y_hi[sel_mask],
+                c='#DD8452',
+                s=40,
+                marker='D',
+                zorder=3,
+                edgecolors='white',
+                linewidths=0.5,
+                label='LASSO selected',
+            )
+            ax.scatter(
+                lasso_v[~sel_mask],
+                y_hi[~sel_mask],
+                c='#cccccc',
+                s=32,
+                marker='D',
+                zorder=3,
+                edgecolors='none',
+                linewidths=0,
+                label='LASSO not selected',
+            )
+        else:
+            ax.scatter(
+                lasso_v[sel_mask],
+                y_hi[sel_mask],
+                c='#DD8452',
+                s=40,
+                marker='D',
+                zorder=3,
+                edgecolors='white',
+                linewidths=0.5,
+            )
+            ax.scatter(
+                lasso_v[~sel_mask],
+                y_hi[~sel_mask],
+                c='#cccccc',
+                s=32,
+                marker='D',
+                zorder=3,
+                edgecolors='none',
+                linewidths=0,
+            )
+
+        ax.axvline(0.0, color='#444444', linestyle='--', linewidth=0.85, alpha=0.5)
+        ax.set_yticks(y_base)
+        if i % n_cols == 0:
+            ax.set_yticklabels(sectors_short, fontsize=7)
+        else:
+            ax.set_yticklabels([])
+        ax.set_ylim(y_base.min() - 0.55, y_base.max() + 0.55)
+        ax.set_title(_short_predictor_label(col), fontsize=10, fontweight='bold')
+        ax.set_xlabel('Coefficient (native units)', fontsize=9)
+        ax.grid(True, axis='x', alpha=0.2)
+        if i == 0:
+            ax.legend(loc='lower right', fontsize=7, framealpha=0.9, edgecolor='#cccccc')
+
+    for j in range(len(predictor_cols), len(axes.flat)):
+        axes.flat[j].set_visible(False)
+
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_ols_lasso_forest_comparison_all(
+    df_sensitivities: pd.DataFrame,
+    df_lasso: pd.DataFrame,
+    macro_cols: List[str],
+    gpr_cols: List[str],
+    pd_horizon: Optional[str] = None,
+    n_cols_macro: Optional[int] = None,
+    n_cols_gpr: Optional[int] = None,
+    max_cols: int = 5,
+) -> None:
+    """OLS vs LASSO comparison forests for all macro regressors, then all GPR."""
+    plot_ols_lasso_forest_comparison(
+        df_sensitivities,
+        df_lasso,
+        macro_cols,
+        kind='macro',
+        pd_horizon=pd_horizon,
+        n_cols=n_cols_macro,
+        max_cols=max_cols,
+    )
+    plot_ols_lasso_forest_comparison(
+        df_sensitivities,
+        df_lasso,
+        gpr_cols,
+        kind='gpr',
+        pd_horizon=pd_horizon,
+        n_cols=n_cols_gpr,
+        max_cols=max_cols,
+    )
+
+
+def plot_sensitivity_significance_heatmap(
+    df_sensitivities: pd.DataFrame,
+    macro_cols: List[str],
+    gpr_cols: List[str],
+    pd_horizon: Optional[str] = None,
+    figsize: tuple[float, float] = (16, 8),
+) -> None:
+    """Heatmap of OLS coefficients; green/red outline marks 95% CI excluding zero."""
+    sns.set_theme(style='white', context='notebook')
+    df = _filter_sensitivity_horizon(df_sensitivities, pd_horizon)
+    if df.empty:
+        print('No sensitivity rows to plot.')
+        return
+
+    col_names: List[str] = [f'β_{c}' for c in macro_cols] + [f'δ_{c}' for c in gpr_cols]
+    xlabels = ['β ' + _short_predictor_label(c) for c in macro_cols] + ['δ ' + _short_predictor_label(c) for c in gpr_cols]
+
+    mat = np.zeros((len(df), len(col_names)))
+    sig = np.zeros_like(mat, dtype=bool)
+    for j, cname in enumerate(col_names):
+        lo_n = f'{cname}_CI_lower'
+        hi_n = f'{cname}_CI_upper'
+        mat[:, j] = df[cname].values
+        sig[:, j] = (df[lo_n].values > 0) | (df[hi_n].values < 0)
+
+    vmax = np.nanmax(np.abs(mat)) or 1.0
+    fig, ax = plt.subplots(figsize=figsize)
+    im = ax.imshow(mat, aspect='auto', cmap='RdBu_r', vmin=-vmax, vmax=vmax, interpolation='nearest')
+    ax.set_yticks(range(len(df)))
+    ax.set_yticklabels([_short_sector(s) for s in df['Sector']], fontsize=9)
+    ax.set_xticks(range(len(xlabels)))
+    ax.set_xticklabels(xlabels, rotation=55, ha='right', fontsize=7)
+    ax.set_title(
+        'Sensitivity coefficients (OLS on Δ logit PD)\n'
+        'Green border: 95% CI excludes 0; gray: not significant at 5%',
+        fontsize=12,
+        fontweight='bold',
+        pad=12,
+    )
+
+    if mat.shape[1] <= 18:
+        for i in range(mat.shape[0]):
+            for j in range(mat.shape[1]):
+                val = mat[i, j]
+                t = f'{val:.2f}' if abs(val) < 100 else f'{val:.1f}'
+                ax.text(
+                    j,
+                    i,
+                    t,
+                    ha='center',
+                    va='center',
+                    fontsize=5,
+                    color='white' if abs(val) > 0.55 * vmax else 'black',
+                )
+
+    for i in range(mat.shape[0]):
+        for j in range(mat.shape[1]):
+            if not sig[i, j]:
+                continue
+            color = '#1B5E20' if mat[i, j] > 0 else '#B71C1C'
+            ax.add_patch(
+                Rectangle(
+                    (j - 0.5, i - 0.5),
+                    1,
+                    1,
+                    fill=False,
+                    edgecolor=color,
+                    linewidth=2.2,
+                )
+            )
+
+    plt.colorbar(im, ax=ax, fraction=0.025, pad=0.02, label='Coefficient')
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_bootstrap_stability(
+    df_lasso: pd.DataFrame,
+    macro_cols: List[str],
+    gpr_cols: List[str],
+    pd_horizon: Optional[str] = None,
+    stability_threshold: float = 0.5,
+    figsize: Optional[tuple] = None,
+) -> None:
+    """Heatmap of bootstrap selection stability for each feature × sector.
+
+    Colour encodes the fraction of bootstrap samples in which each feature
+    received a non-zero coefficient (0 = never selected, 1 = always selected).
+    A dashed contour marks the *stability_threshold* boundary.
+    """
+    sns.set_theme(style='white', context='notebook')
+    df = _filter_sensitivity_horizon(df_lasso, pd_horizon)
+    if df.empty:
+        print('No rows to plot.')
+        return
+
+    all_cols = list(macro_cols) + list(gpr_cols)
+    prefixes = ['β_'] * len(macro_cols) + ['δ_'] * len(gpr_cols)
+    stab_cols = [f'{p}stability_{c}' for p, c in zip(prefixes, all_cols)]
+
+    if not any(c in df.columns for c in stab_cols):
+        print('No stability columns found — run lasso.run_bootstrap_stability() first.')
+        return
+
+    mat = np.zeros((len(df), len(all_cols)))
+    for j, sc in enumerate(stab_cols):
+        if sc in df.columns:
+            mat[:, j] = np.nan_to_num(df[sc].values.astype(float))
+
+    sectors_short = [_short_sector(s) for s in df['Sector']]
+    xlabels = [_short_predictor_label(c) for c in all_cols]
+
+    if figsize is None:
+        figsize = (max(0.55 * len(all_cols) + 2, 10), max(0.38 * len(df) + 2, 5))
+
+    fig, ax = plt.subplots(figsize=figsize)
+    im = ax.imshow(mat, aspect='auto', cmap='RdYlGn', vmin=0, vmax=1, interpolation='nearest')
+
+    ax.set_yticks(range(len(df)))
+    ax.set_yticklabels(sectors_short, fontsize=8)
+    ax.set_xticks(range(len(all_cols)))
+    ax.set_xticklabels(xlabels, rotation=50, ha='right', fontsize=8)
+    ax.tick_params(length=0)
+
+    # Annotate each cell with the stability %
+    for i in range(mat.shape[0]):
+        for j in range(mat.shape[1]):
+            v = mat[i, j]
+            ax.text(j, i, f'{v:.0%}', ha='center', va='center',
+                    fontsize=6,
+                    color='white' if (v > 0.75 or v < 0.25) else 'black')
+
+    # Threshold contour
+    ax.contour(mat, levels=[stability_threshold - 0.001],
+               colors='#1A237E', linewidths=1.2, linestyles='--')
+
+    plt.colorbar(im, ax=ax, fraction=0.02, pad=0.02, label='Selection frequency')
+    ax.set_title(
+        f'Bootstrap selection stability  (dashed = {int(stability_threshold*100)} % threshold)',
+        fontsize=12, fontweight='bold', pad=10,
+    )
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_regularization_paths(
+    path_data: dict,
+    macro_cols: List[str],
+    gpr_cols: List[str],
+    top_n: int = 4,
+    figsize: Optional[tuple] = None,
+) -> None:
+    """Elastic-Net regularization path for the top *top_n* sectors.
+
+    Each panel shows how each feature's coefficient evolves as the penalty
+    alpha decreases (left = heavily regularised / sparse; right = full model).
+    A vertical dashed line marks the CV-optimal alpha.
+    """
+    sns.set_theme(style='whitegrid', context='notebook')
+    if not path_data:
+        print('path_data is empty — run lasso.compute_regularization_paths() first.')
+        return
+
+    sectors = list(path_data.keys())[:top_n]
+    n_panels = len(sectors)
+    if figsize is None:
+        figsize = (6.5 * n_panels, 5)
+
+    # Build a consistent color + style map across all features
+    all_cols = list(macro_cols) + list(gpr_cols)
+    base_vars = list(dict.fromkeys(
+        c.split('_lag')[0] for c in all_cols
+    ))
+    palette = plt.cm.tab10(np.linspace(0, 0.9, len(base_vars)))
+    base_color = {b: palette[i] for i, b in enumerate(base_vars)}
+
+    fig, axes = plt.subplots(1, n_panels, figsize=figsize, squeeze=False)
+
+    for panel_idx, sector in enumerate(sectors):
+        ax = axes[0, panel_idx]
+        info = path_data[sector]
+        alphas = info['alphas']
+        coefs  = info['coefs']          # (n_features, n_alphas)
+        names  = info['feature_names']
+        opt_a  = info['optimal_alpha']
+
+        log_alphas = np.log10(alphas + 1e-12)
+
+        for j, name in enumerate(names):
+            base = name.split('_lag')[0]
+            lag  = int(name.split('_lag')[1]) if '_lag' in name else 0
+            color = base_color.get(base, 'gray')
+            lw = 1.6 - 0.25 * lag  # contemporaneous thicker, lags thinner
+            ls = '-' if lag == 0 else '--' if lag <= 2 else ':'
+            ax.plot(log_alphas, coefs[j], color=color, linewidth=lw,
+                    linestyle=ls, alpha=0.85)
+
+        ax.axvline(np.log10(opt_a + 1e-12), color='#B71C1C',
+                   linestyle='--', linewidth=1.2, label=f'CV α={opt_a:.4f}')
+        ax.axhline(0, color='#444444', linewidth=0.5, alpha=0.5)
+        ax.set_xlabel('log₁₀(α)  ←  more regularised', fontsize=9)
+        if panel_idx == 0:
+            ax.set_ylabel('Standardised coefficient', fontsize=9)
+        ax.set_title(_short_sector(sector, 30), fontsize=10, fontweight='bold')
+        ax.legend(fontsize=7, loc='upper left', framealpha=0.85, edgecolor='#cccccc')
+        ax.grid(True, axis='both', alpha=0.2)
+
+    # Shared legend for base variables
+    from matplotlib.lines import Line2D
+    legend_handles = [
+        Line2D([0], [0], color=base_color[b], linewidth=1.5, label=_short_predictor_label(b))
+        for b in base_vars if b in base_color
+    ]
+    lag_handles = [
+        Line2D([0], [0], color='gray', linewidth=1.5, linestyle='-',  label='lag 0'),
+        Line2D([0], [0], color='gray', linewidth=1.2, linestyle='--', label='lag 1–2'),
+        Line2D([0], [0], color='gray', linewidth=1.0, linestyle=':',  label='lag 3–4'),
+    ]
+    fig.legend(handles=legend_handles + lag_handles,
+               loc='lower center', ncol=len(base_vars) + 3,
+               fontsize=8, framealpha=0.9, edgecolor='#cccccc',
+               bbox_to_anchor=(0.5, -0.04))
+
+    fig.suptitle('Elastic-Net regularization paths', fontsize=12, fontweight='bold', y=1.01)
+    plt.tight_layout()
     plt.show()
 
 
@@ -359,8 +1383,11 @@ def plot_sector_regressions(
         n_rows = int(np.ceil(n_plots / n_cols))
         fig, axes = plt.subplots(n_rows, n_cols, figsize=(4.5 * n_cols, 4.5 * n_rows))
         axes_flat = np.ravel(axes)
+        fit_txt = f'R²={sector_sens["R_squared"]:.3f}'
+        if 'R_squared_adj' in sector_sens.index and pd.notna(sector_sens['R_squared_adj']):
+            fit_txt += f', R²_adj={sector_sens["R_squared_adj"]:.3f}'
         fig.suptitle(
-            f'Sensitivity Analysis – {sector}  (N={len(sector_df)}, R²={sector_sens["R_squared"]:.3f})',
+            f'Sensitivity Analysis – {sector}  (N={len(sector_df)}, {fit_txt})',
             fontsize=14,
             fontweight='bold',
         )
@@ -481,6 +1508,173 @@ def plot_sector_comparison(
     plt.tight_layout()
     plt.show()
     print(f"\nCompleted comparison plot for top {len(sectors_to_plot)} sectors")
+
+
+def plot_lasso_beta_heatmap(
+    df_lasso: pd.DataFrame,
+    macro_cols: List[str],
+    gpr_cols: List[str],
+    pd_horizon: Optional[str] = None,
+    figsize: Optional[tuple] = None,
+) -> None:
+    """Heatmap of LASSO betas (standardised) for every variable × sector.
+
+    Macro variables (β) and geopolitical variables (δ) are shown side-by-side
+    with a thin separator.  Cells where the LASSO shrunk the coefficient to
+    zero are shown as light grey (not selected); non-zero cells are coloured on
+    a diverging scale so positive / negative sensitivities are immediately
+    visible.
+
+    Parameters
+    ----------
+    df_lasso     : output of ``lasso.run_lasso_feature_selection``
+    macro_cols   : e.g. ``config.ALL_MACRO_COLS``
+    gpr_cols     : e.g. ``config.ALL_GPR_COLS``
+    pd_horizon   : filter to a single PD_Horizon row if the column exists
+    figsize      : override automatic figure size
+    """
+    df = df_lasso.copy()
+    if pd_horizon is not None and 'PD_Horizon' in df.columns:
+        df = df[df['PD_Horizon'] == pd_horizon]
+    if df.empty:
+        print("plot_lasso_beta_heatmap: no rows to plot.")
+        return
+
+    # ── build beta matrices ────────────────────────────────────────────────────
+    sectors = list(df['Sector'])
+    n_sectors = len(sectors)
+    short_sectors = [s[:30] for s in sectors]
+
+    macro_betas = pd.DataFrame(
+        {col: df[f'LASSO_β_{col}'].values for col in macro_cols},
+        index=short_sectors,
+    )
+    gpr_betas = pd.DataFrame(
+        {col: df[f'LASSO_δ_{col}'].values for col in gpr_cols},
+        index=short_sectors,
+    )
+
+    # combined for shared colour scale
+    all_vals = pd.concat([macro_betas, gpr_betas], axis=1).values
+    vmax = np.nanmax(np.abs(all_vals))
+    if vmax == 0:
+        vmax = 1.0
+
+    # ── masks: grey out zeros (not selected) ──────────────────────────────────
+    macro_mask = macro_betas == 0
+    gpr_mask = gpr_betas == 0
+
+    n_macro = len(macro_cols)
+    n_gpr = len(gpr_cols)
+    n_cols_total = n_macro + n_gpr
+
+    if figsize is None:
+        col_w = max(0.55 * n_cols_total, 10)
+        row_h = max(0.38 * n_sectors, 4)
+        figsize = (col_w, row_h)
+
+    # width ratios: macro block | tiny spacer | gpr block
+    width_ratios = [n_macro, 0.15, n_gpr] if n_gpr > 0 else [n_macro]
+
+    fig, axes = plt.subplots(
+        1,
+        3 if n_gpr > 0 else 1,
+        figsize=figsize,
+        gridspec_kw={'width_ratios': width_ratios, 'wspace': 0.05},
+    )
+    if n_gpr == 0:
+        axes = [axes]
+
+    ax_macro = axes[0]
+    ax_sep = axes[1] if n_gpr > 0 else None
+    ax_gpr = axes[2] if n_gpr > 0 else None
+
+    cmap = sns.diverging_palette(220, 20, as_cmap=True)  # blue–white–red
+
+    # ── macro heatmap ──────────────────────────────────────────────────────────
+    # draw grey background for zeros first, then overlay non-zero cells
+    sns.heatmap(
+        macro_betas,
+        ax=ax_macro,
+        cmap=cmap,
+        center=0,
+        vmin=-vmax,
+        vmax=vmax,
+        mask=macro_mask,
+        annot=True,
+        fmt='.2f',
+        annot_kws={'size': 7},
+        linewidths=0.4,
+        linecolor='#dddddd',
+        cbar=False,
+    )
+    # grey cells for not-selected
+    sns.heatmap(
+        macro_betas,
+        ax=ax_macro,
+        cmap=sns.color_palette(['#e8e8e8'], as_cmap=True),
+        mask=~macro_mask,
+        annot=False,
+        linewidths=0.4,
+        linecolor='#dddddd',
+        cbar=False,
+    )
+    ax_macro.set_title('Macro variables (β)', fontsize=11, fontweight='bold', pad=8)
+    ax_macro.set_ylabel('Sector', fontsize=10)
+    ax_macro.set_xlabel('')
+    ax_macro.tick_params(axis='y', labelsize=8)
+    ax_macro.tick_params(axis='x', labelsize=8)
+    plt.setp(ax_macro.get_xticklabels(), rotation=45, ha='right')
+
+    # ── separator (invisible axis) ─────────────────────────────────────────────
+    if ax_sep is not None:
+        ax_sep.set_visible(False)
+
+    # ── GPR heatmap ────────────────────────────────────────────────────────────
+    if ax_gpr is not None:
+        sns.heatmap(
+            gpr_betas,
+            ax=ax_gpr,
+            cmap=cmap,
+            center=0,
+            vmin=-vmax,
+            vmax=vmax,
+            mask=gpr_mask,
+            annot=True,
+            fmt='.2f',
+            annot_kws={'size': 7},
+            linewidths=0.4,
+            linecolor='#dddddd',
+            cbar=True,
+            cbar_kws={'label': 'Standardised LASSO β', 'shrink': 0.6},
+        )
+        sns.heatmap(
+            gpr_betas,
+            ax=ax_gpr,
+            cmap=sns.color_palette(['#e8e8e8'], as_cmap=True),
+            mask=~gpr_mask,
+            annot=False,
+            linewidths=0.4,
+            linecolor='#dddddd',
+            cbar=False,
+        )
+        ax_gpr.set_title('Geopolitical variables (δ)', fontsize=11, fontweight='bold', pad=8)
+        ax_gpr.set_ylabel('')
+        ax_gpr.set_xlabel('')
+        ax_gpr.set_yticklabels([])
+        ax_gpr.tick_params(axis='x', labelsize=8)
+        plt.setp(ax_gpr.get_xticklabels(), rotation=45, ha='right')
+
+    horizon_label = f' — {pd_horizon}' if pd_horizon else ''
+    fig.suptitle(
+        f'LASSO Feature Selection by Sector{horizon_label}\n'
+        '(coloured = selected, grey = shrunk to zero)',
+        fontsize=13,
+        fontweight='bold',
+        y=1.01,
+    )
+    plt.tight_layout()
+    plt.show()
 
 
 def _calculate_logit(p: np.ndarray | pd.Series) -> np.ndarray:

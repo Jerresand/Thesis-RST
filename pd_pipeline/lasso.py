@@ -1,14 +1,18 @@
-"""LASSO feature selection utilities."""
+"""Elastic-Net feature selection utilities (supersedes pure-LASSO approach)."""
 
 from __future__ import annotations
 
-from typing import Dict, Iterable, List, Tuple
+from typing import Dict, Iterable, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
-from sklearn.linear_model import Lasso, LassoCV
+from sklearn.linear_model import ElasticNet, ElasticNetCV, enet_path
 from sklearn.metrics import r2_score
+from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import StandardScaler
+
+# l1_ratio grid: 1.0 = pure LASSO, lower values blend in Ridge to handle correlated lags
+_DEFAULT_L1_RATIOS: List[float] = [0.1, 0.5, 0.7, 0.9, 0.95, 1.0]
 
 
 def run_lasso_feature_selection(
@@ -22,17 +26,33 @@ def run_lasso_feature_selection(
     cv: int = 5,
     random_state: int = 42,
     n_alphas: int = 100,
+    l1_ratios: Optional[List[float]] = None,
     verbose: bool = True,
 ) -> Tuple[pd.DataFrame, Dict[str, pd.Series]]:
-    """Run LASSO with cross-validation for each sector and PD horizon."""
+    """Elastic-Net with cross-validation for each sector and PD horizon.
+
+    Uses ElasticNetCV to jointly search over alpha (overall penalty) and
+    l1_ratio (L1 vs L2 mix). l1_ratio=1.0 is pure LASSO; lower values blend
+    in Ridge, which handles correlated lag variables more robustly.
+
+    New columns versus pure-LASSO version
+    --------------------------------------
+    Optimal_L1_Ratio : optimal l1_ratio chosen by CV
+    R_squared_cv     : mean cross-validated R² at optimal hyperparameters
+    """
+    if l1_ratios is None:
+        l1_ratios = _DEFAULT_L1_RATIOS
+
     lasso_results = []
     lasso_selected_features: Dict[str, pd.Series] = {}
 
     if verbose:
         print("=" * 80)
-        print("LASSO FEATURE SELECTION - IDENTIFYING IMPORTANT FACTORS")
+        print("ELASTIC-NET FEATURE SELECTION")
         print("=" * 80)
-        print("\nPerforming LASSO with 5-fold cross-validation to select optimal regularization...")
+        print(f"\nSearching over alpha × l1_ratio grid ({cv}-fold CV).")
+        print(f"l1_ratio grid: {l1_ratios}")
+        print("l1_ratio=1.0 → pure LASSO  |  <1.0 → Elastic-Net (handles correlated lags)")
 
     for sector in df_final_cleaned[sector_col].unique():
         sector_df = df_final_cleaned[df_final_cleaned[sector_col] == sector].copy()
@@ -63,68 +83,89 @@ def run_lasso_feature_selection(
                 scaler = StandardScaler()
                 X_scaled = scaler.fit_transform(X)
 
-                lasso_cv = LassoCV(
+                enet_cv = ElasticNetCV(
+                    l1_ratio=l1_ratios,
                     cv=cv,
                     random_state=random_state,
                     n_alphas=n_alphas,
-                    max_iter=1000000,
-                    tol=0.0001,
+                    max_iter=1_000_000,
                 )
-                lasso_cv.fit(X_scaled, y)
+                enet_cv.fit(X_scaled, y)
 
-                optimal_alpha = lasso_cv.alpha_
-                lasso = Lasso(alpha=optimal_alpha, max_iter=10000)
-                lasso.fit(X_scaled, y)
+                optimal_alpha = enet_cv.alpha_
+                optimal_l1_ratio = float(enet_cv.l1_ratio_)
 
-                coefficients = pd.Series(lasso.coef_, index=X.columns)
+                model = ElasticNet(
+                    alpha=optimal_alpha,
+                    l1_ratio=optimal_l1_ratio,
+                    max_iter=100_000,
+                )
+                model.fit(X_scaled, y)
+
+                # Cross-validated R² at optimal hyperparameters
+                cv_scores = cross_val_score(
+                    ElasticNet(alpha=optimal_alpha, l1_ratio=optimal_l1_ratio, max_iter=100_000),
+                    X_scaled, y, cv=cv, scoring='r2',
+                )
+                r2_cv = float(cv_scores.mean())
+
+                coefficients = pd.Series(model.coef_, index=X.columns)
                 selected = coefficients[coefficients != 0]
                 n_selected = len(selected)
+                scale_safe = pd.Series(scaler.scale_, index=X.columns).replace(0.0, np.nan)
 
-                r2 = r2_score(y, lasso.predict(X_scaled))
+                r2 = r2_score(y, model.predict(X_scaled))
+                n_y = len(y)
+                if n_y > n_selected + 1:
+                    r2_adj = 1.0 - (1.0 - r2) * (n_y - 1) / (n_y - n_selected - 1)
+                else:
+                    r2_adj = float('nan')
 
                 result = {
                     'Sector': sector,
                     'PD_Horizon': pd_col,
-                    'N_observations': len(y),
+                    'N_observations': n_y,
                     'Optimal_Alpha': optimal_alpha,
+                    'Optimal_L1_Ratio': optimal_l1_ratio,
                     'R_squared': r2,
+                    'R_squared_adj': r2_adj,
+                    'R_squared_cv': r2_cv,
                     'N_features_selected': n_selected,
-                    'Intercept': lasso.intercept_,
+                    'Intercept': model.intercept_,
                 }
 
                 for col in macro_cols:
-                    result[f'LASSO_β_{col}'] = coefficients[col]
-                    result[f'β_selected_{col}'] = 1 if coefficients[col] != 0 else 0
+                    g = float(coefficients[col])
+                    result[f'LASSO_β_{col}'] = g
+                    result[f'β_selected_{col}'] = 1 if g != 0.0 else 0
+                    sc = scale_safe[col]
+                    result[f'LASSO_NATIVE_β_{col}'] = float(g / sc) if pd.notna(sc) else float('nan')
 
                 for col in gpr_cols:
-                    result[f'LASSO_δ_{col}'] = coefficients[col]
-                    result[f'δ_selected_{col}'] = 1 if coefficients[col] != 0 else 0
+                    g = float(coefficients[col])
+                    result[f'LASSO_δ_{col}'] = g
+                    result[f'δ_selected_{col}'] = 1 if g != 0.0 else 0
+                    sc = scale_safe[col]
+                    result[f'LASSO_NATIVE_δ_{col}'] = float(g / sc) if pd.notna(sc) else float('nan')
 
                 lasso_results.append(result)
                 lasso_selected_features[sector] = selected
 
                 if verbose:
                     print(f"\n{pd_col}:")
-                    print(f"  Optimal alpha: {optimal_alpha:.6f}")
-                    print(f"  R²: {r2:.3f}")
+                    print(f"  α={optimal_alpha:.6f}  l1_ratio={optimal_l1_ratio:.2f}")
+                    print(f"  R²={r2:.3f}  R²_adj={r2_adj:.3f}  R²_cv={r2_cv:.3f}")
                     print(f"  Features selected: {n_selected}/{len(X.columns)}")
-
                     if n_selected > 0:
-                        print("\n  Selected features (non-zero coefficients):")
+                        print("  Selected features:")
                         for feat, coef in selected.items():
-                            print(f"    {feat:25s}: {coef:8.4f}")
+                            print(f"    {feat:30s}: {coef:8.4f}")
                     else:
-                        print("  No features selected (all coefficients shrunk to zero)")
+                        print("  No features selected (all shrunk to zero)")
 
-                    dropped = coefficients[coefficients == 0]
-                    if len(dropped) > 0:
-                        print("\n  Dropped features (zero coefficients):")
-                        for feat in dropped.index:
-                            print(f"    {feat:25s}: 0.0000")
-
-            except Exception as exc:  # noqa: BLE001 - parity with notebook output
+            except Exception as exc:  # noqa: BLE001
                 if verbose:
-                    print(f"  ✗ Could not fit LASSO model for {pd_col}: {exc}")
+                    print(f"  Could not fit model for {pd_col}: {exc}")
 
     return pd.DataFrame(lasso_results), lasso_selected_features
 
@@ -160,11 +201,13 @@ def print_lasso_summary(
 ) -> pd.DataFrame:
     """Print LASSO summary statistics and return feature frequency table."""
     print("\n" + "=" * 80)
-    print("LASSO RESULTS SUMMARY")
+    print("ELASTIC-NET RESULTS SUMMARY")
     print("=" * 80)
-    print(df_lasso[
-        ['Sector', 'PD_Horizon', 'N_observations', 'Optimal_Alpha', 'R_squared', 'N_features_selected']
-    ])
+    summary_cols = ['Sector', 'PD_Horizon', 'N_observations',
+                    'Optimal_Alpha', 'Optimal_L1_Ratio',
+                    'R_squared', 'R_squared_adj', 'R_squared_cv',
+                    'N_features_selected']
+    print(df_lasso[[c for c in summary_cols if c in df_lasso.columns]])
 
     print("\n" + "=" * 80)
     print("FEATURE SELECTION STATISTICS")
@@ -198,18 +241,34 @@ def compare_ols_lasso(
     print("DETAILED COMPARISON: OLS vs LASSO COEFFICIENTS")
     print("=" * 80)
 
-    comparison_full = df_sensitivities.merge(df_lasso, on='Sector', suffixes=('_ols', '_lasso'))
+    merge_keys = (
+        ['Sector', 'PD_Horizon']
+        if 'PD_Horizon' in df_sensitivities.columns and 'PD_Horizon' in df_lasso.columns
+        else ['Sector']
+    )
+    comparison_full = df_sensitivities.merge(df_lasso, on=merge_keys, suffixes=('_ols', '_lasso'))
 
     print("\nComparison for selected sectors:")
-    print("\nNote: LASSO coefficients are on standardized scale (mean=0, std=1)")
-    print("Zero LASSO coefficients indicate features dropped by regularization\n")
+    print("\nNote: LASSO_β_* / LASSO_δ_* are on standardized X (mean=0, std=1).")
+    print("LASSO_NATIVE_* columns match OLS units (Δ logit PD per one unit of X).")
+    print("Zero LASSO coefficients indicate features dropped by regularization.\n")
 
     for sector in comparison_full['Sector'].head(5):
         sector_data = comparison_full[comparison_full['Sector'] == sector].iloc[0]
 
         print(f"\n{'='*80}")
         print(f"Sector: {sector}")
-        print(f"R² - OLS: {sector_data['R_squared_ols']:.3f} | LASSO: {sector_data['R_squared_lasso']:.3f}")
+        ols_r2 = sector_data['R_squared_ols']
+        la_r2 = sector_data['R_squared_lasso']
+        line = f"R² — OLS: {ols_r2:.3f} | EN: {la_r2:.3f}"
+        if 'R_squared_adj_ols' in sector_data.index and 'R_squared_adj_lasso' in sector_data.index:
+            line += (
+                f"  |  R²_adj — OLS: {sector_data['R_squared_adj_ols']:.3f} | "
+                f"EN: {sector_data['R_squared_adj_lasso']:.3f}"
+            )
+        if 'R_squared_cv_lasso' in sector_data.index:
+            line += f"  |  R²_cv (EN): {sector_data['R_squared_cv_lasso']:.3f}"
+        print(line)
         print(f"Features selected by LASSO: {int(sector_data['N_features_selected'])}/{len(macro_cols) + len(gpr_cols)}")
         print(f"{'='*80}")
 
@@ -345,6 +404,165 @@ def export_lasso_outputs(
     print(f"\n✓ LASSO feature selection results exported to: {lasso_output_file}")
     comparison_full.to_csv(comparison_output_file, index=False)
     print(f"✓ OLS vs LASSO comparison exported to: {comparison_output_file}")
+
+
+def run_bootstrap_stability(
+    df_final_cleaned: pd.DataFrame,
+    df_lasso: pd.DataFrame,
+    macro_cols: List[str],
+    gpr_cols: List[str],
+    sector_col: str,
+    pd_maturity_cols: Iterable[str],
+    pdzero_col: str = 'PDzero',
+    n_bootstrap: int = 200,
+    random_state: int = 42,
+    verbose: bool = True,
+) -> pd.DataFrame:
+    """Bootstrap selection stability for each feature × sector.
+
+    Refits ElasticNet (with the optimal alpha and l1_ratio already stored in
+    *df_lasso*) on *n_bootstrap* bootstrap samples. The stability score for a
+    feature in a sector is the fraction of bootstrap samples in which that
+    feature received a non-zero coefficient.
+
+    Adds columns
+    ------------
+    β_stability_{col}  and  δ_stability_{col}  ∈ [0, 1]
+        1.0 = selected in every bootstrap sample (maximally stable)
+        0.0 = never selected
+
+    Returns the augmented df_lasso (original is not mutated).
+    """
+    rng = np.random.default_rng(random_state)
+    df_out = df_lasso.copy()
+    pd_maturity_cols = list(pd_maturity_cols)
+    all_feature_cols = list(macro_cols) + list(gpr_cols)
+    prefixes = ['β_'] * len(macro_cols) + ['δ_'] * len(gpr_cols)
+
+    for col, prefix in zip(all_feature_cols, prefixes):
+        df_out[f'{prefix}stability_{col}'] = float('nan')
+
+    if verbose:
+        print("=" * 80)
+        print(f"BOOTSTRAP STABILITY  (B={n_bootstrap} per sector)")
+        print("=" * 80)
+
+    for row_idx, lasso_row in df_out.iterrows():
+        sector = lasso_row['Sector']
+        pd_col = lasso_row.get('PD_Horizon', pd_maturity_cols[0])
+        alpha = lasso_row['Optimal_Alpha']
+        l1_ratio = float(lasso_row.get('Optimal_L1_Ratio', 1.0))
+
+        sector_df = df_final_cleaned[df_final_cleaned[sector_col] == sector].copy()
+        try:
+            sector_df['logit_pd'] = _calculate_logit(sector_df[pd_col])
+            sector_df['logit_pd_zero'] = _calculate_logit(sector_df[pdzero_col])
+            sector_df['delta_logit'] = sector_df['logit_pd'] - sector_df['logit_pd_zero']
+
+            y_s = sector_df['delta_logit']
+            X_s = pd.concat([sector_df[macro_cols], sector_df[gpr_cols]], axis=1)
+            valid = ~(y_s.isna() | X_s.isna().any(axis=1))
+            y_s = y_s[valid].values
+            X_s = X_s[valid].values
+
+            scaler = StandardScaler()
+            X_sc = scaler.fit_transform(X_s)
+            n = len(y_s)
+
+            counts = np.zeros(len(all_feature_cols))
+            for _ in range(n_bootstrap):
+                idx = rng.integers(0, n, size=n)
+                m = ElasticNet(alpha=alpha, l1_ratio=l1_ratio, max_iter=100_000)
+                try:
+                    m.fit(X_sc[idx], y_s[idx])
+                    counts += (m.coef_ != 0).astype(float)
+                except Exception:
+                    pass
+
+            stability = counts / n_bootstrap
+            for j, (col, prefix) in enumerate(zip(all_feature_cols, prefixes)):
+                df_out.loc[row_idx, f'{prefix}stability_{col}'] = stability[j]
+
+            if verbose:
+                stable = [all_feature_cols[j] for j in range(len(all_feature_cols)) if stability[j] >= 0.5]
+                print(f"  {sector}: {len(stable)}/{len(all_feature_cols)} features stable (≥50 %)")
+
+        except Exception as exc:
+            if verbose:
+                print(f"  {sector}: bootstrap failed — {exc}")
+
+    return df_out
+
+
+def compute_regularization_paths(
+    df_final_cleaned: pd.DataFrame,
+    df_lasso: pd.DataFrame,
+    macro_cols: List[str],
+    gpr_cols: List[str],
+    sector_col: str,
+    pd_maturity_cols: Iterable[str],
+    pdzero_col: str = 'PDzero',
+    n_alphas_path: int = 60,
+    verbose: bool = True,
+) -> dict:
+    """Compute ElasticNet regularization paths for every sector.
+
+    Returns
+    -------
+    dict  keyed by sector name, each value::
+
+        {
+          'alphas'       : 1-D array of alpha values (decreasing),
+          'coefs'        : 2-D array (n_features, n_alphas),
+          'feature_names': list of str,
+          'optimal_alpha': float,
+          'l1_ratio'     : float,
+        }
+    """
+    pd_maturity_cols = list(pd_maturity_cols)
+    paths: dict = {}
+
+    for _, lasso_row in df_lasso.iterrows():
+        sector = lasso_row['Sector']
+        pd_col = lasso_row.get('PD_Horizon', pd_maturity_cols[0])
+        l1_ratio = float(lasso_row.get('Optimal_L1_Ratio', 1.0))
+        opt_alpha = lasso_row['Optimal_Alpha']
+
+        sector_df = df_final_cleaned[df_final_cleaned[sector_col] == sector].copy()
+        try:
+            sector_df['logit_pd'] = _calculate_logit(sector_df[pd_col])
+            sector_df['logit_pd_zero'] = _calculate_logit(sector_df[pdzero_col])
+            sector_df['delta_logit'] = sector_df['logit_pd'] - sector_df['logit_pd_zero']
+
+            y_s = sector_df['delta_logit']
+            X_s = pd.concat([sector_df[macro_cols], sector_df[gpr_cols]], axis=1)
+            valid = ~(y_s.isna() | X_s.isna().any(axis=1))
+            y_s = y_s[valid]
+            X_s = X_s[valid]
+
+            scaler = StandardScaler()
+            X_sc = scaler.fit_transform(X_s)
+
+            alphas, coefs, _ = enet_path(
+                X_sc, y_s.values,
+                l1_ratio=l1_ratio,
+                n_alphas=n_alphas_path,
+                fit_intercept=True,
+            )
+            paths[sector] = {
+                'alphas': alphas,
+                'coefs': coefs,
+                'feature_names': list(X_s.columns),
+                'optimal_alpha': opt_alpha,
+                'l1_ratio': l1_ratio,
+            }
+        except Exception as exc:
+            if verbose:
+                print(f"  Path failed for {sector}: {exc}")
+
+    if verbose:
+        print(f"Regularization paths computed for {len(paths)} sectors.")
+    return paths
 
 
 def _calculate_logit(p: np.ndarray | pd.Series) -> np.ndarray:

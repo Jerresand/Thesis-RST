@@ -299,12 +299,17 @@ def run_sensitivity_analysis(
                         print(f"  Skipping {pd_col}: insufficient data (n={len(sector_df)})")
                     continue
 
+                n_pred = len(macro_cols) + len(gpr_cols)
                 result = {
                     'Sector': sector,
                     'PD_Horizon': pd_col,
                     'Intercept': model.params['const'],
                     'N_observations': n_obs,
+                    'N_predictors': n_pred,
                     'R_squared': model.rsquared,
+                    'R_squared_adj': model.rsquared_adj,
+                    'AIC': model.aic,
+                    'BIC': model.bic,
                 }
 
                 for col in macro_cols:
@@ -319,7 +324,10 @@ def run_sensitivity_analysis(
 
                 sensitivities_data.append(result)
                 if verbose:
-                    print(f"  ✓ {pd_col}: R²={model.rsquared:.3f}, N={n_obs}")
+                    print(
+                        f"  ✓ {pd_col}: R²={model.rsquared:.3f}, "
+                        f"R²_adj={model.rsquared_adj:.3f}, N={n_obs}"
+                    )
 
             except Exception as exc:  # noqa: BLE001 - keep parity with notebook output
                 if verbose:
@@ -334,6 +342,7 @@ def export_sensitivities(df_sensitivities: pd.DataFrame, output_file: str) -> No
     print(f"✓ Sensitivity results with 95% confidence intervals exported to: {output_file}")
     print(f"  Total sectors analyzed: {len(df_sensitivities)}")
     print("\nColumns include:")
+    print("  - Fit: R_squared, R_squared_adj, AIC, BIC, N_predictors")
     print("  - Point estimates: β_[variable] and δ_[variable]")
     print("  - 95% CI lower bounds: β_[variable]_CI_lower and δ_[variable]_CI_lower")
     print("  - 95% CI upper bounds: β_[variable]_CI_upper and δ_[variable]_CI_upper")
@@ -348,7 +357,16 @@ def print_sensitivity_tables(
     print("=" * 80)
     print("MACRO SENSITIVITIES (β) - Impact of macroeconomic variables on PD")
     print("=" * 80)
-    beta_cols = ['Sector', 'PD_Horizon', 'N_observations', 'R_squared']
+    beta_cols = [
+        'Sector',
+        'PD_Horizon',
+        'N_observations',
+        'N_predictors',
+        'R_squared',
+        'R_squared_adj',
+        'AIC',
+        'BIC',
+    ]
     for col in macro_cols:
         beta_cols.extend([f'β_{col}', f'β_{col}_CI_lower', f'β_{col}_CI_upper'])
     print(df_sensitivities[beta_cols])
@@ -356,7 +374,16 @@ def print_sensitivity_tables(
     print("\n" + "=" * 80)
     print("GPR SENSITIVITIES (δ) - Impact of geopolitical risk on PD")
     print("=" * 80)
-    delta_cols = ['Sector', 'PD_Horizon', 'N_observations', 'R_squared']
+    delta_cols = [
+        'Sector',
+        'PD_Horizon',
+        'N_observations',
+        'N_predictors',
+        'R_squared',
+        'R_squared_adj',
+        'AIC',
+        'BIC',
+    ]
     for col in gpr_cols:
         delta_cols.extend([f'δ_{col}', f'δ_{col}_CI_lower', f'δ_{col}_CI_upper'])
     print(df_sensitivities[delta_cols])
@@ -372,7 +399,11 @@ def print_confidence_interval_summary(
     print("=" * 80)
 
     for _, row in df_sensitivities.head(3).iterrows():
-        print(f"\n{row['Sector']} - {row['PD_Horizon']} (N={int(row['N_observations'])}, R²={row['R_squared']:.3f})")
+        r_adj = row['R_squared_adj'] if 'R_squared_adj' in row.index else row['R_squared']
+        print(
+            f"\n{row['Sector']} - {row['PD_Horizon']} "
+            f"(N={int(row['N_observations'])}, R²={row['R_squared']:.3f}, R²_adj={r_adj:.3f})"
+        )
         print("\nβ (Macro):")
         for col in ['GDP_Growth', 'Interest_Rate']:
             print(f"  {col}: {row[f'β_{col}']:.4f} [{row[f'β_{col}_CI_lower']:.4f}, {row[f'β_{col}_CI_upper']:.4f}]")
@@ -395,7 +426,9 @@ def print_sensitivity_details(
         print(f"\n{'='*80}")
         print(
             f"Sector: {row['Sector']} | PD Horizon: {row['PD_Horizon']} | "
-            f"R²={row['R_squared']:.3f} | N={int(row['N_observations'])}"
+            f"R²={row['R_squared']:.3f} | "
+            f"R²_adj={row['R_squared_adj'] if 'R_squared_adj' in row.index else float('nan'):.3f} | "
+            f"N={int(row['N_observations'])}"
         )
         print(f"{'='*80}")
 
