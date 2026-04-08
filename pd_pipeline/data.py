@@ -366,6 +366,53 @@ def add_macro_lags(
     return df
 
 
+def normalize_macro_columns(
+    df: pd.DataFrame,
+    cols: Iterable[str],
+    verbose: bool = True,
+) -> tuple[pd.DataFrame, pd.Series]:
+    """Standardise macro (and GPR) columns in-place: subtract mean, divide by std.
+
+    All lagged variants of a column are normalised with the **same** mean and std
+    as the base column so that the scale is consistent across lags.
+
+    Returns
+    -------
+    df : DataFrame with the named columns (and their *_lagN counterparts) replaced
+         by their z-scores.
+    scaler : Series indexed by *base* column name, values = (mean, std) tuples —
+             stored for back-transformation if needed.
+    """
+    df = df.copy()
+    base_cols = list(cols)
+    stats: dict[str, tuple[float, float]] = {}
+
+    for col in base_cols:
+        if col not in df.columns:
+            continue
+        mu = float(df[col].mean())
+        sigma = float(df[col].std(ddof=1))
+        if sigma == 0:
+            sigma = 1.0
+        stats[col] = (mu, sigma)
+
+        # normalise the base column
+        df[col] = (df[col] - mu) / sigma
+
+        # normalise all lag columns with the *same* mu/sigma
+        k = 1
+        while f'{col}_lag{k}' in df.columns:
+            df[f'{col}_lag{k}'] = (df[f'{col}_lag{k}'] - mu) / sigma
+            k += 1
+
+    scaler = pd.Series({c: v for c, v in stats.items()})
+    if verbose:
+        print('Macro columns normalised (z-score, pooled across all rows):')
+        for c, (m, s) in stats.items():
+            print(f'  {c:35s}: mean={m:9.3f},  std={s:8.3f}')
+    return df, scaler
+
+
 def export_dataframe(df: pd.DataFrame, output_file: str, verbose: bool = True) -> None:
     """Export a dataframe to CSV with a lightweight summary."""
     df.to_csv(output_file, index=False)

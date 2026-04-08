@@ -102,12 +102,15 @@ def run_lasso_feature_selection(
                 )
                 model.fit(X_scaled, y)
 
-                # Cross-validated R² at optimal hyperparameters
-                cv_scores = cross_val_score(
-                    ElasticNet(alpha=optimal_alpha, l1_ratio=optimal_l1_ratio, max_iter=100_000),
-                    X_scaled, y, cv=cv, scoring='r2',
-                )
+                # Cross-validated R² and RMSE at optimal hyperparameters
+                _en_cv = ElasticNet(alpha=optimal_alpha, l1_ratio=optimal_l1_ratio, max_iter=100_000)
+                cv_scores = cross_val_score(_en_cv, X_scaled, y, cv=cv, scoring='r2')
                 r2_cv = float(cv_scores.mean())
+                cv_neg_rmse = cross_val_score(
+                    ElasticNet(alpha=optimal_alpha, l1_ratio=optimal_l1_ratio, max_iter=100_000),
+                    X_scaled, y, cv=cv, scoring='neg_root_mean_squared_error',
+                )
+                rmse_cv = float(-cv_neg_rmse.mean())
 
                 coefficients = pd.Series(model.coef_, index=X.columns)
                 selected = coefficients[coefficients != 0]
@@ -130,6 +133,7 @@ def run_lasso_feature_selection(
                     'R_squared': r2,
                     'R_squared_adj': r2_adj,
                     'R_squared_cv': r2_cv,
+                    'RMSE_cv': rmse_cv,
                     'N_features_selected': n_selected,
                     'Intercept': model.intercept_,
                 }
