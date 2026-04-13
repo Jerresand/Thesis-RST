@@ -98,7 +98,7 @@ def run_lasso_feature_selection(
                 model = ElasticNet(
                     alpha=optimal_alpha,
                     l1_ratio=optimal_l1_ratio,
-                    max_iter=100_000,
+                    max_iter=1_000_000,
                 )
                 model.fit(X_scaled, y)
 

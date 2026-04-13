@@ -524,35 +524,46 @@ def _forest_grid_n_cols(n_predictors: int, n_cols: Optional[int], max_cols: int 
 
 def plot_sensitivity_coefficient_forest(
     df_sensitivities: pd.DataFrame,
-    predictor_cols: List[str],
-    kind: str = 'macro',
+    macro_cols: List[str],
+    gpr_cols: Optional[List[str]] = None,
     pd_horizon: Optional[str] = None,
     figsize: tuple[float, float] | None = None,
     n_cols: Optional[int] = None,
     max_cols: int = 5,
+    # legacy keyword kept for backward compatibility — ignored
+    kind: str = 'macro',
+    predictor_cols: Optional[List[str]] = None,
 ) -> None:
-    """Forest plots: one panel per regressor, sectors on the y-axis, 95% CIs.
+    """Forest plots: one panel per regressor (macro + GPR combined), sectors on the y-axis, 95% CIs.
 
-    kind: 'macro' → columns β_<name>; 'gpr' → columns δ_<name>.
+    Macro variables use the β_ column prefix; GPR variables use the δ_ column prefix in the
+    underlying DataFrame, but all coefficients are labelled β in the plot.
     """
+    # Backward-compat: old callers pass a positional predictor_cols as second arg
+    if predictor_cols is not None:
+        all_cols = list(predictor_cols)
+        prefix_map = {c: ('β_' if kind == 'macro' else 'δ_') for c in predictor_cols}
+    else:
+        _gpr = list(gpr_cols) if gpr_cols is not None else []
+        all_cols = list(macro_cols) + _gpr
+        prefix_map = {c: 'β_' for c in macro_cols}
+        prefix_map.update({c: 'δ_' for c in _gpr})
+
     sns.set_theme(style='whitegrid', context='notebook')
     df = _filter_sensitivity_horizon(df_sensitivities, pd_horizon)
     if df.empty:
         print('No sensitivity rows to plot.')
         return
 
-    prefix = 'β_' if kind == 'macro' else 'δ_'
-    letter = 'β' if kind == 'macro' else 'δ'
-    n_p = len(predictor_cols)
+    n_p = len(all_cols)
     n_cols = _forest_grid_n_cols(n_p, n_cols, max_cols=max_cols)
     n_rows = int(np.ceil(n_p / n_cols))
     if figsize is None:
         figsize = (5.2 * n_cols, max(2.8 * n_rows, 0.45 * len(df) * n_rows / n_cols + 2))
 
     fig, axes = plt.subplots(n_rows, n_cols, figsize=figsize, squeeze=False)
-    title_kind = 'Macro (β)' if kind == 'macro' else 'GPR (δ)'
     fig.suptitle(
-        f'OLS coefficients with 95% CI — {title_kind}\n'
+        f'OLS coefficients with 95% CI — β\n'
         f'(Δ logit PD; horizon: {pd_horizon or "all rows"})',
         fontsize=13,
         fontweight='bold',
@@ -562,9 +573,9 @@ def plot_sensitivity_coefficient_forest(
     y_pos = np.arange(len(df))
     sectors_short = [_short_sector(s, 28) for s in df['Sector']]
 
-    for i, col in enumerate(predictor_cols):
+    for i, col in enumerate(all_cols):
         ax = axes.flat[i]
-        cname = f'{prefix}{col}'
+        cname = f'{prefix_map[col]}{col}'
         lo, hi = f'{cname}_CI_lower', f'{cname}_CI_upper'
         if cname not in df.columns:
             ax.set_visible(False)
@@ -591,10 +602,10 @@ def plot_sensitivity_coefficient_forest(
         else:
             ax.set_yticklabels([])
         ax.set_title(_short_predictor_label(col), fontsize=10, fontweight='bold')
-        ax.set_xlabel(f'{letter} (95% CI)', fontsize=9)
+        ax.set_xlabel('β (95% CI)', fontsize=9)
         ax.grid(True, axis='x', alpha=0.2)
 
-    for j in range(len(predictor_cols), len(axes.flat)):
+    for j in range(len(all_cols), len(axes.flat)):
         axes.flat[j].set_visible(False)
 
     plt.tight_layout()
@@ -610,66 +621,72 @@ def plot_sensitivity_forests_all_predictors(
     n_cols_gpr: Optional[int] = None,
     max_cols: int = 5,
 ) -> None:
-    """OLS forests for every macro regressor, then every GPR regressor (two figures)."""
+    """OLS forests for every regressor (macro + GPR) in a single combined figure."""
+    n_cols = n_cols_macro or n_cols_gpr
     plot_sensitivity_coefficient_forest(
         df_sensitivities,
-        macro_cols,
-        kind='macro',
+        macro_cols=macro_cols,
+        gpr_cols=gpr_cols,
         pd_horizon=pd_horizon,
-        n_cols=n_cols_macro,
-        max_cols=max_cols,
-    )
-    plot_sensitivity_coefficient_forest(
-        df_sensitivities,
-        gpr_cols,
-        kind='gpr',
-        pd_horizon=pd_horizon,
-        n_cols=n_cols_gpr,
+        n_cols=n_cols,
         max_cols=max_cols,
     )
 
 
 def plot_lasso_coefficient_forest(
     df_lasso: pd.DataFrame,
-    predictor_cols: List[str],
-    kind: str = 'macro',
+    macro_cols: List[str],
+    gpr_cols: Optional[List[str]] = None,
     pd_horizon: Optional[str] = None,
     figsize: tuple[float, float] | None = None,
     n_cols: Optional[int] = None,
     max_cols: int = 5,
+    # legacy keyword kept for backward compatibility — ignored
+    kind: str = 'macro',
+    predictor_cols: Optional[List[str]] = None,
 ) -> None:
-    """Forest of LASSO slopes in native X units (same interpretation as OLS β/δ); no CIs.
+    """Forest of LASSO slopes in native X units (same interpretation as OLS β); no CIs.
 
-    Non-selected features are shown as a small gray marker at zero. Re-run LASSO after
-    updating the pipeline to populate LASSO_NATIVE_* columns.
+    Macro and GPR variables are combined in a single figure; all coefficients labelled β.
+    Non-selected features are shown as a small gray marker at zero.
     """
+    # Backward-compat: old callers pass a positional predictor_cols as second arg
+    if predictor_cols is not None:
+        all_cols = list(predictor_cols)
+        native_map = {c: ('LASSO_NATIVE_β_' if kind == 'macro' else 'LASSO_NATIVE_δ_') for c in predictor_cols}
+        sel_map = {c: ('β_selected_' if kind == 'macro' else 'δ_selected_') for c in predictor_cols}
+    else:
+        _gpr = list(gpr_cols) if gpr_cols is not None else []
+        all_cols = list(macro_cols) + _gpr
+        native_map = {c: 'LASSO_NATIVE_β_' for c in macro_cols}
+        native_map.update({c: 'LASSO_NATIVE_δ_' for c in _gpr})
+        sel_map = {c: 'β_selected_' for c in macro_cols}
+        sel_map.update({c: 'δ_selected_' for c in _gpr})
+
     sns.set_theme(style='whitegrid', context='notebook')
     df = _filter_sensitivity_horizon(df_lasso, pd_horizon)
     if df.empty:
         print('No LASSO rows to plot.')
         return
 
-    native_p = 'LASSO_NATIVE_β_' if kind == 'macro' else 'LASSO_NATIVE_δ_'
-    sel_p = 'β_selected_' if kind == 'macro' else 'δ_selected_'
-    test_col = f'{native_p}{predictor_cols[0]}' if predictor_cols else ''
-    if predictor_cols and test_col not in df.columns:
-        print(
-            'LASSO_NATIVE_* columns missing — re-run lasso.run_lasso_feature_selection '
-            'to export native-scale coefficients for comparison with OLS.'
-        )
-        return
+    if all_cols:
+        test_col = f'{native_map[all_cols[0]]}{all_cols[0]}'
+        if test_col not in df.columns:
+            print(
+                'LASSO_NATIVE_* columns missing — re-run lasso.run_lasso_feature_selection '
+                'to export native-scale coefficients for comparison with OLS.'
+            )
+            return
 
-    letter = 'β' if kind == 'macro' else 'δ'
-    n_p = len(predictor_cols)
+    n_p = len(all_cols)
     n_cols = _forest_grid_n_cols(n_p, n_cols, max_cols=max_cols)
     n_rows = int(np.ceil(n_p / n_cols))
     if figsize is None:
         figsize = (5.2 * n_cols, max(2.8 * n_rows, 0.45 * len(df) * n_rows / n_cols + 2))
 
     fig, axes = plt.subplots(n_rows, n_cols, figsize=figsize, squeeze=False)
-    title_kind = 'Macro (β)' if kind == 'macro' else 'GPR (δ)'
     fig.suptitle(
-        f'LASSO coefficients (native units, same as OLS) — {title_kind}\n'
+        f'LASSO coefficients (native units, same as OLS) — β\n'
         f'Orange diamond = selected; gray dot = shrunk to zero. Horizon: {pd_horizon or "all rows"}',
         fontsize=12,
         fontweight='bold',
@@ -679,15 +696,15 @@ def plot_lasso_coefficient_forest(
     y_pos = np.arange(len(df))
     sectors_short = [_short_sector(s, 28) for s in df['Sector']]
 
-    for i, col in enumerate(predictor_cols):
+    for i, col in enumerate(all_cols):
         ax = axes.flat[i]
-        nc = f'{native_p}{col}'
+        nc = f'{native_map[col]}{col}'
         if nc not in df.columns:
             ax.set_visible(False)
             continue
         _add_row_bands(ax, len(df))
         native = np.nan_to_num(df[nc].values.astype(float), nan=0.0)
-        selected = df[f'{sel_p}{col}'].values.astype(int) == 1
+        selected = df[f'{sel_map[col]}{col}'].values.astype(int) == 1
         ax.axvline(0.0, color='#444444', linestyle='--', linewidth=0.85, alpha=0.5)
         ax.scatter(
             native[selected],
@@ -715,10 +732,10 @@ def plot_lasso_coefficient_forest(
         else:
             ax.set_yticklabels([])
         ax.set_title(_short_predictor_label(col), fontsize=10, fontweight='bold')
-        ax.set_xlabel(f'{letter} (native units)', fontsize=9)
+        ax.set_xlabel('β (native units)', fontsize=9)
         ax.grid(True, axis='x', alpha=0.2)
 
-    for j in range(len(predictor_cols), len(axes.flat)):
+    for j in range(len(all_cols), len(axes.flat)):
         axes.flat[j].set_visible(False)
 
     plt.tight_layout()
@@ -734,21 +751,14 @@ def plot_lasso_forests_all_predictors(
     n_cols_gpr: Optional[int] = None,
     max_cols: int = 5,
 ) -> None:
-    """LASSO forests: all macro panels, then all GPR panels."""
+    """LASSO forests: macro + GPR combined in a single figure."""
+    n_cols = n_cols_macro or n_cols_gpr
     plot_lasso_coefficient_forest(
         df_lasso,
-        macro_cols,
-        kind='macro',
+        macro_cols=macro_cols,
+        gpr_cols=gpr_cols,
         pd_horizon=pd_horizon,
-        n_cols=n_cols_macro,
-        max_cols=max_cols,
-    )
-    plot_lasso_coefficient_forest(
-        df_lasso,
-        gpr_cols,
-        kind='gpr',
-        pd_horizon=pd_horizon,
-        n_cols=n_cols_gpr,
+        n_cols=n_cols,
         max_cols=max_cols,
     )
 
@@ -768,17 +778,37 @@ def _merge_sens_lasso(
 def plot_ols_lasso_forest_comparison(
     df_sensitivities: pd.DataFrame,
     df_lasso: pd.DataFrame,
-    predictor_cols: List[str],
-    kind: str = 'macro',
+    macro_cols: List[str],
+    gpr_cols: Optional[List[str]] = None,
     pd_horizon: Optional[str] = None,
     figsize: tuple[float, float] | None = None,
     n_cols: Optional[int] = None,
     max_cols: int = 5,
+    # legacy keyword kept for backward compatibility — ignored
+    kind: str = 'macro',
+    predictor_cols: Optional[List[str]] = None,
 ) -> None:
     """Per regressor: OLS point ±95% CI (lower y) vs LASSO native coefficient (upper y).
 
+    Macro and GPR variables are combined in a single figure; all coefficients labelled β.
     LASSO has no standard inferential CI here; orange diamonds = selected, gray = not selected.
     """
+    # Backward-compat: old callers pass a positional predictor_cols as second arg
+    if predictor_cols is not None:
+        all_cols = list(predictor_cols)
+        native_map = {c: ('LASSO_NATIVE_β_' if kind == 'macro' else 'LASSO_NATIVE_δ_') for c in predictor_cols}
+        sel_map = {c: ('β_selected_' if kind == 'macro' else 'δ_selected_') for c in predictor_cols}
+        ols_map = {c: ('β_' if kind == 'macro' else 'δ_') for c in predictor_cols}
+    else:
+        _gpr = list(gpr_cols) if gpr_cols is not None else []
+        all_cols = list(macro_cols) + _gpr
+        native_map = {c: 'LASSO_NATIVE_β_' for c in macro_cols}
+        native_map.update({c: 'LASSO_NATIVE_δ_' for c in _gpr})
+        sel_map = {c: 'β_selected_' for c in macro_cols}
+        sel_map.update({c: 'δ_selected_' for c in _gpr})
+        ols_map = {c: 'β_' for c in macro_cols}
+        ols_map.update({c: 'δ_' for c in _gpr})
+
     sns.set_theme(style='whitegrid', context='notebook')
     comp = _merge_sens_lasso(df_sensitivities, df_lasso)
     if pd_horizon is not None and 'PD_Horizon' in comp.columns:
@@ -788,23 +818,19 @@ def plot_ols_lasso_forest_comparison(
         print('No merged OLS/LASSO rows to plot.')
         return
 
-    native_p = 'LASSO_NATIVE_β_' if kind == 'macro' else 'LASSO_NATIVE_δ_'
-    sel_p = 'β_selected_' if kind == 'macro' else 'δ_selected_'
-    ols_p = 'β_' if kind == 'macro' else 'δ_'
-    if predictor_cols and f'{native_p}{predictor_cols[0]}' not in comp.columns:
+    if all_cols and f'{native_map[all_cols[0]]}{all_cols[0]}' not in comp.columns:
         print('LASSO_NATIVE_* columns missing — re-run LASSO feature selection.')
         return
 
-    n_p = len(predictor_cols)
+    n_p = len(all_cols)
     n_cols = _forest_grid_n_cols(n_p, n_cols, max_cols=max_cols)
     n_rows = int(np.ceil(n_p / n_cols))
     if figsize is None:
         figsize = (5.4 * n_cols, max(3.0 * n_rows, 0.5 * len(comp) * n_rows / n_cols + 2))
 
     fig, axes = plt.subplots(n_rows, n_cols, figsize=figsize, squeeze=False)
-    title_kind = 'Macro (β)' if kind == 'macro' else 'GPR (δ)'
     fig.suptitle(
-        f'OLS vs LASSO — {title_kind}\n'
+        f'OLS vs LASSO — β\n'
         f'Lower marker: OLS ±95% CI. Upper: LASSO native (Δ logit per unit X). '
         f'Horizon: {pd_horizon or "all rows"}',
         fontsize=12,
@@ -818,11 +844,11 @@ def plot_ols_lasso_forest_comparison(
     y_hi = y_base + dy
     sectors_short = [_short_sector(s, 28) for s in comp['Sector']]
 
-    for i, col in enumerate(predictor_cols):
+    for i, col in enumerate(all_cols):
         ax = axes.flat[i]
-        cname = f'{ols_p}{col}'
+        cname = f'{ols_map[col]}{col}'
         lo_n, hi_n = f'{cname}_CI_lower', f'{cname}_CI_upper'
-        nn = f'{native_p}{col}'
+        nn = f'{native_map[col]}{col}'
         if cname not in comp.columns or nn not in comp.columns:
             ax.set_visible(False)
             continue
@@ -833,7 +859,7 @@ def plot_ols_lasso_forest_comparison(
         hi = comp[hi_n].values.astype(float)
         xerr = np.row_stack([ols_c - lo, hi - ols_c])
         lasso_v = np.nan_to_num(comp[nn].values.astype(float), nan=0.0)
-        selected = comp[f'{sel_p}{col}'].values.astype(int) == 1
+        selected = comp[f'{sel_map[col]}{col}'].values.astype(int) == 1
         ols_sig = (lo > 0) | (hi < 0)
         ols_colors = np.where(ols_sig, '#2166AC', '#9E9E9E')
 
@@ -906,12 +932,12 @@ def plot_ols_lasso_forest_comparison(
             ax.set_yticklabels([])
         ax.set_ylim(y_base.min() - 0.55, y_base.max() + 0.55)
         ax.set_title(_short_predictor_label(col), fontsize=10, fontweight='bold')
-        ax.set_xlabel('Coefficient (native units)', fontsize=9)
+        ax.set_xlabel('β (native units)', fontsize=9)
         ax.grid(True, axis='x', alpha=0.2)
         if i == 0:
             ax.legend(loc='lower right', fontsize=7, framealpha=0.9, edgecolor='#cccccc')
 
-    for j in range(len(predictor_cols), len(axes.flat)):
+    for j in range(len(all_cols), len(axes.flat)):
         axes.flat[j].set_visible(False)
 
     plt.tight_layout()
@@ -928,23 +954,15 @@ def plot_ols_lasso_forest_comparison_all(
     n_cols_gpr: Optional[int] = None,
     max_cols: int = 5,
 ) -> None:
-    """OLS vs LASSO comparison forests for all macro regressors, then all GPR."""
+    """OLS vs LASSO comparison forests for macro + GPR combined in a single figure."""
+    n_cols = n_cols_macro or n_cols_gpr
     plot_ols_lasso_forest_comparison(
         df_sensitivities,
         df_lasso,
-        macro_cols,
-        kind='macro',
+        macro_cols=macro_cols,
+        gpr_cols=gpr_cols,
         pd_horizon=pd_horizon,
-        n_cols=n_cols_macro,
-        max_cols=max_cols,
-    )
-    plot_ols_lasso_forest_comparison(
-        df_sensitivities,
-        df_lasso,
-        gpr_cols,
-        kind='gpr',
-        pd_horizon=pd_horizon,
-        n_cols=n_cols_gpr,
+        n_cols=n_cols,
         max_cols=max_cols,
     )
 
@@ -964,7 +982,7 @@ def plot_sensitivity_significance_heatmap(
         return
 
     col_names: List[str] = [f'β_{c}' for c in macro_cols] + [f'δ_{c}' for c in gpr_cols]
-    xlabels = ['β ' + _short_predictor_label(c) for c in macro_cols] + ['δ ' + _short_predictor_label(c) for c in gpr_cols]
+    xlabels = ['β ' + _short_predictor_label(c) for c in macro_cols] + ['β ' + _short_predictor_label(c) for c in gpr_cols]
 
     mat = np.zeros((len(df), len(col_names)))
     sig = np.zeros_like(mat, dtype=bool)
@@ -1519,8 +1537,8 @@ def plot_lasso_beta_heatmap(
 ) -> None:
     """Heatmap of LASSO betas (standardised) for every variable × sector.
 
-    Macro variables (β) and geopolitical variables (δ) are shown side-by-side
-    with a thin separator.  Cells where the LASSO shrunk the coefficient to
+    Macro and GPR variables are shown in a single combined heatmap; all
+    coefficients are labelled β.  Cells where LASSO shrunk the coefficient to
     zero are shown as light grey (not selected); non-zero cells are coloured on
     a diverging scale so positive / negative sensitivities are immediately
     visible.
@@ -1540,130 +1558,67 @@ def plot_lasso_beta_heatmap(
         print("plot_lasso_beta_heatmap: no rows to plot.")
         return
 
-    # ── build beta matrices ────────────────────────────────────────────────────
+    # ── build combined beta matrix (macro first, then GPR) ────────────────────
     sectors = list(df['Sector'])
     n_sectors = len(sectors)
     short_sectors = [s[:30] for s in sectors]
 
-    macro_betas = pd.DataFrame(
-        {col: df[f'LASSO_β_{col}'].values for col in macro_cols},
-        index=short_sectors,
-    )
-    gpr_betas = pd.DataFrame(
-        {col: df[f'LASSO_δ_{col}'].values for col in gpr_cols},
-        index=short_sectors,
-    )
+    macro_data = {col: df[f'LASSO_β_{col}'].values for col in macro_cols}
+    gpr_data = {col: df[f'LASSO_δ_{col}'].values for col in gpr_cols}
+    all_data = {**macro_data, **gpr_data}
 
-    # combined for shared colour scale
-    all_vals = pd.concat([macro_betas, gpr_betas], axis=1).values
-    vmax = np.nanmax(np.abs(all_vals))
+    betas = pd.DataFrame(all_data, index=short_sectors)
+
+    vmax = np.nanmax(np.abs(betas.values))
     if vmax == 0:
         vmax = 1.0
 
-    # ── masks: grey out zeros (not selected) ──────────────────────────────────
-    macro_mask = macro_betas == 0
-    gpr_mask = gpr_betas == 0
+    zero_mask = betas == 0
 
-    n_macro = len(macro_cols)
-    n_gpr = len(gpr_cols)
-    n_cols_total = n_macro + n_gpr
-
+    n_cols_total = len(betas.columns)
     if figsize is None:
         col_w = max(0.55 * n_cols_total, 10)
         row_h = max(0.38 * n_sectors, 4)
         figsize = (col_w, row_h)
 
-    # width ratios: macro block | tiny spacer | gpr block
-    width_ratios = [n_macro, 0.15, n_gpr] if n_gpr > 0 else [n_macro]
-
-    fig, axes = plt.subplots(
-        1,
-        3 if n_gpr > 0 else 1,
-        figsize=figsize,
-        gridspec_kw={'width_ratios': width_ratios, 'wspace': 0.05},
-    )
-    if n_gpr == 0:
-        axes = [axes]
-
-    ax_macro = axes[0]
-    ax_sep = axes[1] if n_gpr > 0 else None
-    ax_gpr = axes[2] if n_gpr > 0 else None
+    fig, ax = plt.subplots(1, 1, figsize=figsize)
 
     cmap = sns.diverging_palette(220, 20, as_cmap=True)  # blue–white–red
 
-    # ── macro heatmap ──────────────────────────────────────────────────────────
-    # draw grey background for zeros first, then overlay non-zero cells
+    # coloured cells for selected (non-zero) variables
     sns.heatmap(
-        macro_betas,
-        ax=ax_macro,
+        betas,
+        ax=ax,
         cmap=cmap,
         center=0,
         vmin=-vmax,
         vmax=vmax,
-        mask=macro_mask,
+        mask=zero_mask,
         annot=True,
         fmt='.2f',
         annot_kws={'size': 7},
         linewidths=0.4,
         linecolor='#dddddd',
-        cbar=False,
+        cbar=True,
+        cbar_kws={'label': 'Standardised LASSO β', 'shrink': 0.6},
     )
-    # grey cells for not-selected
+    # grey cells for not-selected (shrunk to zero)
     sns.heatmap(
-        macro_betas,
-        ax=ax_macro,
+        betas,
+        ax=ax,
         cmap=sns.color_palette(['#e8e8e8'], as_cmap=True),
-        mask=~macro_mask,
+        mask=~zero_mask,
         annot=False,
         linewidths=0.4,
         linecolor='#dddddd',
         cbar=False,
     )
-    ax_macro.set_title('Macro variables (β)', fontsize=11, fontweight='bold', pad=8)
-    ax_macro.set_ylabel('Sector', fontsize=10)
-    ax_macro.set_xlabel('')
-    ax_macro.tick_params(axis='y', labelsize=8)
-    ax_macro.tick_params(axis='x', labelsize=8)
-    plt.setp(ax_macro.get_xticklabels(), rotation=45, ha='right')
-
-    # ── separator (invisible axis) ─────────────────────────────────────────────
-    if ax_sep is not None:
-        ax_sep.set_visible(False)
-
-    # ── GPR heatmap ────────────────────────────────────────────────────────────
-    if ax_gpr is not None:
-        sns.heatmap(
-            gpr_betas,
-            ax=ax_gpr,
-            cmap=cmap,
-            center=0,
-            vmin=-vmax,
-            vmax=vmax,
-            mask=gpr_mask,
-            annot=True,
-            fmt='.2f',
-            annot_kws={'size': 7},
-            linewidths=0.4,
-            linecolor='#dddddd',
-            cbar=True,
-            cbar_kws={'label': 'Standardised LASSO β', 'shrink': 0.6},
-        )
-        sns.heatmap(
-            gpr_betas,
-            ax=ax_gpr,
-            cmap=sns.color_palette(['#e8e8e8'], as_cmap=True),
-            mask=~gpr_mask,
-            annot=False,
-            linewidths=0.4,
-            linecolor='#dddddd',
-            cbar=False,
-        )
-        ax_gpr.set_title('Geopolitical variables (δ)', fontsize=11, fontweight='bold', pad=8)
-        ax_gpr.set_ylabel('')
-        ax_gpr.set_xlabel('')
-        ax_gpr.set_yticklabels([])
-        ax_gpr.tick_params(axis='x', labelsize=8)
-        plt.setp(ax_gpr.get_xticklabels(), rotation=45, ha='right')
+    ax.set_title('β', fontsize=11, fontweight='bold', pad=8)
+    ax.set_ylabel('Sector', fontsize=10)
+    ax.set_xlabel('')
+    ax.tick_params(axis='y', labelsize=8)
+    ax.tick_params(axis='x', labelsize=8)
+    plt.setp(ax.get_xticklabels(), rotation=45, ha='right')
 
     horizon_label = f' — {pd_horizon}' if pd_horizon else ''
     fig.suptitle(
@@ -1671,9 +1626,9 @@ def plot_lasso_beta_heatmap(
         '(coloured = selected, grey = shrunk to zero)',
         fontsize=13,
         fontweight='bold',
-        y=1.01,
+        y=1.02,
     )
-    plt.tight_layout()
+    fig.tight_layout()
     plt.show()
 
 

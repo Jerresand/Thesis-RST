@@ -30,6 +30,21 @@ PD_MATURITY_COLS = ['12_month']
 SECTOR_COL = 'Sector'
 PDZERO_COL = 'PDzero'
 
+# Sectors excluded from all sensitivity / regression analyses.
+# Rationale:
+#   Finance, Insurance & Real Estate – FI entities follow fundamentally
+#     different PD dynamics (regulatory capital, sovereign support) and are
+#     conventionally out-of-scope for corporate PD models.
+#   Public Administration – government entities; not meaningful corporate
+#     credit risk subjects.
+#   Unassigned – companies whose SIC code did not map to any div-2 range;
+#     the label carries no economic content.
+EXCLUDED_SECTORS = [
+    'Finance, Insurance & Real Estate',
+    'Public Administration',
+    'Unassigned',
+]
+
 DEFAULT_PD_TENORS = ['1_month', '3_month', '6_month', '12_month', '24_month', '36_month', '60_month']
 
 DEFAULT_RWA_TENORS = ['12_month', '24_month', '36_month', '60_month']
