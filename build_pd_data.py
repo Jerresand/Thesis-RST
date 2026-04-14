@@ -1,14 +1,17 @@
 """
-Build fitch_pds_20260301_sic_div2.csv from the new Fitch Ratings Corporate file.
+Build the two kept PD outputs from the Fitch Corporate extract.
 
-Steps:
-  1. Load '20260301 Fitch Ratings Corporate.csv' (new Fitch data)
-  2. Filter to Long Term Rating + issued_paid == true
-  3. Look up SIC codes via IsinCusiptoSic.csv (ISIN first, CUSIP fallback)
-  4. Drop obligors with no SIC code
-  5. Convert letter ratings to numeric 12-month PD values
-  6. Map SIC codes to div-2 sectors
-  7. Save in the format expected by the pd_pipeline
+Outputs:
+  1. fitch_long_term_pds_with_sic.csv
+     Detailed long-term ratings with mapped 12-month PDs and SIC metadata.
+  2. fitch_pds_20260301_sic_div2_dedup.csv
+     Deduplicated company-month PD file in the format expected by pd_pipeline.
+
+Filtering:
+  - Keep long-term ratings only
+  - Drop WD and NR rows
+  - Drop any long-term ratings not present in the PD map
+  - Drop rows without a mapped SIC
 """
 
 from pathlib import Path
@@ -25,7 +28,8 @@ from pd_pipeline.data import sic_to_div2_sector
 # ---------------------------------------------------------------------------
 FITCH_PATH    = PROJECT_ROOT / 'data/PDs/20260301 Fitch Ratings Corporate.csv'
 ISIN_SIC_PATH = PROJECT_ROOT / 'data/PDs/IsinCusiptoSic.csv'
-OUTPUT_PATH   = PROJECT_ROOT / 'data/PDs/fitch_pds_20260301_sic_div2.csv'
+LONG_OUTPUT_PATH = PROJECT_ROOT / 'data/PDs/fitch_long_term_pds_with_sic.csv'
+CODE_OUTPUT_PATH = PROJECT_ROOT / 'data/PDs/fitch_pds_20260301_sic_div2_dedup.csv'
 
 # ---------------------------------------------------------------------------
 # Rating → 12-month PD mapping  (sourced from Fitch data averages)
@@ -81,13 +85,19 @@ df = pd.read_csv(FITCH_PATH, dtype=str, low_memory=False)
 df.columns = df.columns.str.replace('\ufeff', '', regex=False)
 print(f"  Raw rows: {len(df):,}")
 
-# Keep Long Term Rating only
-df = df[df['rating_type'] == 'Long Term Rating'].copy()
-print(f"  After Long Term Rating filter: {len(df):,}")
+# Keep long-term ratings only
+long_term_types = {
+    'Long Term Rating',
+    'Long Term Issuer Default Rating',
+    'Local Currency Long Term Issuer Default Rating',
+    'Unenhanced Long Term Rating',
+}
+df = df[df['rating_type'].isin(long_term_types)].copy()
+print(f"  After long-term filter: {len(df):,}")
 
-# Keep issued_paid == true only
-df = df[df['issued_paid'].str.lower() == 'true'].copy()
-print(f"  After issued_paid filter: {len(df):,}")
+# Remove withdrawn / not rated rows early
+df = df[~df['rating'].isin({'WD', 'NR'})].copy()
+print(f"  After WD/NR filter: {len(df):,}")
 
 # ---------------------------------------------------------------------------
 # 3. SIC lookup: ISIN first, then CUSIP fallback
@@ -134,6 +144,9 @@ print(f"  Remaining rows: {len(df):,}")
 # 5. Convert rating → 12-month PD
 # ---------------------------------------------------------------------------
 df['12_month'] = df['rating'].map(PD_MAP)
+before = len(df)
+df = df.dropna(subset=['12_month']).copy()
+print(f"  Dropped {before - len(df):,} rows (unmapped long-term ratings)")
 
 # ---------------------------------------------------------------------------
 # 6. Map SIC → div-2 sector name
@@ -146,27 +159,58 @@ df['Sector'] = df['CompanySIC'].apply(sic_to_div2_sector)
 df['Date'] = pd.to_datetime(df['rating_action_date'], errors='coerce').dt.strftime('%Y-%m')
 
 # ---------------------------------------------------------------------------
-# 8. Build output dataframe matching target column order
+# 8. Build the detailed long-term output
 # ---------------------------------------------------------------------------
-df_out = df[['Company_number', 'Date', '12_month', 'Sector']].copy()
-for col in ['1_month', '3_month', '6_month', '24_month', '36_month', '60_month']:
-    df_out[col] = None
+df['Div2_range'] = df['CompanySIC'].apply(
+    lambda sic: (
+        '1000-1999' if 1000 <= int(sic) <= 1999 else
+        '2000-2999' if 2000 <= int(sic) <= 2999 else
+        '3000-3999' if 3000 <= int(sic) <= 3999 else
+        '4000-4799' if 4000 <= int(sic) <= 4799 else
+        '4800-4899' if 4800 <= int(sic) <= 4899 else
+        '4900-4999' if 4900 <= int(sic) <= 4999 else
+        '5000-5999' if 5000 <= int(sic) <= 5999 else
+        '6000-6999' if 6000 <= int(sic) <= 6999 else
+        '7000-7999' if 7000 <= int(sic) <= 7999 else
+        '8000-8999' if 8000 <= int(sic) <= 8999 else
+        '9000-9999' if 9000 <= int(sic) <= 9999 else
+        '—'
+    )
+)
 
-df_out = df_out[[
+df_long = df[[
+    'Company_number', 'issuer_name', 'Date', 'rating', 'rating_type',
+    'rating_action_class', 'object_type_rated', 'instrument_name',
+    'CUSIP_number', 'instrument_identifier', 'instrument_identifier_schema',
+    '12_month', 'CompanySIC', 'Div2_range', 'Sector',
+]].copy()
+df_long = df_long.rename(columns={'issuer_name': 'Company_name', 'CompanySIC': 'SIC'})
+df_long = df_long.sort_values(['Company_number', 'Date', 'instrument_name', 'rating']).reset_index(drop=True)
+
+# ---------------------------------------------------------------------------
+# 9. Build the code-ready deduplicated company-month output
+# ---------------------------------------------------------------------------
+df_code = (
+    df_long.groupby(['Company_number', 'Date', 'Sector'], as_index=False)['12_month']
+    .mean()
+)
+for col in ['1_month', '3_month', '6_month', '24_month', '36_month', '60_month']:
+    df_code[col] = None
+df_code = df_code[[
     'Company_number', 'Date',
     '1_month', '3_month', '6_month', '12_month',
-    '24_month', '36_month', '60_month',
-    'Sector',
+    '24_month', '36_month', '60_month', 'Sector',
 ]]
-
-df_out = df_out.sort_values(['Company_number', 'Date']).reset_index(drop=True)
+df_code = df_code.sort_values(['Company_number', 'Date']).reset_index(drop=True)
 
 # ---------------------------------------------------------------------------
-# 9. Save
+# 10. Save
 # ---------------------------------------------------------------------------
-df_out.to_csv(OUTPUT_PATH, index=False)
-print(f"\n✓ Saved {len(df_out):,} rows to {OUTPUT_PATH}")
+df_long.to_csv(LONG_OUTPUT_PATH, index=False)
+df_code.to_csv(CODE_OUTPUT_PATH, index=False)
+print(f"\n✓ Saved {len(df_long):,} rows to {LONG_OUTPUT_PATH}")
+print(f"✓ Saved {len(df_code):,} rows to {CODE_OUTPUT_PATH}")
 print("\nSector distribution:")
-print(df_out['Sector'].value_counts().to_string())
-print("\nSample output:")
-print(df_out.head(10).to_string())
+print(df_code['Sector'].value_counts().to_string())
+print("\nSample code-ready output:")
+print(df_code.head(10).to_string())

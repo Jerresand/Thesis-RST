@@ -40,9 +40,7 @@ PDZERO_COL = 'PDzero'
 #   Unassigned – companies whose SIC code did not map to any div-2 range;
 #     the label carries no economic content.
 EXCLUDED_SECTORS = [
-    'Finance, Insurance & Real Estate',
-    'Public Administration',
-    'Unassigned',
+    'Unassigned'
 ]
 
 DEFAULT_PD_TENORS = ['1_month', '3_month', '6_month', '12_month', '24_month', '36_month', '60_month']

@@ -6,11 +6,10 @@ This folder contains all CSV and Excel data files organized by category.
 
 ### 📁 `PDs/` - Probability of Default Data
 Contains all PD-related data files:
-- `pdsFitchData.csv` - Complete Fitch PD data for all companies (raw data)
-- `company_pds_with_sectors.csv` - Company PDs with sector classifications
-- `company_pds_with_sectors_6m_forward.csv` - Company PDs with 6-month forward data
-- `pdsFitchData_latest_exposures.csv` - Latest exposure data for Basel calculations
-- `pdsFitchData_latest_with_basel_correlation.csv` - Latest data with Basel asset correlations
+- `20260301 Fitch Ratings Corporate.csv` - Original Fitch corporate extract kept locally and gitignored
+- `IsinCusiptoSic.csv` - Identifier-to-SIC lookup used to assign sectors
+- `fitch_long_term_pds_with_sic.csv` - Detailed long-term Fitch ratings with mapped PDs and SIC metadata
+- `fitch_pds_20260301_sic_div2_dedup.csv` - Deduplicated company-month PD file in the format expected by the code
 
 ### 📁 `macro/` - Macroeconomic Data
 Contains macroeconomic indicators and market data for Sweden:
@@ -61,4 +60,3 @@ value1,value2,value3
 - Decimal separator varies by file (comma for Swedish data, period for others)
 - Files marked as "_transposed" have been reformatted from wide to long format
 - All PD-related files are centralized in the `PDs/` folder
-

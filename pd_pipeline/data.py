@@ -31,6 +31,86 @@ def clean_dataframe(df: pd.DataFrame, date_col_idx: int, value_col_idx: int) -> 
     return df
 
 
+def load_gdprealglobal_monthly(gdp_path: str) -> pd.DataFrame:
+    """Load the GDPREALGLOBAL monthly file with explicit parsing and validation.
+
+    The source file is semicolon-delimited with no header and may contain a few
+    initial months with missing values. Those rows are dropped explicitly.
+    """
+    df_gdp = pd.read_csv(
+        gdp_path,
+        sep=';',
+        header=None,
+        names=['Date', 'GDP_Growth'],
+        engine='python',
+    )
+    df_gdp.columns = df_gdp.columns.str.replace('\ufeff', '', regex=False)
+
+    df_gdp['Date'] = pd.to_datetime(df_gdp['Date'], format='%Y-%m', errors='coerce')
+    df_gdp['GDP_Growth'] = (
+        df_gdp['GDP_Growth']
+        .astype(str)
+        .str.replace(',', '.', regex=False)
+    )
+    df_gdp['GDP_Growth'] = pd.to_numeric(df_gdp['GDP_Growth'], errors='coerce')
+
+    missing_before = int(df_gdp['GDP_Growth'].isna().sum())
+    df_gdp = df_gdp.dropna(subset=['Date', 'GDP_Growth']).copy()
+    df_gdp = df_gdp.sort_values('Date').drop_duplicates(subset=['Date'], keep='last')
+
+    if df_gdp.empty:
+        raise ValueError(f'No valid GDP rows were parsed from {gdp_path}')
+    if df_gdp['Date'].duplicated().any():
+        raise ValueError(f'Duplicate GDP dates remain after cleaning in {gdp_path}')
+    if df_gdp['Date'].isna().any() or df_gdp['GDP_Growth'].isna().any():
+        raise ValueError(f'Missing GDP date/value remains after cleaning in {gdp_path}')
+
+    expected = pd.date_range(df_gdp['Date'].min(), df_gdp['Date'].max(), freq='MS')
+    missing_months = expected.difference(df_gdp['Date'])
+    if len(missing_months) > 0:
+        raise ValueError(
+            f'GDP series has {len(missing_months)} missing month(s) after cleaning; '
+            f'first missing month: {missing_months[0].date()}'
+        )
+
+    df_gdp.attrs['dropped_missing_rows'] = missing_before
+    return df_gdp
+
+
+def load_gdprealglobal_quarterly(gdp_path: str) -> pd.DataFrame:
+    """Load the non-interpolated quarterly GDPREALGLOBAL file.
+
+    Quarter labels are mapped to the first day of the quarter-ending month so
+    they align with the monthly macro series used elsewhere in the pipeline.
+    """
+    df_gdp = pd.read_csv(
+        gdp_path,
+        sep=';',
+        header=None,
+        names=['Date', 'GDP_Growth'],
+        engine='python',
+    )
+    df_gdp.columns = df_gdp.columns.str.replace('\ufeff', '', regex=False)
+    df_gdp['GDP_Growth'] = (
+        df_gdp['GDP_Growth']
+        .astype(str)
+        .str.replace(',', '.', regex=False)
+    )
+    df_gdp['GDP_Growth'] = pd.to_numeric(df_gdp['GDP_Growth'], errors='coerce')
+    df_gdp = df_gdp.dropna(subset=['GDP_Growth']).copy()
+
+    quarter_period = pd.PeriodIndex(df_gdp['Date'].astype(str), freq='Q')
+    df_gdp['Date'] = quarter_period.asfreq('M', how='end').to_timestamp()
+    df_gdp = df_gdp.sort_values('Date').drop_duplicates(subset=['Date'], keep='last')
+
+    if df_gdp.empty:
+        raise ValueError(f'No valid quarterly GDP rows were parsed from {gdp_path}')
+    if df_gdp['Date'].duplicated().any():
+        raise ValueError(f'Duplicate quarterly GDP dates remain after cleaning in {gdp_path}')
+
+    return df_gdp[['Date', 'GDP_Growth']]
+
+
 def load_macro_data(
     gdp_path: str,
     interest_path: str,
@@ -40,17 +120,12 @@ def load_macro_data(
     verbose: bool = True,
 ) -> Dict[str, pd.DataFrame]:
     """Load and clean macroeconomic datasets."""
-    df_gdp = pd.read_csv(gdp_path, sep=None, engine='python')
     df_interest = pd.read_csv(interest_path, sep=None, engine='python')
     df_brent = pd.read_csv(brent_path, sep=None, engine='python')
     df_fuel = pd.read_csv(fuel_path, sep=None, engine='python')
     df_cpi = pd.read_csv(cpi_path, sep=None, engine='python')
 
-    df_gdp_cleaned = clean_dataframe(df_gdp, 0, 1)
-    df_gdp_cleaned = df_gdp_cleaned.rename(columns={
-        df_gdp_cleaned.columns[0]: 'Date',
-        df_gdp_cleaned.columns[1]: 'GDP_Growth',
-    }).dropna(subset=['Date', 'GDP_Growth'])
+    df_gdp_cleaned = load_gdprealglobal_monthly(gdp_path)
 
     df_interest_cleaned = clean_dataframe(df_interest, 0, 1)
     df_interest_cleaned = df_interest_cleaned.rename(columns={
@@ -79,6 +154,13 @@ def load_macro_data(
     if verbose:
         print("Cleaned df_gdp head:")
         print(df_gdp_cleaned.head())
+        print(
+            "\nGDP validation:"
+            f"\n  rows={len(df_gdp_cleaned)}"
+            f"\n  date range={df_gdp_cleaned['Date'].min().date()} -> {df_gdp_cleaned['Date'].max().date()}"
+            f"\n  dropped missing rows={df_gdp_cleaned.attrs.get('dropped_missing_rows', 0)}"
+            f"\n  duplicates remaining={int(df_gdp_cleaned['Date'].duplicated().sum())}"
+        )
         print("\nCleaned df_interest head:")
         print(df_interest_cleaned.head())
         print("\nCleaned df_brent head:")
