@@ -444,7 +444,7 @@ def add_macro_lags(
         if col not in df.columns:
             continue
         for k in range(1, n_lags + 1):
-            df[f'{col}_lag{k}'] = df[col].shift(k)
+            df[f'{col}_lag{k}'] = df[col].shift(k * 3)
     return df
 
 

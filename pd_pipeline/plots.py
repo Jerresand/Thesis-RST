@@ -33,12 +33,12 @@ def _add_row_bands(ax: "plt.Axes", n: int, color: str = '#F5F5F5') -> None:
 
 
 _PRETTY_LABELS = {
-    'GDP_Growth':    'GDP Growth',
-    'Interest_Rate': 'Interest Rate',
-    'Brent_Oil':     'Brent Oil',
-    'Fuel_Index':    'Fuel Index',
+    'GDP_Growth':    'GDP',
+    'Interest_Rate': 'IR',
+    'Brent_Oil':     'Oil',
+    'Fuel_Index':    'CIX',
     'CPI':           'CPI',
-    'GPR_Global':    'GPR Global',
+    'GPR_Global':    'GPR',
 }
 
 # Confidence levels to draw: 50 %, 90 %, 95 %, 99 %
@@ -115,8 +115,8 @@ def plot_normal_contours_pairwise(
             ax.plot(ellipse[:, 0], ellipse[:, 1],
                     color='#2166AC', linestyle=ls, linewidth=lw, alpha=alpha)
 
-        ax.set_xlabel(labels[j], fontsize=8, labelpad=3)
-        ax.set_ylabel(labels[i], fontsize=8, labelpad=3)
+        ax.set_xlabel(labels[j], fontsize=13, labelpad=3)
+        ax.set_ylabel(labels[i], fontsize=13, labelpad=3)
         ax.tick_params(labelsize=7)
         for spine in ('top', 'right'):
             ax.spines[spine].set_visible(False)
@@ -135,10 +135,10 @@ def plot_normal_contours_pairwise(
         for p, ls, lw, alpha in zip(_CONTOUR_LEVELS, line_styles, line_widths, alphas)
     ]
     fig.legend(handles=legend_handles, title='Confidence level',
-               loc='lower right', fontsize=8, title_fontsize=8,
+               loc='lower right', fontsize=13, title_fontsize=13,
                framealpha=0.9, edgecolor='#cccccc')
 
-    fig.suptitle(title, fontsize=12, fontweight='bold', y=1.01)
+    fig.suptitle(title, fontsize=15, fontweight='bold', y=1.01)
     plt.tight_layout()
     plt.show()
 
@@ -203,7 +203,7 @@ def plot_lasso_summary(
     ax3 = fig.add_subplot(gs[1, 0])
     ax4 = fig.add_subplot(gs[1, 1])
 
-    fig.suptitle('LASSO Feature Selection Analysis', fontsize=16, fontweight='bold')
+    fig.suptitle('Elastic-Net Feature Selection Analysis', fontsize=16, fontweight='bold')
 
     colors = ['#4C72B0' if 'β' in idx else '#DD8452' for idx in feature_freq_df.index]
     ax1.barh(feature_freq_df.index, feature_freq_df['Times Selected'], color=colors, edgecolor='none')
@@ -273,14 +273,14 @@ def plot_lasso_summary(
     )
     if use_adj:
         xcol, ycol = 'R_squared_adj_ols', 'R_squared_adj_lasso'
-        xlabel, ylabel = 'OLS adjusted R²', 'LASSO adjusted R²'
+        xlabel, ylabel = 'OLS adjusted R²', 'Elastic-Net adjusted R²'
         diag_label = 'y = x (same adjusted R²)'
-        plot_title = 'Model fit: LASSO vs OLS (adjusted R²)'
+        plot_title = 'Model fit: Elastic-Net vs OLS (adjusted R²)'
     else:
         xcol, ycol = 'R_squared_ols', 'R_squared_lasso'
-        xlabel, ylabel = 'OLS R²', 'LASSO R²'
+        xlabel, ylabel = 'OLS R²', 'Elastic-Net R²'
         diag_label = 'y = x (same R²)'
-        plot_title = 'Model fit: LASSO vs OLS (R²)'
+        plot_title = 'Model fit: Elastic-Net vs OLS (R²)'
     sc = ax4.scatter(
         comparison_df[xcol],
         comparison_df[ycol],
@@ -318,7 +318,9 @@ def _short_sector(name: str, max_len: int = 34) -> str:
 
 
 def _short_predictor_label(name: str) -> str:
-    s = name.replace('GPR_Global', 'GPR')
+    s = name
+    for original, label in _PRETTY_LABELS.items():
+        s = s.replace(original, label)
     s = s.replace('_lag1', ' (−1Q)').replace('_lag2', ' (−2Q)').replace('_lag3', ' (−3Q)').replace('_lag4', ' (−4Q)')
     return s.replace('_', ' ')
 
@@ -426,42 +428,48 @@ def plot_cumulative_coefficient_forest(
         print('No sensitivity rows to plot (check PD horizon filter).')
         return
 
-    prefix = 'β_' if kind == 'macro' else 'δ_'
-    letter = 'β' if kind == 'macro' else 'δ'
+    prefix = 'β_' if kind == 'macro' else 'β'
+    letter = 'β' if kind == 'macro' else 'β'
     y_pos = np.arange(len(df))
     sectors_short = [_short_sector(s, 34) for s in df['Sector']]
     fig_height = max(0.45 * len(df) + 1.8, 4.0)
 
     for base in base_cols:
-        # Collect all lag-variant column names that belong to this base variable
+        prefix = 'β_' if kind == 'macro' else 'δ_'
+        total_col = f'{prefix}{base}_total'
+        lo_total  = f'{prefix}{base}_total_CI_lower'
+        hi_total  = f'{prefix}{base}_total_CI_upper'
+
         lag_cols: List[str] = [base] + [f'{base}_lag{k}' for k in range(1, n_lags + 1)]
-        lag_cols = [c for c in lag_cols if c in all_cols]  # keep only what was actually regressed
+        lag_cols = [c for c in lag_cols if c in all_cols]
 
-        coef_cols = [f'{prefix}{c}' for c in lag_cols]
-        lo_cols   = [f'{prefix}{c}_CI_lower' for c in lag_cols]
-        hi_cols   = [f'{prefix}{c}_CI_upper' for c in lag_cols]
-
-        # Skip if none of the expected columns exist
-        if not any(c in df.columns for c in coef_cols):
-            print(f'Skipping {base}: no regression columns found.')
-            continue
-
-        # Sum point estimates; propagate SE in quadrature
-        beta_sum = np.zeros(len(df))
-        var_sum  = np.zeros(len(df))
-        for cc, lc, hc in zip(coef_cols, lo_cols, hi_cols):
-            if cc not in df.columns:
+        # Use precomputed 1'*Sigma*1 cumulative CI if available (correct),
+        # otherwise fall back to quadrature approximation.
+        if total_col in df.columns:
+            beta_sum = df[total_col].values.astype(float)
+            ci_lo    = df[lo_total].values.astype(float) if lo_total in df.columns else beta_sum
+            ci_hi    = df[hi_total].values.astype(float) if hi_total in df.columns else beta_sum
+        else:
+            coef_cols = [f'{prefix}{c}' for c in lag_cols]
+            lo_cols   = [f'{prefix}{c}_CI_lower' for c in lag_cols]
+            hi_cols   = [f'{prefix}{c}_CI_upper' for c in lag_cols]
+            if not any(c in df.columns for c in coef_cols):
+                print(f'Skipping {base}: no regression columns found.')
                 continue
-            b  = df[cc].values.astype(float)
-            lo = df[lc].values.astype(float) if lc in df.columns else b
-            hi = df[hc].values.astype(float) if hc in df.columns else b
-            se = (hi - lo) / (2 * 1.96)
-            beta_sum += np.nan_to_num(b)
-            var_sum  += np.nan_to_num(se ** 2)
-
-        se_sum = np.sqrt(var_sum)
-        ci_lo  = beta_sum - 1.96 * se_sum
-        ci_hi  = beta_sum + 1.96 * se_sum
+            beta_sum = np.zeros(len(df))
+            var_sum  = np.zeros(len(df))
+            for cc, lc, hc in zip(coef_cols, lo_cols, hi_cols):
+                if cc not in df.columns:
+                    continue
+                b  = df[cc].values.astype(float)
+                lo = df[lc].values.astype(float) if lc in df.columns else b
+                hi = df[hc].values.astype(float) if hc in df.columns else b
+                se = (hi - lo) / (2 * 1.96)
+                beta_sum += np.nan_to_num(b)
+                var_sum  += np.nan_to_num(se ** 2)
+            se_sum = np.sqrt(var_sum)
+            ci_lo  = beta_sum - 1.96 * se_sum
+            ci_hi  = beta_sum + 1.96 * se_sum
         sig    = (ci_lo > 0) | (ci_hi < 0)
         colors = np.where(sig, '#2166AC', '#9E9E9E')
         xerr   = np.row_stack([beta_sum - ci_lo, ci_hi - beta_sum])
@@ -686,7 +694,7 @@ def plot_lasso_coefficient_forest(
 
     fig, axes = plt.subplots(n_rows, n_cols, figsize=figsize, squeeze=False)
     fig.suptitle(
-        f'LASSO coefficients (native units, same as OLS) — β\n'
+        f'Elastic-Net coefficients (native units, same as OLS) — β\n'
         f'Orange diamond = selected; gray dot = shrunk to zero. Horizon: {pd_horizon or "all rows"}',
         fontsize=12,
         fontweight='bold',
@@ -830,8 +838,8 @@ def plot_ols_lasso_forest_comparison(
 
     fig, axes = plt.subplots(n_rows, n_cols, figsize=figsize, squeeze=False)
     fig.suptitle(
-        f'OLS vs LASSO — β\n'
-        f'Lower marker: OLS ±95% CI. Upper: LASSO native (Δ logit per unit X). '
+        f'OLS vs Elastic-Net — β\n'
+        f'Lower marker: OLS ±95% CI. Upper: Elastic-Net native (Δ logit per unit X). '
         f'Horizon: {pd_horizon or "all rows"}',
         fontsize=12,
         fontweight='bold',
@@ -889,7 +897,7 @@ def plot_ols_lasso_forest_comparison(
                 zorder=3,
                 edgecolors='white',
                 linewidths=0.5,
-                label='LASSO selected',
+                label='Elastic-Net selected',
             )
             ax.scatter(
                 lasso_v[~sel_mask],
@@ -900,7 +908,7 @@ def plot_ols_lasso_forest_comparison(
                 zorder=3,
                 edgecolors='none',
                 linewidths=0,
-                label='LASSO not selected',
+                label='Elastic-Net not selected',
             )
         else:
             ax.scatter(
@@ -1232,7 +1240,7 @@ def plot_scenario_loss(results: dict) -> None:
         results['scenarios']['Interest_Rate'],
         results['scenarios']['Unemployment_Rate'],
     ]
-    ax3.boxplot(scenario_data, labels=['GDP Growth', 'Interest Rate', 'Unemployment'])
+    ax3.boxplot(scenario_data, labels=['GDP', 'IR', 'Unemployment'])
     ax3.set_ylabel('Value', fontsize=12)
     ax3.set_title('Distribution of Key Macro Variables Across Scenarios', fontsize=13, fontweight='bold')
     ax3.grid(True, alpha=0.3, axis='y')
@@ -1534,22 +1542,27 @@ def plot_lasso_beta_heatmap(
     gpr_cols: List[str],
     pd_horizon: Optional[str] = None,
     figsize: Optional[tuple] = None,
+    title: Optional[str] = None,
+    mode: Optional[str] = None,
+    n_lags: int = 4,
 ) -> None:
-    """Heatmap of LASSO betas (standardised) for every variable × sector.
-
-    Macro and GPR variables are shown in a single combined heatmap; all
-    coefficients are labelled β.  Cells where LASSO shrunk the coefficient to
-    zero are shown as light grey (not selected); non-zero cells are coloured on
-    a diverging scale so positive / negative sensitivities are immediately
-    visible.
+    """Heatmap in the same style for OLS, cumulative OLS, or Elastic-Net coefficients.
 
     Parameters
     ----------
-    df_lasso     : output of ``lasso.run_lasso_feature_selection``
-    macro_cols   : e.g. ``config.ALL_MACRO_COLS``
-    gpr_cols     : e.g. ``config.ALL_GPR_COLS``
+    df_lasso     : DataFrame containing one of:
+                   - OLS coefficients + CI columns
+                   - cumulative OLS coefficients + CI columns
+                   - Elastic-Net coefficients / selections
+    macro_cols   : variable names to display first
+    gpr_cols     : variable names to display after macro_cols
     pd_horizon   : filter to a single PD_Horizon row if the column exists
     figsize      : override automatic figure size
+    title        : optional title override
+    mode         : 'ols', 'cumulative', 'lasso', or None (auto-detect).
+                   Use 'cumulative' to sum lag coefficients on the fly when
+                   pre-computed _total columns are not present in the DataFrame.
+    n_lags       : number of lags used when mode='cumulative' (default 4).
     """
     df = df_lasso.copy()
     if pd_horizon is not None and 'PD_Horizon' in df.columns:
@@ -1558,27 +1571,183 @@ def plot_lasso_beta_heatmap(
         print("plot_lasso_beta_heatmap: no rows to plot.")
         return
 
-    # ── build combined beta matrix (macro first, then GPR) ────────────────────
-    sectors = list(df['Sector'])
+    if 'Sector' in df.columns:
+        sectors = list(df['Sector'])
+    else:
+        sectors = [str(i) for i in df.index]
     n_sectors = len(sectors)
     short_sectors = [s[:30] for s in sectors]
+    all_cols = list(macro_cols) + list(gpr_cols)
 
-    macro_data = {col: df[f'LASSO_β_{col}'].values for col in macro_cols}
-    gpr_data = {col: df[f'LASSO_δ_{col}'].values for col in gpr_cols}
-    all_data = {**macro_data, **gpr_data}
+    has_lasso = any(f'LASSO_β_{col}' in df.columns for col in macro_cols) or any(f'LASSO_δ_{col}' in df.columns for col in gpr_cols)
+    has_cumul = any(f'{col}_cumul_beta' in df.columns for col in all_cols)
+    has_total = any(f'β_{col}_total' in df.columns for col in macro_cols) or any(f'δ_{col}_total' in df.columns for col in gpr_cols)
+    has_ols = any(f'β_{col}' in df.columns for col in macro_cols) or any(f'δ_{col}' in df.columns for col in gpr_cols)
 
-    betas = pd.DataFrame(all_data, index=short_sectors)
+    # When mode='cumulative', compute cumulative sums on the fly from lag columns.
+    # macro_cols/gpr_cols should be the base names (without lag suffixes).
+    if mode == 'cumulative':
+        all_data: dict = {}
+        zero_mask = pd.DataFrame(index=short_sectors)
+        for col, prefix in [(c, 'β_') for c in macro_cols] + [(c, 'δ_') for c in gpr_cols]:
+            lag_names = [col] + [f'{col}_lag{k}' for k in range(1, n_lags + 1)]
+            coef_cols = [f'{prefix}{c}' for c in lag_names if f'{prefix}{c}' in df.columns]
+            lo_cols   = [f'{prefix}{c}_CI_lower' for c in lag_names if f'{prefix}{c}_CI_lower' in df.columns]
+            hi_cols   = [f'{prefix}{c}_CI_upper' for c in lag_names if f'{prefix}{c}_CI_upper' in df.columns]
+            if not coef_cols:
+                continue
+            beta_sum = np.zeros(len(df))
+            var_sum  = np.zeros(len(df))
+            for cc in coef_cols:
+                beta_sum += np.nan_to_num(df[cc].values.astype(float))
+            for lc, hc in zip(lo_cols, hi_cols):
+                lo = df[lc].values.astype(float)
+                hi = df[hc].values.astype(float)
+                se = (hi - lo) / (2 * 1.96)
+                var_sum += np.nan_to_num(se ** 2)
+            se_sum = np.sqrt(var_sum)
+            ci_lo_arr = beta_sum - 1.96 * se_sum
+            ci_hi_arr = beta_sum + 1.96 * se_sum
+            all_data[col] = beta_sum
+            zero_mask[col] = (ci_lo_arr <= 0) & (ci_hi_arr >= 0)
+        if not all_data:
+            print("plot_lasso_beta_heatmap: no OLS lag columns found for cumulative mode.")
+            return
+        betas = pd.DataFrame(all_data, index=short_sectors)
+        zero_mask = zero_mask.reindex(index=betas.index, columns=betas.columns, fill_value=False)
+        cbar_label = 'Cumulative OLS β'
+        title_text = title or f'Cumulative OLS by Sector{f" — {pd_horizon}" if pd_horizon else ""}\n(coloured = significant, grey = insignificant)'
+    elif mode == 'ols':
+        # Force the OLS individual-coefficient branch regardless of what else is in df.
+        macro_data = {col: df[f'β_{col}'].values for col in macro_cols if f'β_{col}' in df.columns}
+        gpr_data   = {col: df[f'δ_{col}'].values for col in gpr_cols   if f'δ_{col}' in df.columns}
+        all_data = {**macro_data, **gpr_data}
+        if not all_data:
+            print("plot_lasso_beta_heatmap: no OLS beta columns found.")
+            return
+        betas = pd.DataFrame(all_data, index=short_sectors)
+        zero_mask = pd.DataFrame(False, index=betas.index, columns=betas.columns)
+        for col in macro_cols:
+            if col not in betas.columns:
+                continue
+            lo_col = f'β_{col}_CI_lower'
+            hi_col = f'β_{col}_CI_upper'
+            if lo_col in df.columns and hi_col in df.columns:
+                zero_mask[col] = (df[lo_col].values <= 0) & (df[hi_col].values >= 0)
+        for col in gpr_cols:
+            if col not in betas.columns:
+                continue
+            lo_col = f'δ_{col}_CI_lower'
+            hi_col = f'δ_{col}_CI_upper'
+            if lo_col in df.columns and hi_col in df.columns:
+                zero_mask[col] = (df[lo_col].values <= 0) & (df[hi_col].values >= 0)
+        cbar_label = 'OLS β'
+        title_text = title or f'OLS Coefficients by Sector{f" — {pd_horizon}" if pd_horizon else ""}\n(coloured = significant, grey = insignificant)'
+    elif has_lasso:
+        macro_data = {
+            col: df[f'LASSO_β_{col}'].values
+            for col in macro_cols
+            if f'LASSO_β_{col}' in df.columns
+        }
+        gpr_data = {
+            col: df[f'LASSO_δ_{col}'].values
+            for col in gpr_cols
+            if f'LASSO_δ_{col}' in df.columns
+        }
+        all_data = {**macro_data, **gpr_data}
+        if not all_data:
+            print("plot_lasso_beta_heatmap: no Elastic-Net beta columns found.")
+            return
+        betas = pd.DataFrame(all_data, index=short_sectors)
+        zero_mask = pd.DataFrame(False, index=betas.index, columns=betas.columns)
+        for col in macro_cols:
+            if col not in betas.columns:
+                continue
+            sel_col = f'β_selected_{col}'
+            if sel_col in df.columns:
+                zero_mask[col] = df[sel_col].values.astype(int) == 0
+            else:
+                zero_mask[col] = betas[col].eq(0)
+        for col in gpr_cols:
+            if col not in betas.columns:
+                continue
+            sel_col = f'δ_selected_{col}'
+            if sel_col in df.columns:
+                zero_mask[col] = df[sel_col].values.astype(int) == 0
+            else:
+                zero_mask[col] = betas[col].eq(0)
+        cbar_label = 'Standardised Elastic-Net β'
+        title_text = title or f'Elastic-Net Feature Selection by Sector{f" — {pd_horizon}" if pd_horizon else ""}\n(coloured = selected, grey = shrunk to zero)'
+    elif has_cumul or has_total:
+        all_data = {}
+        zero_mask = pd.DataFrame(index=short_sectors)
+        for col in all_cols:
+            cumul_b = f'{col}_cumul_beta'
+            cumul_lo = f'{col}_cumul_lo'
+            cumul_hi = f'{col}_cumul_hi'
+            total_b = f'β_{col}_total' if col in macro_cols else f'δ_{col}_total'
+            total_lo = f'{total_b}_CI_lower'
+            total_hi = f'{total_b}_CI_upper'
+
+            if cumul_b in df.columns:
+                all_data[col] = df[cumul_b].values
+                if cumul_lo in df.columns and cumul_hi in df.columns:
+                    zero_mask[col] = (df[cumul_lo].values <= 0) & (df[cumul_hi].values >= 0)
+                else:
+                    zero_mask[col] = False
+            elif total_b in df.columns:
+                all_data[col] = df[total_b].values
+                if total_lo in df.columns and total_hi in df.columns:
+                    zero_mask[col] = (df[total_lo].values <= 0) & (df[total_hi].values >= 0)
+                else:
+                    zero_mask[col] = False
+        if not all_data:
+            print("plot_lasso_beta_heatmap: no cumulative beta columns found.")
+            return
+        betas = pd.DataFrame(all_data, index=short_sectors)
+        zero_mask = zero_mask.reindex(index=betas.index, columns=betas.columns, fill_value=False)
+        cbar_label = 'Cumulative OLS β'
+        title_text = title or f'Cumulative OLS by Sector{f" — {pd_horizon}" if pd_horizon else ""}\n(coloured = significant, grey = insignificant)'
+    elif has_ols:
+        macro_data = {col: df[f'β_{col}'].values for col in macro_cols if f'β_{col}' in df.columns}
+        gpr_data = {col: df[f'δ_{col}'].values for col in gpr_cols if f'δ_{col}' in df.columns}
+        all_data = {**macro_data, **gpr_data}
+        if not all_data:
+            print("plot_lasso_beta_heatmap: no OLS beta columns found.")
+            return
+        betas = pd.DataFrame(all_data, index=short_sectors)
+        zero_mask = pd.DataFrame(False, index=betas.index, columns=betas.columns)
+        for col in macro_cols:
+            if col not in betas.columns:
+                continue
+            lo_col = f'β_{col}_CI_lower'
+            hi_col = f'β_{col}_CI_upper'
+            if lo_col in df.columns and hi_col in df.columns:
+                zero_mask[col] = (df[lo_col].values <= 0) & (df[hi_col].values >= 0)
+        for col in gpr_cols:
+            if col not in betas.columns:
+                continue
+            lo_col = f'δ_{col}_CI_lower'
+            hi_col = f'δ_{col}_CI_upper'
+            if lo_col in df.columns and hi_col in df.columns:
+                zero_mask[col] = (df[lo_col].values <= 0) & (df[hi_col].values >= 0)
+        cbar_label = 'OLS β'
+        title_text = title or f'OLS by Sector{f" — {pd_horizon}" if pd_horizon else ""}\n(coloured = significant, grey = insignificant)'
+    else:
+        print("plot_lasso_beta_heatmap: could not detect supported coefficient columns.")
+        return
+
+    betas.columns = [_short_predictor_label(c) for c in betas.columns]
+    zero_mask.columns = betas.columns
 
     vmax = np.nanmax(np.abs(betas.values))
     if vmax == 0:
         vmax = 1.0
 
-    zero_mask = betas == 0
-
     n_cols_total = len(betas.columns)
     if figsize is None:
-        col_w = max(0.55 * n_cols_total, 10)
-        row_h = max(0.38 * n_sectors, 4)
+        col_w = max(0.7 * n_cols_total, 10)
+        row_h = max(0.7 * n_sectors, 4)
         figsize = (col_w, row_h)
 
     fig, ax = plt.subplots(1, 1, figsize=figsize)
@@ -1596,11 +1765,10 @@ def plot_lasso_beta_heatmap(
         mask=zero_mask,
         annot=True,
         fmt='.2f',
-        annot_kws={'size': 7},
-        linewidths=0.4,
+        annot_kws={'size': 10},
         linecolor='#dddddd',
         cbar=True,
-        cbar_kws={'label': 'Standardised LASSO β', 'shrink': 0.6},
+        cbar_kws={'label': cbar_label, 'shrink': 0.6},
     )
     # grey cells for not-selected (shrunk to zero)
     sns.heatmap(
@@ -1613,18 +1781,16 @@ def plot_lasso_beta_heatmap(
         linecolor='#dddddd',
         cbar=False,
     )
-    ax.set_title('β', fontsize=11, fontweight='bold', pad=8)
-    ax.set_ylabel('Sector', fontsize=10)
+    ax.set_title('β', fontsize=15, fontweight='bold', pad=8)
+    ax.set_ylabel('Sector', fontsize=13)
     ax.set_xlabel('')
-    ax.tick_params(axis='y', labelsize=8)
-    ax.tick_params(axis='x', labelsize=8)
+    ax.tick_params(axis='y', labelsize=12)
+    ax.tick_params(axis='x', labelsize=12)
     plt.setp(ax.get_xticklabels(), rotation=45, ha='right')
 
-    horizon_label = f' — {pd_horizon}' if pd_horizon else ''
     fig.suptitle(
-        f'LASSO Feature Selection by Sector{horizon_label}\n'
-        '(coloured = selected, grey = shrunk to zero)',
-        fontsize=13,
+        title_text,
+        fontsize=17,
         fontweight='bold',
         y=1.02,
     )
@@ -1635,3 +1801,209 @@ def plot_lasso_beta_heatmap(
 def _calculate_logit(p: np.ndarray | pd.Series) -> np.ndarray:
     p = np.clip(p, 1e-7, 1 - 1e-7)
     return np.log(p / (1 - p))
+
+
+def plot_model_heatmaps(
+    df_sensitivities: pd.DataFrame,
+    df_lasso: pd.DataFrame,
+    macro_cols: list,
+    gpr_cols: list,
+    pd_horizon: str = '12_month',
+    figsize: tuple | None = None,
+    df_m2_betas: pd.DataFrame | None = None,
+) -> None:
+    """Coefficient heatmaps using the same visual design as plot_lasso_beta_heatmap.
+
+    M2 betas are taken from the precomputed *_total / *_total_CI_* columns in
+    df_sensitivities (computed via 1'*Sigma*1 in run_sensitivity_analysis).
+    The legacy df_m2_betas argument is accepted but ignored.
+    """
+    sns.set_theme(style='white', context='notebook')
+
+    def _lagged_vars(base_vars: list[str], prefix: str) -> list[str]:
+        vars_found: list[str] = []
+        for base in base_vars:
+            current = f'{prefix}{base}'
+            if current in df_s.columns:
+                vars_found.append(base)
+            lag = 1
+            while f'{prefix}{base}_lag{lag}' in df_s.columns:
+                vars_found.append(f'{base}_lag{lag}')
+                lag += 1
+        return vars_found
+
+    def _build_ols_matrix(df_frame: pd.DataFrame, vars_: list[str], macro_base: set[str]) -> tuple[np.ndarray, np.ndarray]:
+        betas = np.full((n_sectors, len(vars_)), np.nan)
+        insig = np.ones((n_sectors, len(vars_)), dtype=bool)
+        for j, col in enumerate(vars_):
+            base = col.split('_lag')[0]
+            prefix = 'β_' if base in macro_base else 'δ_'
+            b_col = f'{prefix}{col}'
+            lo_col = f'{b_col}_CI_lower'
+            hi_col = f'{b_col}_CI_upper'
+            if b_col not in df_frame.columns:
+                continue
+            for i, sec in enumerate(sectors):
+                if sec not in df_frame.index:
+                    continue
+                b = df_frame.loc[sec, b_col]
+                lo = df_frame.loc[sec, lo_col]
+                hi = df_frame.loc[sec, hi_col]
+                betas[i, j] = b
+                insig[i, j] = bool(lo <= 0 <= hi)
+        return betas, insig
+
+    def _build_cumulative_matrix(df_frame: pd.DataFrame, vars_: list[str]) -> tuple[np.ndarray, np.ndarray]:
+        """Read precomputed 1'*Sigma*1 cumulative betas from df_sensitivities."""
+        betas = np.full((n_sectors, len(vars_)), np.nan)
+        insig = np.ones((n_sectors, len(vars_)), dtype=bool)
+        for j, col in enumerate(vars_):
+            prefix = 'β_' if col in macro_cols else 'δ_'
+            b_col  = f'{prefix}{col}_total'
+            lo_col = f'{prefix}{col}_total_CI_lower'
+            hi_col = f'{prefix}{col}_total_CI_upper'
+            if b_col not in df_frame.columns:
+                continue
+            for i, sec in enumerate(sectors):
+                if sec not in df_frame.index:
+                    continue
+                b  = df_frame.loc[sec, b_col]
+                lo = df_frame.loc[sec, lo_col]
+                hi = df_frame.loc[sec, hi_col]
+                betas[i, j] = b
+                insig[i, j] = bool(lo <= 0 <= hi)
+        return betas, insig
+
+    def _build_lasso_matrix(df_frame: pd.DataFrame, vars_: list[str], macro_base: set[str]) -> tuple[np.ndarray, np.ndarray]:
+        betas = np.full((n_sectors, len(vars_)), np.nan)
+        masked = np.ones((n_sectors, len(vars_)), dtype=bool)
+        for j, col in enumerate(vars_):
+            base = col.split('_lag')[0]
+            native_col = f'LASSO_NATIVE_β_{col}' if base in macro_base else f'LASSO_NATIVE_δ_{col}'
+            sel_col = f'β_selected_{col}' if base in macro_base else f'δ_selected_{col}'
+            if native_col not in df_frame.columns:
+                continue
+            for i, sec in enumerate(sectors):
+                if sec not in df_frame.index:
+                    continue
+                betas[i, j] = df_frame.loc[sec, native_col]
+                masked[i, j] = bool(df_frame.loc[sec, sel_col] == 0) if sel_col in df_frame.columns else False
+        return betas, masked
+
+    def _plot_single_heatmap(
+        title: str,
+        betas: np.ndarray,
+        mask_gray: np.ndarray,
+        xlabels: list[str],
+        vabs: float,
+    ) -> None:
+        if figsize is None:
+            _figsize = (max(0.55 * len(xlabels), 10), max(0.38 * n_sectors, 4))
+        else:
+            _figsize = figsize
+
+        fig, ax = plt.subplots(figsize=_figsize)
+        fig.patch.set_facecolor('white')
+
+        betas_df = pd.DataFrame(betas, index=sector_labels, columns=xlabels)
+        color_mask = mask_gray | np.isnan(betas)
+        gray_mask = ~mask_gray & ~np.isnan(betas)
+
+        cmap = sns.diverging_palette(220, 20, as_cmap=True)
+        sns.heatmap(
+            betas_df,
+            ax=ax,
+            cmap=cmap,
+            center=0,
+            vmin=-vabs,
+            vmax=vabs,
+            mask=color_mask,
+            annot=True,
+            fmt='.2f',
+            annot_kws={'size': 11, 'weight': 'bold'},
+            linewidths=0.4,
+            linecolor='#dddddd',
+            cbar=True,
+            cbar_kws={'label': 'Coefficient', 'shrink': 0.6},
+        )
+        sns.heatmap(
+            betas_df,
+            ax=ax,
+            cmap=sns.color_palette(['#e3e3e3'], as_cmap=True),
+            mask=~gray_mask,
+            annot=False,
+            linewidths=0.4,
+            linecolor='#dddddd',
+            cbar=False,
+        )
+        ax.set_title(title, fontsize=16, fontweight='bold', pad=10)
+        ax.set_ylabel('Sector', fontsize=13)
+        ax.set_xlabel('')
+        ax.tick_params(axis='y', labelsize=12)
+        ax.tick_params(axis='x', labelsize=12)
+        plt.setp(ax.get_xticklabels(), rotation=45, ha='right')
+
+        cbar = ax.collections[0].colorbar
+        cbar.set_label('Coefficient', fontsize=13)
+        cbar.ax.tick_params(labelsize=11)
+
+        fig.tight_layout()
+        plt.show()
+
+    df_s = _filter_sensitivity_horizon(df_sensitivities, pd_horizon).copy()
+    if df_s.empty:
+        print('plot_model_heatmaps: no OLS rows to plot.')
+        return
+    df_s = df_s.set_index('Sector')
+
+    df_l = _filter_sensitivity_horizon(df_lasso, pd_horizon).copy()
+    if df_l.empty:
+        print('plot_model_heatmaps: no Elastic-Net rows to plot.')
+        return
+    df_l = df_l.set_index('Sector')
+
+    sectors = sorted(set(df_s.index).intersection(df_l.index))
+    if not sectors:
+        print('plot_model_heatmaps: no overlapping sectors across model outputs.')
+        return
+    n_sectors = len(sectors)
+    sector_labels = [_short_sector(s, 32) for s in sectors]
+    macro_base = set(macro_cols)
+    cumulative_vars = list(macro_cols) + list(gpr_cols)
+
+    m1_vars = _lagged_vars(list(macro_cols), 'β_') + _lagged_vars(list(gpr_cols), 'δ_')
+    m3_vars = [c for c in m1_vars if (f'LASSO_NATIVE_β_{c}' in df_l.columns) or (f'LASSO_NATIVE_δ_{c}' in df_l.columns)]
+
+    m1_betas, m1_insig = _build_ols_matrix(df_s, m1_vars, macro_base)
+    m2_betas, m2_insig = _build_cumulative_matrix(df_s, cumulative_vars)
+    m3_betas, m3_mask  = _build_lasso_matrix(df_l, m3_vars, macro_base)
+
+    all_vals = np.concatenate([
+        m1_betas[~np.isnan(m1_betas)],
+        m2_betas[~np.isnan(m2_betas)],
+        m3_betas[~np.isnan(m3_betas)],
+    ])
+    vabs = np.nanpercentile(np.abs(all_vals), 95) if len(all_vals) else 1.0
+    vabs = max(vabs, 1e-6)
+
+    _plot_single_heatmap(
+        title='M1 — Full-Lag OLS',
+        betas=m1_betas,
+        mask_gray=m1_insig,
+        xlabels=[_short_predictor_label(v) for v in m1_vars],
+        vabs=vabs,
+    )
+    _plot_single_heatmap(
+        title='M2 — Cumulative OLS',
+        betas=m2_betas,
+        mask_gray=m2_insig,
+        xlabels=[_short_predictor_label(v) for v in cumulative_vars],
+        vabs=vabs,
+    )
+    _plot_single_heatmap(
+        title='M3 — Elastic-Net',
+        betas=m3_betas,
+        mask_gray=m3_mask,
+        xlabels=[_short_predictor_label(v) for v in m3_vars],
+        vabs=vabs,
+    )

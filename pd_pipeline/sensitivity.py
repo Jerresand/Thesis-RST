@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from typing import Iterable, List
 
@@ -321,6 +322,28 @@ def run_sensitivity_analysis(
                     result[f'δ_{col}'] = model.params[col]
                     result[f'δ_{col}_CI_lower'] = conf_int.loc[col, 0]
                     result[f'δ_{col}_CI_upper'] = conf_int.loc[col, 1]
+
+                # Cumulative (summed) betas with correct CIs via 1'*Sigma*1.
+                # Group lag variants by base name, then for each base variable
+                # compute beta_total = sum(beta_k) and
+                # Var(beta_total) = 1' * Sigma_sub * 1 using the full VCV matrix.
+                vcv = model.cov_params()
+                all_reg_cols = list(macro_cols) + list(gpr_cols)
+                base_vars = {re.sub(r'_lag\d+$', '', c) for c in all_reg_cols}
+                for base in base_vars:
+                    lag_cols_base = [c for c in all_reg_cols
+                                     if c == base or c.startswith(f'{base}_lag')]
+                    if not lag_cols_base:
+                        continue
+                    prefix = 'β_' if base in macro_cols else 'δ_'
+                    beta_total = sum(model.params[c] for c in lag_cols_base)
+                    vcv_sub = vcv.loc[lag_cols_base, lag_cols_base].values
+                    ones = np.ones(len(lag_cols_base))
+                    var_total = float(ones @ vcv_sub @ ones)
+                    se_total = np.sqrt(max(var_total, 0.0))
+                    result[f'{prefix}{base}_total']          = beta_total
+                    result[f'{prefix}{base}_total_CI_lower'] = beta_total - 1.96 * se_total
+                    result[f'{prefix}{base}_total_CI_upper'] = beta_total + 1.96 * se_total
 
                 sensitivities_data.append(result)
                 if verbose:
