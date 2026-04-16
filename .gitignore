@@ -1,0 +1,14 @@
+# Large Fitch extracts — keep locally; do not push (GitHub 100 MB limit)
+data/PDs/20260301 Fitch Ratings US Public.csv
+data/PDs/fitch_ratings_filtered.csv
+data/PDs/20260301 Fitch Ratings Corporate.csv
+
+# macOS / Python noise
+.DS_Store
+**/.DS_Store
+data/.DS_Store
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.so
