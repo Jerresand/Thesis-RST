@@ -10,7 +10,7 @@ MACRO_COLS = [
 
 GPR_COLS = ['GPR_Global']
 
-N_LAGS = 4  # one lag per quarter (Q1…Q4)
+N_LAGS = 2  # one lag per quarter (Q1…Q4)
 
 LAGGED_MACRO_COLS = [f'{col}_lag{k}' for col in MACRO_COLS for k in range(1, N_LAGS + 1)]
 LAGGED_GPR_COLS = [f'{col}_lag{k}' for col in GPR_COLS for k in range(1, N_LAGS + 1)]

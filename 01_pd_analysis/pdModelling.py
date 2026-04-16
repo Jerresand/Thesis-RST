@@ -1,6 +1,7 @@
 # Setup paths
 import sys, pathlib
 import numpy as np
+from scipy.stats import t
 
 PROJECT_ROOT = pathlib.Path.cwd().resolve()
 if not (PROJECT_ROOT / 'pd_pipeline').exists():
@@ -162,36 +163,97 @@ print(
 # --- Per-sector regression on relative-to-last macro data ---
 from sklearn.linear_model import LinearRegression
 
-print("\nPer-sector regression (one model per sector):")
-print("  y = logit_pd")
-print("  X = [GDP_Growth, Interest_Rate, Brent_Oil, Fuel_Index, CPI, GPR_Global]")
-
 plots_dir = DATA_DIR / "analysis" / "plots"
 plots_dir.mkdir(parents=True, exist_ok=True)
-out_per_sector_path = plots_dir / "per_sector_regression_logit_pd_vs_macro_relative.csv"
+def run_per_sector_regression(
+    df_input: pd.DataFrame,
+    feature_cols: list[str],
+    model_label: str,
+    coef_filename: str,
+    ci_filename: str,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    print(f"\nPer-sector regression ({model_label}):")
+    print("  y = logit_pd")
+    print(f"  X = {feature_cols}")
 
-rows: list[dict[str, object]] = []
-for sector, df_s in df_sector_macro_relative.groupby(config.SECTOR_COL, sort=True):
-    df_s = df_s.dropna(subset=macro_base_cols + ["logit_pd"])
-    if df_s.empty:
-        continue
+    rows: list[dict[str, object]] = []
+    ci_rows: list[dict[str, object]] = []
 
-    X_s = df_s[macro_base_cols].to_numpy()
-    y_s = df_s["logit_pd"].to_numpy()
+    for sector, df_s in df_input.groupby(config.SECTOR_COL, sort=True):
+        df_s = df_s.dropna(subset=feature_cols + ["logit_pd"])
+        if df_s.empty:
+            continue
 
-    m_s = LinearRegression().fit(X_s, y_s)
+        X_s = df_s[feature_cols].to_numpy()
+        y_s = df_s["logit_pd"].to_numpy()
 
-    row: dict[str, object] = {
-        config.SECTOR_COL: sector,
-        "n_obs": int(len(df_s)),
-        "r2": float(m_s.score(X_s, y_s)),
-        "intercept": float(m_s.intercept_),
-    }
-    for col, beta in zip(macro_base_cols, m_s.coef_):
-        row[col] = float(beta)
-    rows.append(row)
+        m_s = LinearRegression().fit(X_s, y_s)
 
-df_per_sector = pd.DataFrame(rows).sort_values(config.SECTOR_COL).reset_index(drop=True)
-df_per_sector.to_csv(out_per_sector_path, index=False)
-print(f"Saved: {out_per_sector_path}")
-print(df_per_sector.to_string(index=False))
+        n_obs = len(df_s)
+        n_params = X_s.shape[1] + 1  # betas + intercept
+        X_design = np.column_stack([np.ones(n_obs), X_s])
+        y_hat = m_s.predict(X_s)
+        resid = y_s - y_hat
+        rss = float(np.sum(resid ** 2))
+        dof = n_obs - n_params
+
+        if dof > 0:
+            sigma2 = rss / dof
+            cov_beta = sigma2 * np.linalg.pinv(X_design.T @ X_design)
+            se_beta = np.sqrt(np.diag(cov_beta))[1:]  # exclude intercept
+            t_crit = t.ppf(0.9995, dof)
+        else:
+            se_beta = np.full(X_s.shape[1], np.nan)
+            t_crit = np.nan
+
+        row: dict[str, object] = {
+            config.SECTOR_COL: sector,
+            "n_obs": int(n_obs),
+            "r2": float(m_s.score(X_s, y_s)),
+            "intercept": float(m_s.intercept_),
+        }
+        for col, beta in zip(feature_cols, m_s.coef_):
+            row[col] = float(beta)
+        rows.append(row)
+
+        for col, beta, se in zip(feature_cols, m_s.coef_, se_beta):
+            ci_rows.append({
+                config.SECTOR_COL: sector,
+                "variable": col,
+                "n_obs": int(n_obs),
+                "beta": float(beta),
+                "ci_lower_999": float(beta - t_crit * se) if np.isfinite(se) and np.isfinite(t_crit) else np.nan,
+                "ci_upper_999": float(beta + t_crit * se) if np.isfinite(se) and np.isfinite(t_crit) else np.nan,
+            })
+
+    df_coef = pd.DataFrame(rows).sort_values(config.SECTOR_COL).reset_index(drop=True)
+    out_coef_path = plots_dir / coef_filename
+    df_coef.to_csv(out_coef_path, index=False)
+    print(f"Saved: {out_coef_path}")
+    print(df_coef.to_string(index=False))
+
+    df_ci = pd.DataFrame(ci_rows).sort_values([config.SECTOR_COL, "variable"]).reset_index(drop=True)
+    out_ci_path = plots_dir / ci_filename
+    df_ci.to_csv(out_ci_path, index=False)
+    print(f"Saved: {out_ci_path}")
+    print(df_ci.to_string(index=False))
+
+    return df_coef, df_ci
+
+
+df_per_sector, df_beta_ci = run_per_sector_regression(
+    df_input=df_sector_macro_relative,
+    feature_cols=macro_base_cols,
+    model_label="current-period variables",
+    coef_filename="per_sector_regression_logit_pd_vs_macro_relative.csv",
+    ci_filename="per_sector_beta_confidence_intervals.csv",
+)
+
+lagged_feature_cols = config.ALL_PREDICTOR_COLS_WITH_LAGS
+df_per_sector_lagged, df_beta_ci_lagged = run_per_sector_regression(
+    df_input=df_sector_macro_relative,
+    feature_cols=lagged_feature_cols,
+    model_label="current-period + lagged variables",
+    coef_filename="per_sector_regression_logit_pd_vs_macro_relative_with_lags.csv",
+    ci_filename="per_sector_beta_confidence_intervals_with_lags.csv",
+)

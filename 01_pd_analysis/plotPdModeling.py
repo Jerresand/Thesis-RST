@@ -10,6 +10,7 @@ from pd_pipeline import config
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import numpy as np
+import pandas as pd
 import seaborn as sns
 
 _PRETTY_LABELS = {
@@ -20,6 +21,14 @@ _PRETTY_LABELS = {
     'CPI':           'CPI',
     'GPR_Global':    'GPR',
 }
+
+
+def _pretty_label(col: str) -> str:
+    if "_lag" in col:
+        base, lag = col.rsplit("_lag", 1)
+        base_label = _PRETTY_LABELS.get(base, base.replace("_", " "))
+        return f"{base_label} (t-{lag})"
+    return _PRETTY_LABELS.get(col, col.replace("_", " "))
 
 #### Correlation and Covaraiance Matrix Heatmap
 sns.set_theme(style='white', context='paper')
@@ -157,72 +166,204 @@ plt.tight_layout()
 # --- Plot: logit_pd vs each regression input (grid) ---
 # Creates one grid figure per sector. Each grid has one subplot per X variable.
 macro_base_cols = config.MACRO_COLS + config.GPR_COLS  # same X columns as pdModelling.py
+lagged_feature_cols = config.ALL_PREDICTOR_COLS_WITH_LAGS
 
 df_rel = pdModelling.df_sector_macro_relative
 df_coef = pdModelling.df_per_sector
+df_beta_ci = pdModelling.df_beta_ci
+df_coef_lagged = pdModelling.df_per_sector_lagged
+df_beta_ci_lagged = pdModelling.df_beta_ci_lagged
 
 sectors = sorted(df_coef[config.SECTOR_COL].dropna().unique().tolist())
 
 # If you only want one sector, set to e.g. ["Communications"].
 SECTORS_TO_PLOT = sectors
 
-n_vars = len(macro_base_cols)
-n_cols_grid = int(np.ceil(np.sqrt(n_vars)))
-n_rows_grid = int(np.ceil(n_vars / n_cols_grid))
+def plot_per_sector_grids(
+    feature_cols: list[str],
+    df_coef_model,
+    model_label: str,
+) -> None:
+    n_vars = len(feature_cols)
+    n_cols_grid = int(np.ceil(np.sqrt(n_vars)))
+    n_rows_grid = int(np.ceil(n_vars / n_cols_grid))
 
-for plot_sector in SECTORS_TO_PLOT:
-    df_s = (
-        df_rel[df_rel[config.SECTOR_COL] == plot_sector]
-        .dropna(subset=macro_base_cols + ["logit_pd"])
-        .copy()
+    for plot_sector in SECTORS_TO_PLOT:
+        df_s = (
+            df_rel[df_rel[config.SECTOR_COL] == plot_sector]
+            .dropna(subset=feature_cols + ["logit_pd"])
+            .copy()
+        )
+        if df_s.empty:
+            continue
+
+        coef_row = df_coef_model[df_coef_model[config.SECTOR_COL] == plot_sector].iloc[0]
+        means = df_s[feature_cols].mean(numeric_only=True)
+
+        fig_reg, axes_reg = plt.subplots(
+            n_rows_grid, n_cols_grid,
+            figsize=(3.2 * n_cols_grid, 3.0 * n_rows_grid),
+            squeeze=False
+        )
+        axes_flat = list(axes_reg.flat)
+        fig_reg.patch.set_facecolor("white")
+
+        for idx, x_col in enumerate(feature_cols):
+            ax = axes_flat[idx]
+
+            x = df_s[x_col].to_numpy()
+            y = df_s["logit_pd"].to_numpy()
+            x_min = float(np.min(x))
+            x_max = float(np.max(x))
+            x_grid = np.linspace(x_min, x_max, 100)
+
+            # Multivariate line: vary only x_col, keep others at sector means.
+            base = float(coef_row["intercept"])
+            for c in feature_cols:
+                if c == x_col:
+                    continue
+                base += float(coef_row[c]) * float(means[c])
+            y_line = base + float(coef_row[x_col]) * x_grid
+
+            ax.scatter(x, y, s=10, alpha=0.35)
+            ax.plot(x_grid, y_line, "r-", linewidth=1.6)
+            ax.set_title(_pretty_label(x_col), fontsize=10)
+            ax.set_xlabel(_pretty_label(x_col), fontsize=9)
+            ax.set_ylabel("logit_pd" if (idx % n_cols_grid == 0) else "")
+            ax.grid(True, alpha=0.2)
+
+        for j in range(n_vars, len(axes_flat)):
+            axes_flat[j].set_visible(False)
+
+        fig_reg.suptitle(
+            f"logit_pd vs regression inputs ({model_label}, sector: {plot_sector})",
+            fontsize=12,
+            fontweight="bold",
+        )
+        fig_reg.tight_layout()
+
+
+# --- Heatmap: exact visual copy of plot_lasso_beta_heatmap ---
+def build_heatmap_frame(
+    df_coef_model: pd.DataFrame,
+    df_beta_ci_model: pd.DataFrame,
+    feature_cols: list[str],
+) -> pd.DataFrame:
+    df_heat = df_coef_model[[config.SECTOR_COL]].copy()
+
+    for feature in feature_cols:
+        prefix = "β_" if feature.split("_lag")[0] in config.MACRO_COLS else "δ_"
+        df_heat[f"{prefix}{feature}"] = df_coef_model[feature].values
+
+        ci_feature = (
+            df_beta_ci_model[df_beta_ci_model["variable"] == feature]
+            [[config.SECTOR_COL, "ci_lower_999", "ci_upper_999"]]
+            .rename(columns={
+                "ci_lower_999": f"{prefix}{feature}_CI_lower",
+                "ci_upper_999": f"{prefix}{feature}_CI_upper",
+            })
+        )
+        df_heat = df_heat.merge(ci_feature, on=config.SECTOR_COL, how="left")
+
+    return df_heat
+
+
+df_heatmap_lagged = build_heatmap_frame(
+    df_coef_model=df_coef_lagged,
+    df_beta_ci_model=df_beta_ci_lagged,
+    feature_cols=lagged_feature_cols,
+)
+
+plots.plot_lasso_beta_heatmap(
+    df_lasso=df_heatmap_lagged,
+    macro_cols=config.ALL_MACRO_COLS,
+    gpr_cols=config.ALL_GPR_COLS,
+    title="OLS by Sector with current and lagged betas\n(coloured = significant, grey = insignificant)",
+    mode="ols",
+)
+heatmap_out_path = pdModelling.DATA_DIR / "analysis" / "plots" / "per_sector_beta_heatmap_with_lags.png"
+plt.gcf().savefig(heatmap_out_path, dpi=200, bbox_inches="tight")
+print(f"Saved: {heatmap_out_path}")
+
+plot_per_sector_grids(
+    feature_cols=macro_base_cols,
+    df_coef_model=df_coef,
+    model_label="current-period model",
+)
+plot_per_sector_grids(
+    feature_cols=lagged_feature_cols,
+    df_coef_model=df_coef_lagged,
+    model_label="lagged model",
+)
+
+# --- Forest plot: one panel per macro variable, sectors on y-axis ---
+def plot_forest(
+    df_beta_ci_model,
+    variables_ci: list[str],
+    title: str,
+    out_name: str,
+) -> None:
+    plot_ci = df_beta_ci_model.copy()
+    plot_ci["pretty_variable"] = plot_ci["variable"].map(_pretty_label).fillna(plot_ci["variable"])
+
+    n_vars_ci = len(variables_ci)
+    n_cols_ci = 3
+    n_rows_ci = int(np.ceil(n_vars_ci / n_cols_ci))
+
+    fig_ci, axes_ci = plt.subplots(
+        n_rows_ci,
+        n_cols_ci,
+        figsize=(5.4 * n_cols_ci, 3.8 * n_rows_ci),
+        squeeze=False,
     )
-    if df_s.empty:
-        continue
+    axes_ci_flat = list(axes_ci.flat)
+    fig_ci.patch.set_facecolor("white")
 
-    coef_row = df_coef[df_coef[config.SECTOR_COL] == plot_sector].iloc[0]
-    means = df_s[macro_base_cols].mean(numeric_only=True)
+    for idx, variable in enumerate(variables_ci):
+        ax = axes_ci_flat[idx]
+        df_v_ci = (
+            plot_ci[plot_ci["variable"] == variable]
+            .sort_values(config.SECTOR_COL)
+            .reset_index()
+        )
 
-    fig_reg, axes_reg = plt.subplots(
-        n_rows_grid, n_cols_grid,
-        figsize=(3.2 * n_cols_grid, 3.0 * n_rows_grid),
-        squeeze=False
-    )
-    axes_flat = list(axes_reg.flat)
-    fig_reg.patch.set_facecolor("white")
+        y_pos = np.arange(len(df_v_ci))
+        beta = df_v_ci["beta"].to_numpy()
+        ci_low = df_v_ci["ci_lower_999"].to_numpy()
+        ci_high = df_v_ci["ci_upper_999"].to_numpy()
+        xerr = np.vstack([beta - ci_low, ci_high - beta])
 
-    for idx, x_col in enumerate(macro_base_cols):
-        ax = axes_flat[idx]
+        ax.errorbar(beta, y_pos, xerr=xerr, fmt="o", color="#2166AC", ecolor="#2166AC", capsize=3)
+        ax.axvline(0, color="black", linewidth=1, alpha=0.7)
+        ax.set_yticks(y_pos)
+        ax.set_yticklabels(df_v_ci[config.SECTOR_COL], fontsize=8)
+        ax.set_title(_pretty_label(variable), fontsize=10)
+        ax.grid(True, axis="x", alpha=0.2)
+        ax.invert_yaxis()
 
-        x = df_s[x_col].to_numpy()
-        y = df_s["logit_pd"].to_numpy()
-        x_min = float(np.min(x))
-        x_max = float(np.max(x))
-        x_grid = np.linspace(x_min, x_max, 100)
+    for idx in range(n_vars_ci, len(axes_ci_flat)):
+        axes_ci_flat[idx].set_visible(False)
 
-        # Multivariate line: vary only x_col, keep others at sector means.
-        base = float(coef_row["intercept"])
-        for c in macro_base_cols:
-            if c == x_col:
-                continue
-            base += float(coef_row[c]) * float(means[c])
-        y_line = base + float(coef_row[x_col]) * x_grid
+    fig_ci.suptitle(title, fontsize=12, fontweight="bold")
+    fig_ci.tight_layout()
 
-        ax.scatter(x, y, s=10, alpha=0.35)
-        ax.plot(x_grid, y_line, "r-", linewidth=1.6)
-        ax.set_title(_PRETTY_LABELS.get(x_col, x_col), fontsize=10)
-        ax.set_xlabel(_PRETTY_LABELS.get(x_col, x_col), fontsize=9)
-        ax.set_ylabel("logit_pd" if (idx % n_cols_grid == 0) else "")
-        ax.grid(True, alpha=0.2)
+    forest_out_path = pdModelling.DATA_DIR / "analysis" / "plots" / out_name
+    fig_ci.savefig(forest_out_path, dpi=200, bbox_inches="tight")
+    print(f"Saved: {forest_out_path}")
 
-    for j in range(n_vars, len(axes_flat)):
-        axes_flat[j].set_visible(False)
 
-    fig_reg.suptitle(
-        f"logit_pd vs regression inputs (sector: {plot_sector})",
-        fontsize=12,
-        fontweight="bold",
-    )
-    fig_reg.tight_layout()
+plot_forest(
+    df_beta_ci_model=df_beta_ci,
+    variables_ci=macro_base_cols,
+    title="Forest plot of betas with 99.9% CI",
+    out_name="per_variable_beta_forest_plot.png",
+)
+plot_forest(
+    df_beta_ci_model=df_beta_ci_lagged,
+    variables_ci=lagged_feature_cols,
+    title="Forest plot of lagged-model betas with 99.9% CI",
+    out_name="per_variable_beta_forest_plot_with_lags.png",
+)
 
 # Keep the figures open on Windows until the user closes them.
 # (Using block=False makes the script exit immediately, and the windows disappear.)
