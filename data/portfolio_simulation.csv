@@ -1,1001 +1,1001 @@
 exposure_id,sector,sic_range,rating,pd,ead_eur_m
-1,Mining & Construction,1000-1999,BBB,0.0007,61.16
-2,Utilities,4900-4999,B,0.0193,33.86
-3,Services,7000-7999,BB,0.005,27.97
-4,Communications,4800-4899,BB+,0.0024,51.37
-5,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,42.33
-6,"Health, Legal & Educational Services",8000-8999,BB-,0.0103,16.1
-7,Mining & Construction,1000-1999,B+,0.0137,55.45
-8,Mining & Construction,1000-1999,BBB,0.0007,21.11
-9,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,124.64
-10,Utilities,4900-4999,B-,0.031,4.51
-11,Heavy Manufacturing,3000-3999,BB+,0.0024,46.69
-12,Wholesale & Retail Trade,5000-5999,A-,0.0006,78.65
-13,Light Manufacturing,2000-2999,B+,0.0137,23.15
-14,Mining & Construction,1000-1999,B+,0.0137,32.56
-15,Utilities,4900-4999,A-,0.0006,96.37
-16,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,43.16
-17,Light Manufacturing,2000-2999,B,0.0193,14.28
-18,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,25.8
-19,Services,7000-7999,B+,0.0137,12.83
-20,Light Manufacturing,2000-2999,A-,0.0006,54.76
-21,Communications,4800-4899,BB-,0.0103,26.45
-22,Heavy Manufacturing,3000-3999,BB+,0.0024,24.58
-23,Transportation,4000-4799,BBB-,0.002,18.92
-24,Wholesale & Retail Trade,5000-5999,B,0.0193,17.09
-25,Mining & Construction,1000-1999,CCC+,0.2387,20.36
-26,"Finance, Insurance & Real Estate",6000-6999,CCC,0.2387,22.32
-27,Utilities,4900-4999,CCC+,0.2387,37.58
-28,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,52.2
-29,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,50.83
-30,Communications,4800-4899,B,0.0193,35.54
-31,Communications,4800-4899,BB,0.005,45.99
-32,Transportation,4000-4799,BB,0.005,28.45
-33,Heavy Manufacturing,3000-3999,B,0.0193,48.66
-34,Heavy Manufacturing,3000-3999,BB,0.005,26.86
-35,Utilities,4900-4999,BBB,0.0007,72.04
-36,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,73.02
-37,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,42.22
-38,Utilities,4900-4999,BB,0.005,22.86
-39,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,66.36
-40,Communications,4800-4899,B+,0.0137,34.45
-41,Utilities,4900-4999,BB+,0.0024,38.01
-42,Services,7000-7999,B,0.0193,20.73
-43,Communications,4800-4899,BB-,0.0103,52.5
-44,Heavy Manufacturing,3000-3999,BBB+,0.0008,22.03
-45,Services,7000-7999,CCC+,0.2387,15.11
-46,Mining & Construction,1000-1999,BBB-,0.002,74.45
-47,Heavy Manufacturing,3000-3999,A,0.0006,76.6
-48,Heavy Manufacturing,3000-3999,BBB+,0.0008,114.52
-49,Communications,4800-4899,BBB+,0.0008,92.71
-50,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,49.3
-51,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,40.19
-52,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,77.46
-53,Mining & Construction,1000-1999,B+,0.0137,37.15
-54,Communications,4800-4899,BB-,0.0103,41.07
-55,Communications,4800-4899,BB-,0.0103,26.03
-56,Mining & Construction,1000-1999,BB-,0.0103,36.21
-57,Utilities,4900-4999,B+,0.0137,47.18
-58,Light Manufacturing,2000-2999,A+,0.00065,22.5
-59,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,15.85
-60,"Finance, Insurance & Real Estate",6000-6999,AA-,0.0007,179.56
-61,Communications,4800-4899,BB,0.005,1.0
-62,Utilities,4900-4999,BB,0.005,71.16
-63,Light Manufacturing,2000-2999,B-,0.031,10.59
-64,Mining & Construction,1000-1999,B-,0.031,36.39
-65,Light Manufacturing,2000-2999,BB-,0.0103,16.22
-66,Light Manufacturing,2000-2999,BBB-,0.002,46.08
-67,Light Manufacturing,2000-2999,B+,0.0137,15.18
-68,Heavy Manufacturing,3000-3999,BBB-,0.002,51.87
-69,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,68.42
-70,Utilities,4900-4999,B,0.0193,33.23
-71,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,104.88
-72,Heavy Manufacturing,3000-3999,B,0.0193,11.12
-73,Services,7000-7999,B+,0.0137,17.21
-74,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,116.91
-75,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,43.23
-76,Heavy Manufacturing,3000-3999,B+,0.0137,52.12
-77,Heavy Manufacturing,3000-3999,BB,0.005,21.26
-78,Communications,4800-4899,BBB,0.0007,28.25
-79,Light Manufacturing,2000-2999,BBB,0.0007,20.91
-80,Mining & Construction,1000-1999,BBB-,0.002,74.49
-81,Communications,4800-4899,B+,0.0137,44.22
-82,Heavy Manufacturing,3000-3999,BBB,0.0007,58.94
-83,Mining & Construction,1000-1999,B+,0.0137,13.16
-84,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,124.51
-85,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,23.26
-86,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,78.97
-87,Communications,4800-4899,C,0.2387,38.8
-88,Utilities,4900-4999,A-,0.0006,151.99
-89,"Finance, Insurance & Real Estate",6000-6999,CCC+,0.2387,25.83
-90,Utilities,4900-4999,BB-,0.0103,42.68
-91,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,4.03
-92,Communications,4800-4899,BB,0.005,34.74
-93,Utilities,4900-4999,B+,0.0137,24.16
-94,Heavy Manufacturing,3000-3999,BB+,0.0024,10.74
-95,Heavy Manufacturing,3000-3999,CCC+,0.2387,26.4
-96,Light Manufacturing,2000-2999,BBB-,0.002,39.58
-97,Heavy Manufacturing,3000-3999,B-,0.031,23.01
-98,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,59.18
-99,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,45.68
-100,Transportation,4000-4799,BBB+,0.0008,99.65
-101,Wholesale & Retail Trade,5000-5999,B+,0.0137,16.23
-102,Communications,4800-4899,CCC+,0.2387,23.87
-103,Heavy Manufacturing,3000-3999,BB,0.005,31.47
-104,Transportation,4000-4799,BB+,0.0024,38.21
-105,Mining & Construction,1000-1999,BBB+,0.0008,21.35
-106,Communications,4800-4899,BB+,0.0024,5.39
-107,Utilities,4900-4999,A,0.0006,125.74
-108,Heavy Manufacturing,3000-3999,BBB,0.0007,57.63
-109,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,15.17
-110,Wholesale & Retail Trade,5000-5999,CCC+,0.2387,8.65
-111,Utilities,4900-4999,D,1.0,19.98
-112,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,1.0
-113,Heavy Manufacturing,3000-3999,CCC+,0.2387,7.41
-114,Light Manufacturing,2000-2999,BB-,0.0103,25.4
-115,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,71.61
-116,Services,7000-7999,B+,0.0137,6.35
-117,Communications,4800-4899,BB,0.005,51.49
-118,Communications,4800-4899,BB,0.005,70.49
-119,Utilities,4900-4999,BB+,0.0024,105.97
-120,Light Manufacturing,2000-2999,A-,0.0006,47.71
-121,Light Manufacturing,2000-2999,A-,0.0006,38.77
-122,Communications,4800-4899,B+,0.0137,25.62
-123,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,74.03
-124,Utilities,4900-4999,BBB-,0.002,99.19
-125,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,65.74
-126,Utilities,4900-4999,B,0.0193,44.82
-127,Heavy Manufacturing,3000-3999,BB-,0.0103,42.28
-128,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,73.31
-129,"Finance, Insurance & Real Estate",6000-6999,B-,0.031,38.29
-130,Light Manufacturing,2000-2999,CCC,0.2387,14.18
-131,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,22.42
-132,Wholesale & Retail Trade,5000-5999,B,0.0193,1.37
-133,Light Manufacturing,2000-2999,B-,0.031,23.94
-134,Heavy Manufacturing,3000-3999,B-,0.031,21.79
-135,Light Manufacturing,2000-2999,B+,0.0137,3.32
-136,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,24.12
-137,Transportation,4000-4799,B+,0.0137,38.92
-138,Utilities,4900-4999,BBB+,0.0008,101.9
-139,Mining & Construction,1000-1999,B+,0.0137,22.32
-140,"Finance, Insurance & Real Estate",6000-6999,A-,0.0006,170.04
-141,Utilities,4900-4999,BBB,0.0007,53.73
-142,Utilities,4900-4999,CCC+,0.2387,16.42
-143,Wholesale & Retail Trade,5000-5999,B,0.0193,15.81
-144,Light Manufacturing,2000-2999,CCC+,0.2387,11.87
-145,Utilities,4900-4999,BB+,0.0024,95.87
-146,Heavy Manufacturing,3000-3999,BBB+,0.0008,92.52
-147,Heavy Manufacturing,3000-3999,BB+,0.0024,46.29
-148,Utilities,4900-4999,BB,0.005,79.68
-149,Utilities,4900-4999,BB,0.005,57.22
-150,"Finance, Insurance & Real Estate",6000-6999,B-,0.031,28.36
-151,Services,7000-7999,BB+,0.0024,25.29
-152,Wholesale & Retail Trade,5000-5999,BB-,0.0103,20.71
-153,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,110.9
-154,Light Manufacturing,2000-2999,B+,0.0137,23.75
-155,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,51.11
-156,Communications,4800-4899,BBB,0.0007,48.32
-157,Heavy Manufacturing,3000-3999,BB+,0.0024,43.46
-158,Communications,4800-4899,BB+,0.0024,56.86
-159,Communications,4800-4899,BB+,0.0024,62.7
-160,Mining & Construction,1000-1999,CCC,0.2387,33.65
-161,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,36.91
-162,Wholesale & Retail Trade,5000-5999,BB+,0.0024,31.97
-163,"Finance, Insurance & Real Estate",6000-6999,A+,0.00065,191.78
-164,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,83.92
-165,Light Manufacturing,2000-2999,BB+,0.0024,63.66
-166,Heavy Manufacturing,3000-3999,BBB-,0.002,39.47
-167,Services,7000-7999,CCC+,0.2387,9.3
-168,Mining & Construction,1000-1999,BB+,0.0024,28.83
-169,Heavy Manufacturing,3000-3999,CCC+,0.2387,11.47
-170,Transportation,4000-4799,BB,0.005,42.48
-171,Heavy Manufacturing,3000-3999,BB,0.005,50.23
-172,Utilities,4900-4999,BB,0.005,74.57
-173,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,81.48
-174,Wholesale & Retail Trade,5000-5999,CCC,0.2387,8.38
-175,"Finance, Insurance & Real Estate",6000-6999,AA-,0.0007,116.75
-176,"Finance, Insurance & Real Estate",6000-6999,A+,0.00065,294.0
-177,Utilities,4900-4999,BBB-,0.002,107.56
-178,"Health, Legal & Educational Services",8000-8999,BB,0.005,11.52
-179,Wholesale & Retail Trade,5000-5999,B+,0.0137,10.77
-180,Communications,4800-4899,B+,0.0137,20.45
-181,Wholesale & Retail Trade,5000-5999,BB+,0.0024,38.76
-182,Wholesale & Retail Trade,5000-5999,B-,0.031,9.9
-183,Utilities,4900-4999,B-,0.031,37.85
-184,Heavy Manufacturing,3000-3999,BB-,0.0103,28.78
-185,Mining & Construction,1000-1999,B,0.0193,35.51
-186,Communications,4800-4899,BB-,0.0103,24.97
-187,Heavy Manufacturing,3000-3999,BBB-,0.002,21.9
-188,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,41.71
-189,Communications,4800-4899,BB,0.005,61.22
-190,Heavy Manufacturing,3000-3999,BB,0.005,40.99
-191,Wholesale & Retail Trade,5000-5999,CCC+,0.2387,5.24
-192,"Finance, Insurance & Real Estate",6000-6999,AA,0.000833,214.2
-193,"Finance, Insurance & Real Estate",6000-6999,A-,0.0006,62.81
-194,Services,7000-7999,BBB+,0.0008,26.61
-195,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,31.68
-196,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,99.03
-197,Light Manufacturing,2000-2999,A-,0.0006,65.2
-198,Services,7000-7999,BBB,0.0007,41.68
-199,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,129.89
-200,Heavy Manufacturing,3000-3999,C,0.2387,29.97
-201,Mining & Construction,1000-1999,CCC,0.2387,2.33
-202,Transportation,4000-4799,BB+,0.0024,29.65
-203,Utilities,4900-4999,BB+,0.0024,55.82
-204,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,51.71
-205,"Finance, Insurance & Real Estate",6000-6999,A+,0.00065,57.65
-206,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,42.51
-207,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,31.34
-208,Communications,4800-4899,BB,0.005,55.37
-209,"Finance, Insurance & Real Estate",6000-6999,A,0.0006,112.84
-210,Utilities,4900-4999,BBB,0.0007,127.09
-211,Communications,4800-4899,BB-,0.0103,50.29
-212,Light Manufacturing,2000-2999,BB-,0.0103,27.4
-213,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,34.57
-214,Mining & Construction,1000-1999,A-,0.0006,164.85
-215,Communications,4800-4899,B,0.0193,34.55
-216,Communications,4800-4899,BBB,0.0007,11.24
-217,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,18.71
-218,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,6.49
-219,Wholesale & Retail Trade,5000-5999,A-,0.0006,44.38
-220,Heavy Manufacturing,3000-3999,BB+,0.0024,39.37
-221,Heavy Manufacturing,3000-3999,BB-,0.0103,22.58
-222,Utilities,4900-4999,B+,0.0137,94.0
-223,Communications,4800-4899,BB,0.005,60.08
-224,Transportation,4000-4799,CCC+,0.2387,20.43
-225,Heavy Manufacturing,3000-3999,B-,0.031,10.03
-226,Wholesale & Retail Trade,5000-5999,BB+,0.0024,13.21
-227,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,33.1
-228,Light Manufacturing,2000-2999,CCC-,0.2387,10.83
-229,Light Manufacturing,2000-2999,CCC-,0.2387,1.09
-230,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,81.89
-231,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,80.56
-232,Utilities,4900-4999,CCC+,0.2387,23.42
-233,Transportation,4000-4799,BBB+,0.0008,42.05
-234,Light Manufacturing,2000-2999,A-,0.0006,37.05
-235,Wholesale & Retail Trade,5000-5999,BBB-,0.002,28.08
-236,Mining & Construction,1000-1999,BB-,0.0103,35.54
-237,Utilities,4900-4999,BB,0.005,83.14
-238,Mining & Construction,1000-1999,BBB-,0.002,86.26
-239,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,59.7
-240,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,54.03
-241,Services,7000-7999,BBB,0.0007,39.0
-242,Mining & Construction,1000-1999,CC,0.2387,20.89
-243,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,33.27
-244,Utilities,4900-4999,B,0.0193,57.66
-245,Light Manufacturing,2000-2999,BBB-,0.002,51.46
-246,Services,7000-7999,BB+,0.0024,39.5
-247,Light Manufacturing,2000-2999,BBB-,0.002,64.88
-248,Utilities,4900-4999,AA,0.000833,124.82
-249,Heavy Manufacturing,3000-3999,A-,0.0006,70.5
-250,Utilities,4900-4999,A,0.0006,143.74
-251,Communications,4800-4899,AA-,0.0007,128.36
-252,Services,7000-7999,BBB+,0.0008,24.31
-253,Utilities,4900-4999,CCC+,0.2387,8.17
-254,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,52.32
-255,"Finance, Insurance & Real Estate",6000-6999,CCC+,0.2387,12.32
-256,Communications,4800-4899,BB-,0.0103,42.41
-257,Mining & Construction,1000-1999,B,0.0193,15.68
-258,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,36.01
-259,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,41.89
-260,Light Manufacturing,2000-2999,B,0.0193,17.43
-261,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,90.27
-262,Mining & Construction,1000-1999,B+,0.0137,62.79
-263,Heavy Manufacturing,3000-3999,B+,0.0137,29.99
-264,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,86.98
-265,Wholesale & Retail Trade,5000-5999,BBB+,0.0008,18.26
-266,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,32.09
-267,Heavy Manufacturing,3000-3999,BB,0.005,63.49
-268,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,22.88
-269,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,38.24
-270,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,49.02
-271,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,35.81
-272,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,20.58
-273,"Finance, Insurance & Real Estate",6000-6999,CCC+,0.2387,16.95
-274,Light Manufacturing,2000-2999,B-,0.031,21.86
-275,Communications,4800-4899,BBB+,0.0008,54.48
-276,Heavy Manufacturing,3000-3999,CCC,0.2387,3.97
-277,Heavy Manufacturing,3000-3999,BBB-,0.002,72.75
-278,Utilities,4900-4999,B-,0.031,43.87
-279,Services,7000-7999,BB,0.005,13.79
-280,Services,7000-7999,BB+,0.0024,5.01
-281,"Finance, Insurance & Real Estate",6000-6999,A,0.0006,69.05
-282,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,58.36
-283,"Finance, Insurance & Real Estate",6000-6999,A-,0.0006,158.28
-284,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,15.66
-285,Light Manufacturing,2000-2999,CCC+,0.2387,9.59
-286,Utilities,4900-4999,BBB,0.0007,136.41
-287,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,1.0
-288,Heavy Manufacturing,3000-3999,BBB,0.0007,85.77
-289,Utilities,4900-4999,BBB-,0.002,41.34
-290,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,37.89
-291,Services,7000-7999,BB,0.005,22.47
-292,"Finance, Insurance & Real Estate",6000-6999,CCC,0.2387,30.85
-293,Wholesale & Retail Trade,5000-5999,BBB-,0.002,39.28
-294,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,1.0
-295,Services,7000-7999,BB,0.005,12.15
-296,Wholesale & Retail Trade,5000-5999,B,0.0193,15.29
-297,"Health, Legal & Educational Services",8000-8999,BBB-,0.002,22.74
-298,Mining & Construction,1000-1999,BB,0.005,49.55
-299,Mining & Construction,1000-1999,BB,0.005,55.79
-300,Light Manufacturing,2000-2999,BBB,0.0007,51.68
-301,Mining & Construction,1000-1999,B+,0.0137,26.79
-302,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,2.88
-303,Light Manufacturing,2000-2999,B+,0.0137,14.65
-304,Utilities,4900-4999,CCC+,0.2387,31.0
-305,Services,7000-7999,CCC+,0.2387,3.64
-306,Utilities,4900-4999,BB+,0.0024,100.73
-307,Heavy Manufacturing,3000-3999,BB-,0.0103,43.65
-308,Light Manufacturing,2000-2999,BBB-,0.002,37.13
-309,Heavy Manufacturing,3000-3999,BB,0.005,1.0
-310,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,25.27
-311,Utilities,4900-4999,CCC,0.2387,48.63
-312,Utilities,4900-4999,BB-,0.0103,41.31
-313,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,1.0
-314,Heavy Manufacturing,3000-3999,B-,0.031,31.48
-315,Heavy Manufacturing,3000-3999,AA-,0.0007,98.67
-316,Heavy Manufacturing,3000-3999,A+,0.00065,137.22
-317,Heavy Manufacturing,3000-3999,B,0.0193,25.99
-318,Communications,4800-4899,BB,0.005,58.09
-319,Heavy Manufacturing,3000-3999,BB-,0.0103,35.3
-320,Transportation,4000-4799,A-,0.0006,101.11
-321,Wholesale & Retail Trade,5000-5999,BB,0.005,47.05
-322,Utilities,4900-4999,CCC-,0.2387,37.65
-323,Heavy Manufacturing,3000-3999,B,0.0193,4.26
-324,Light Manufacturing,2000-2999,BB-,0.0103,25.81
-325,Services,7000-7999,BBB-,0.002,43.98
-326,Communications,4800-4899,BB+,0.0024,89.35
-327,Mining & Construction,1000-1999,A+,0.00065,78.67
-328,Light Manufacturing,2000-2999,BB-,0.0103,33.13
-329,Light Manufacturing,2000-2999,B,0.0193,23.49
-330,Heavy Manufacturing,3000-3999,A,0.0006,178.87
-331,Communications,4800-4899,BBB-,0.002,44.1
-332,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,67.17
-333,Communications,4800-4899,BBB,0.0007,66.02
-334,Services,7000-7999,BB,0.005,15.1
-335,"Finance, Insurance & Real Estate",6000-6999,A+,0.00065,69.37
-336,Light Manufacturing,2000-2999,B+,0.0137,1.0
-337,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,25.44
-338,Communications,4800-4899,BB+,0.0024,67.35
-339,"Finance, Insurance & Real Estate",6000-6999,AA,0.000833,120.54
-340,Wholesale & Retail Trade,5000-5999,BBB,0.0007,69.26
-341,"Finance, Insurance & Real Estate",6000-6999,B-,0.031,27.68
-342,Transportation,4000-4799,AA+,0.000967,214.33
-343,Mining & Construction,1000-1999,BB+,0.0024,54.27
-344,Light Manufacturing,2000-2999,BBB+,0.0008,62.85
-345,Mining & Construction,1000-1999,B,0.0193,29.63
-346,Mining & Construction,1000-1999,BBB-,0.002,94.33
-347,Transportation,4000-4799,BB-,0.0103,33.16
-348,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,46.8
-349,Light Manufacturing,2000-2999,CCC,0.2387,11.76
-350,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,51.35
-351,Light Manufacturing,2000-2999,BB-,0.0103,25.38
-352,"Finance, Insurance & Real Estate",6000-6999,A-,0.0006,211.72
-353,Light Manufacturing,2000-2999,B-,0.031,11.97
-354,Light Manufacturing,2000-2999,BBB,0.0007,48.05
-355,Utilities,4900-4999,BBB-,0.002,143.83
-356,Utilities,4900-4999,BB,0.005,99.21
-357,Mining & Construction,1000-1999,A-,0.0006,80.47
-358,Mining & Construction,1000-1999,BB-,0.0103,1.0
-359,Utilities,4900-4999,B,0.0193,52.33
-360,Light Manufacturing,2000-2999,BB-,0.0103,1.0
-361,Wholesale & Retail Trade,5000-5999,A,0.0006,83.97
-362,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,54.24
-363,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,48.74
-364,"Finance, Insurance & Real Estate",6000-6999,A+,0.00065,68.62
-365,Communications,4800-4899,BBB+,0.0008,24.92
-366,Utilities,4900-4999,B,0.0193,47.33
-367,Mining & Construction,1000-1999,BB-,0.0103,33.43
-368,Communications,4800-4899,BB-,0.0103,31.61
-369,Heavy Manufacturing,3000-3999,CCC-,0.2387,14.61
-370,Wholesale & Retail Trade,5000-5999,B+,0.0137,39.33
-371,Mining & Construction,1000-1999,B+,0.0137,42.52
-372,Heavy Manufacturing,3000-3999,C,0.2387,18.86
-373,Heavy Manufacturing,3000-3999,BB+,0.0024,60.23
-374,Heavy Manufacturing,3000-3999,BBB,0.0007,98.61
-375,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,38.46
-376,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,1.0
-377,Wholesale & Retail Trade,5000-5999,BBB-,0.002,27.9
-378,Utilities,4900-4999,BBB+,0.0008,160.83
-379,Heavy Manufacturing,3000-3999,CC,0.2387,7.02
-380,Communications,4800-4899,BB-,0.0103,37.5
-381,Light Manufacturing,2000-2999,BBB,0.0007,26.72
-382,Wholesale & Retail Trade,5000-5999,B,0.0193,25.04
-383,Mining & Construction,1000-1999,BB,0.005,54.99
-384,Utilities,4900-4999,BB+,0.0024,101.46
-385,Heavy Manufacturing,3000-3999,B+,0.0137,34.64
-386,"Health, Legal & Educational Services",8000-8999,A-,0.0006,35.33
-387,Communications,4800-4899,BB-,0.0103,44.49
-388,Transportation,4000-4799,CCC-,0.2387,6.67
-389,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,1.0
-390,Services,7000-7999,BB+,0.0024,25.8
-391,Light Manufacturing,2000-2999,BBB-,0.002,40.44
-392,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,96.28
-393,Light Manufacturing,2000-2999,BB+,0.0024,52.63
-394,Communications,4800-4899,BB+,0.0024,99.05
-395,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,16.28
-396,Utilities,4900-4999,A,0.0006,119.75
-397,Mining & Construction,1000-1999,B,0.0193,32.24
-398,Heavy Manufacturing,3000-3999,BB+,0.0024,96.69
-399,Utilities,4900-4999,BB-,0.0103,92.99
-400,Utilities,4900-4999,BBB+,0.0008,177.45
-401,Heavy Manufacturing,3000-3999,CCC+,0.2387,11.21
-402,Wholesale & Retail Trade,5000-5999,B-,0.031,6.76
-403,Mining & Construction,1000-1999,B,0.0193,36.26
-404,"Finance, Insurance & Real Estate",6000-6999,A-,0.0006,44.97
-405,Public Administration,9000-9999,B,0.0193,17.18
-406,Services,7000-7999,BB-,0.0103,16.02
-407,Heavy Manufacturing,3000-3999,A,0.0006,140.08
-408,Services,7000-7999,BB,0.005,16.45
-409,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,1.0
-410,Public Administration,9000-9999,B+,0.0137,28.18
-411,Communications,4800-4899,BB-,0.0103,27.73
-412,Communications,4800-4899,BB-,0.0103,41.6
-413,"Finance, Insurance & Real Estate",6000-6999,CCC+,0.2387,19.13
-414,Wholesale & Retail Trade,5000-5999,B-,0.031,10.44
-415,"Finance, Insurance & Real Estate",6000-6999,AA+,0.000967,244.15
-416,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,14.01
-417,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,44.49
-418,Mining & Construction,1000-1999,A,0.0006,118.1
-419,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,34.65
-420,Wholesale & Retail Trade,5000-5999,B-,0.031,2.37
-421,Communications,4800-4899,BBB+,0.0008,112.87
-422,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,66.37
-423,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,78.2
-424,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,1.37
-425,Light Manufacturing,2000-2999,CCC+,0.2387,13.39
-426,Mining & Construction,1000-1999,BBB-,0.002,9.52
-427,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,43.29
-428,Services,7000-7999,A+,0.00065,27.81
-429,"Finance, Insurance & Real Estate",6000-6999,CCC-,0.2387,8.4
-430,Mining & Construction,1000-1999,B+,0.0137,23.37
-431,Wholesale & Retail Trade,5000-5999,BB+,0.0024,23.98
-432,Mining & Construction,1000-1999,B+,0.0137,20.34
-433,Communications,4800-4899,A-,0.0006,121.9
-434,Services,7000-7999,B-,0.031,8.55
-435,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,89.41
-436,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,68.44
-437,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,45.59
-438,Utilities,4900-4999,BBB-,0.002,54.63
-439,Communications,4800-4899,B+,0.0137,8.82
-440,Light Manufacturing,2000-2999,BB-,0.0103,24.22
-441,Services,7000-7999,B+,0.0137,12.34
-442,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,1.0
-443,Communications,4800-4899,B+,0.0137,27.16
-444,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,32.97
-445,Heavy Manufacturing,3000-3999,CC,0.2387,25.34
-446,Communications,4800-4899,A-,0.0006,21.08
-447,"Health, Legal & Educational Services",8000-8999,B-,0.031,2.77
-448,Light Manufacturing,2000-2999,CCC+,0.2387,15.33
-449,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,134.27
-450,Light Manufacturing,2000-2999,CC,0.2387,6.42
-451,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,22.23
-452,Services,7000-7999,B,0.0193,17.01
-453,Communications,4800-4899,BB,0.005,1.0
-454,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,4.16
-455,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,51.58
-456,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,75.44
-457,"Health, Legal & Educational Services",8000-8999,CCC+,0.2387,5.63
-458,Utilities,4900-4999,BB-,0.0103,57.82
-459,Mining & Construction,1000-1999,BBB,0.0007,100.28
-460,Light Manufacturing,2000-2999,B,0.0193,32.68
-461,Light Manufacturing,2000-2999,B,0.0193,11.75
-462,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,37.18
-463,Transportation,4000-4799,B,0.0193,46.02
-464,Heavy Manufacturing,3000-3999,BB+,0.0024,9.12
-465,Light Manufacturing,2000-2999,BBB,0.0007,59.73
-466,Communications,4800-4899,BBB,0.0007,40.96
-467,Communications,4800-4899,A,0.0006,110.56
-468,Wholesale & Retail Trade,5000-5999,BB-,0.0103,16.43
-469,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,26.05
-470,Utilities,4900-4999,BBB-,0.002,49.71
-471,Heavy Manufacturing,3000-3999,AA+,0.000967,139.91
-472,Utilities,4900-4999,BBB+,0.0008,170.76
-473,"Finance, Insurance & Real Estate",6000-6999,B-,0.031,25.72
-474,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,72.45
-475,Heavy Manufacturing,3000-3999,BB-,0.0103,38.49
-476,Heavy Manufacturing,3000-3999,A-,0.0006,35.02
-477,Utilities,4900-4999,CCC+,0.2387,34.88
-478,Light Manufacturing,2000-2999,BB+,0.0024,41.8
-479,Light Manufacturing,2000-2999,BB-,0.0103,47.81
-480,Heavy Manufacturing,3000-3999,CC,0.2387,11.29
-481,Heavy Manufacturing,3000-3999,CCC+,0.2387,10.7
-482,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,83.07
-483,Light Manufacturing,2000-2999,BBB-,0.002,48.76
-484,Heavy Manufacturing,3000-3999,BB+,0.0024,30.44
-485,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,29.94
-486,Utilities,4900-4999,BB,0.005,81.23
-487,Utilities,4900-4999,BB+,0.0024,48.21
-488,"Finance, Insurance & Real Estate",6000-6999,CCC+,0.2387,15.89
-489,Light Manufacturing,2000-2999,BB,0.005,26.08
-490,Light Manufacturing,2000-2999,CC,0.2387,14.78
-491,Communications,4800-4899,BB,0.005,34.7
-492,Light Manufacturing,2000-2999,CCC,0.2387,1.16
-493,Communications,4800-4899,BB-,0.0103,4.96
-494,Heavy Manufacturing,3000-3999,B,0.0193,8.01
-495,Mining & Construction,1000-1999,BBB,0.0007,21.98
-496,Light Manufacturing,2000-2999,BBB,0.0007,37.03
-497,Utilities,4900-4999,B+,0.0137,22.0
-498,Light Manufacturing,2000-2999,B,0.0193,10.77
-499,Heavy Manufacturing,3000-3999,BB,0.005,21.07
-500,Utilities,4900-4999,A-,0.0006,103.57
-501,Communications,4800-4899,A-,0.0006,154.19
-502,Wholesale & Retail Trade,5000-5999,A-,0.0006,58.56
-503,Wholesale & Retail Trade,5000-5999,A,0.0006,48.79
-504,Utilities,4900-4999,BB,0.005,51.17
-505,Utilities,4900-4999,B-,0.031,28.6
-506,Mining & Construction,1000-1999,BB,0.005,46.55
-507,Heavy Manufacturing,3000-3999,AA-,0.0007,127.44
-508,Services,7000-7999,BB+,0.0024,13.11
-509,Utilities,4900-4999,BB+,0.0024,79.31
-510,"Finance, Insurance & Real Estate",6000-6999,CCC-,0.2387,1.0
-511,"Finance, Insurance & Real Estate",6000-6999,A-,0.0006,110.59
-512,Services,7000-7999,BB+,0.0024,33.15
-513,"Finance, Insurance & Real Estate",6000-6999,CCC,0.2387,17.2
-514,Heavy Manufacturing,3000-3999,B+,0.0137,50.77
-515,Heavy Manufacturing,3000-3999,B+,0.0137,14.35
-516,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,55.44
-517,Heavy Manufacturing,3000-3999,BB-,0.0103,29.2
-518,Communications,4800-4899,B,0.0193,29.77
-519,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,75.43
-520,Services,7000-7999,B,0.0193,13.7
-521,Services,7000-7999,A-,0.0006,56.96
-522,Heavy Manufacturing,3000-3999,BB-,0.0103,50.83
-523,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,42.45
-524,Light Manufacturing,2000-2999,BBB-,0.002,48.7
-525,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,32.46
-526,Heavy Manufacturing,3000-3999,BBB-,0.002,68.3
-527,Transportation,4000-4799,BBB+,0.0008,43.71
-528,Public Administration,9000-9999,BB+,0.0024,55.63
-529,Mining & Construction,1000-1999,BBB+,0.0008,151.58
-530,Heavy Manufacturing,3000-3999,BB-,0.0103,27.88
-531,Communications,4800-4899,BBB+,0.0008,1.0
-532,Communications,4800-4899,B+,0.0137,26.96
-533,Heavy Manufacturing,3000-3999,BBB+,0.0008,102.91
-534,Light Manufacturing,2000-2999,BBB-,0.002,44.29
-535,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,78.71
-536,"Finance, Insurance & Real Estate",6000-6999,CCC+,0.2387,30.09
-537,Utilities,4900-4999,BB-,0.0103,67.6
-538,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,96.53
-539,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,54.74
-540,Services,7000-7999,A+,0.00065,88.04
-541,"Health, Legal & Educational Services",8000-8999,BB,0.005,21.23
-542,Light Manufacturing,2000-2999,CCC-,0.2387,14.35
-543,Services,7000-7999,BB,0.005,16.93
-544,"Health, Legal & Educational Services",8000-8999,BB,0.005,12.59
-545,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,69.5
-546,Utilities,4900-4999,B,0.0193,46.47
-547,Heavy Manufacturing,3000-3999,A+,0.00065,123.72
-548,"Finance, Insurance & Real Estate",6000-6999,A,0.0006,116.81
-549,Communications,4800-4899,BB-,0.0103,29.83
-550,Utilities,4900-4999,BBB,0.0007,104.53
-551,Utilities,4900-4999,CCC+,0.2387,43.23
-552,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,76.66
-553,"Finance, Insurance & Real Estate",6000-6999,A+,0.00065,18.03
-554,Wholesale & Retail Trade,5000-5999,BBB+,0.0008,35.34
-555,"Finance, Insurance & Real Estate",6000-6999,AA+,0.000967,330.95
-556,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,53.59
-557,Heavy Manufacturing,3000-3999,BB+,0.0024,3.11
-558,Utilities,4900-4999,BB+,0.0024,146.15
-559,Light Manufacturing,2000-2999,B-,0.031,18.25
-560,Utilities,4900-4999,B-,0.031,34.59
-561,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,48.86
-562,"Finance, Insurance & Real Estate",6000-6999,A+,0.00065,192.65
-563,Services,7000-7999,B+,0.0137,10.94
-564,Light Manufacturing,2000-2999,B+,0.0137,29.08
-565,Communications,4800-4899,BB-,0.0103,50.94
-566,Communications,4800-4899,B,0.0193,34.7
-567,Mining & Construction,1000-1999,BBB+,0.0008,77.24
-568,"Finance, Insurance & Real Estate",6000-6999,CCC-,0.2387,18.25
-569,Heavy Manufacturing,3000-3999,BBB,0.0007,86.11
-570,Light Manufacturing,2000-2999,B,0.0193,9.5
-571,Heavy Manufacturing,3000-3999,A,0.0006,12.77
-572,Services,7000-7999,BBB,0.0007,41.83
-573,Utilities,4900-4999,CCC+,0.2387,33.57
-574,Mining & Construction,1000-1999,BB+,0.0024,59.53
-575,Services,7000-7999,B,0.0193,15.65
-576,Utilities,4900-4999,BB-,0.0103,47.08
-577,Wholesale & Retail Trade,5000-5999,BB,0.005,30.66
-578,Light Manufacturing,2000-2999,CCC+,0.2387,9.78
-579,Services,7000-7999,BB+,0.0024,18.15
-580,Heavy Manufacturing,3000-3999,A,0.0006,64.65
-581,Utilities,4900-4999,BBB,0.0007,200.99
-582,Light Manufacturing,2000-2999,B+,0.0137,3.14
-583,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,53.12
-584,Heavy Manufacturing,3000-3999,A-,0.0006,9.55
-585,Wholesale & Retail Trade,5000-5999,BBB,0.0007,33.3
-586,Light Manufacturing,2000-2999,BBB-,0.002,27.72
-587,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,1.0
-588,Heavy Manufacturing,3000-3999,A-,0.0006,84.01
-589,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,56.7
-590,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,1.0
-591,Wholesale & Retail Trade,5000-5999,B,0.0193,20.3
-592,Utilities,4900-4999,B,0.0193,70.23
-593,Heavy Manufacturing,3000-3999,BB+,0.0024,74.19
-594,Light Manufacturing,2000-2999,BB+,0.0024,35.17
-595,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,51.15
-596,Heavy Manufacturing,3000-3999,BBB,0.0007,94.25
-597,Communications,4800-4899,BBB+,0.0008,153.02
-598,Light Manufacturing,2000-2999,BBB,0.0007,61.76
-599,"Health, Legal & Educational Services",8000-8999,BBB-,0.002,13.34
-600,Light Manufacturing,2000-2999,BBB+,0.0008,49.35
-601,Utilities,4900-4999,BB-,0.0103,66.46
-602,Mining & Construction,1000-1999,B,0.0193,2.47
-603,Wholesale & Retail Trade,5000-5999,A,0.0006,59.76
-604,Communications,4800-4899,BB,0.005,98.01
-605,Transportation,4000-4799,BB+,0.0024,59.42
-606,Mining & Construction,1000-1999,BB-,0.0103,59.05
-607,Services,7000-7999,BB,0.005,21.83
-608,"Finance, Insurance & Real Estate",6000-6999,A-,0.0006,96.34
-609,Communications,4800-4899,BBB+,0.0008,101.5
-610,Utilities,4900-4999,BB,0.005,40.53
-611,Light Manufacturing,2000-2999,B-,0.031,7.39
-612,Communications,4800-4899,AA-,0.0007,212.4
-613,Transportation,4000-4799,BB-,0.0103,53.3
-614,"Health, Legal & Educational Services",8000-8999,B-,0.031,4.99
-615,Heavy Manufacturing,3000-3999,BB+,0.0024,62.91
-616,Communications,4800-4899,B+,0.0137,34.57
-617,Communications,4800-4899,BBB-,0.002,77.67
-618,Heavy Manufacturing,3000-3999,BB,0.005,43.28
-619,"Finance, Insurance & Real Estate",6000-6999,A,0.0006,164.69
-620,"Finance, Insurance & Real Estate",6000-6999,AA-,0.0007,145.79
-621,Mining & Construction,1000-1999,B,0.0193,44.33
-622,Utilities,4900-4999,BBB,0.0007,118.85
-623,"Health, Legal & Educational Services",8000-8999,BBB-,0.002,33.06
-624,Utilities,4900-4999,A-,0.0006,80.0
-625,"Health, Legal & Educational Services",8000-8999,A-,0.0006,74.86
-626,Heavy Manufacturing,3000-3999,BB+,0.0024,52.15
-627,Mining & Construction,1000-1999,BBB,0.0007,86.82
-628,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,8.33
-629,Light Manufacturing,2000-2999,B+,0.0137,11.35
-630,Mining & Construction,1000-1999,BB-,0.0103,55.04
-631,Wholesale & Retail Trade,5000-5999,BB-,0.0103,21.38
-632,Mining & Construction,1000-1999,CCC,0.2387,1.0
-633,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,136.72
-634,Heavy Manufacturing,3000-3999,BB,0.005,25.21
-635,"Finance, Insurance & Real Estate",6000-6999,B-,0.031,46.91
-636,"Finance, Insurance & Real Estate",6000-6999,B-,0.031,26.29
-637,Communications,4800-4899,A-,0.0006,105.01
-638,Communications,4800-4899,BB+,0.0024,88.72
-639,Mining & Construction,1000-1999,CCC+,0.2387,8.82
-640,Services,7000-7999,B+,0.0137,7.55
-641,Communications,4800-4899,BB-,0.0103,37.13
-642,Mining & Construction,1000-1999,BB+,0.0024,67.85
-643,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,20.07
-644,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,7.05
-645,Light Manufacturing,2000-2999,BB+,0.0024,41.86
-646,Services,7000-7999,BB,0.005,13.97
-647,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,40.19
-648,Utilities,4900-4999,BBB-,0.002,13.01
-649,Communications,4800-4899,B+,0.0137,24.8
-650,"Finance, Insurance & Real Estate",6000-6999,D,1.0,14.94
-651,Heavy Manufacturing,3000-3999,A,0.0006,113.84
-652,Wholesale & Retail Trade,5000-5999,BB-,0.0103,11.49
-653,Communications,4800-4899,BBB,0.0007,135.14
-654,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,24.66
-655,Services,7000-7999,BB,0.005,13.17
-656,Heavy Manufacturing,3000-3999,B,0.0193,40.74
-657,Services,7000-7999,B-,0.031,12.16
-658,Heavy Manufacturing,3000-3999,BB-,0.0103,21.3
-659,Light Manufacturing,2000-2999,B-,0.031,12.73
-660,Heavy Manufacturing,3000-3999,AA-,0.0007,166.19
-661,Heavy Manufacturing,3000-3999,CCC,0.2387,24.56
-662,Wholesale & Retail Trade,5000-5999,BB-,0.0103,11.06
-663,"Finance, Insurance & Real Estate",6000-6999,B-,0.031,26.92
-664,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,94.06
-665,Heavy Manufacturing,3000-3999,BBB,0.0007,27.6
-666,Communications,4800-4899,BB-,0.0103,39.76
-667,Mining & Construction,1000-1999,BB,0.005,40.11
-668,Public Administration,9000-9999,BB-,0.0103,40.04
-669,Heavy Manufacturing,3000-3999,B-,0.031,31.2
-670,Heavy Manufacturing,3000-3999,A,0.0006,63.96
-671,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,29.02
-672,Light Manufacturing,2000-2999,BB,0.005,32.97
-673,Public Administration,9000-9999,BB+,0.0024,25.47
-674,Communications,4800-4899,A-,0.0006,121.9
-675,Light Manufacturing,2000-2999,B+,0.0137,17.96
-676,Heavy Manufacturing,3000-3999,AA-,0.0007,49.14
-677,Wholesale & Retail Trade,5000-5999,B+,0.0137,8.61
-678,Utilities,4900-4999,A-,0.0006,216.82
-679,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,46.09
-680,Heavy Manufacturing,3000-3999,BB,0.005,64.53
-681,"Finance, Insurance & Real Estate",6000-6999,B-,0.031,20.44
-682,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,68.74
-683,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,153.74
-684,Utilities,4900-4999,BBB-,0.002,46.59
-685,Light Manufacturing,2000-2999,B-,0.031,1.22
-686,Heavy Manufacturing,3000-3999,B+,0.0137,43.62
-687,Utilities,4900-4999,BB+,0.0024,48.23
-688,Transportation,4000-4799,BB+,0.0024,45.15
-689,Communications,4800-4899,A-,0.0006,70.22
-690,Light Manufacturing,2000-2999,BB-,0.0103,23.99
-691,Heavy Manufacturing,3000-3999,A,0.0006,39.36
-692,Wholesale & Retail Trade,5000-5999,B,0.0193,13.01
-693,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,61.25
-694,Heavy Manufacturing,3000-3999,CC,0.2387,6.74
-695,Wholesale & Retail Trade,5000-5999,BBB+,0.0008,25.74
-696,Utilities,4900-4999,BB,0.005,54.58
-697,Communications,4800-4899,CCC,0.2387,6.63
-698,Light Manufacturing,2000-2999,B-,0.031,10.96
-699,Communications,4800-4899,BBB-,0.002,70.86
-700,Heavy Manufacturing,3000-3999,BB-,0.0103,23.64
-701,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,43.22
-702,Heavy Manufacturing,3000-3999,BB-,0.0103,29.45
-703,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,47.05
-704,Services,7000-7999,BB,0.005,26.91
-705,Heavy Manufacturing,3000-3999,A,0.0006,133.86
-706,Light Manufacturing,2000-2999,BB,0.005,19.43
-707,Mining & Construction,1000-1999,B+,0.0137,37.28
-708,Mining & Construction,1000-1999,BB+,0.0024,42.25
-709,Utilities,4900-4999,A,0.0006,167.12
-710,Utilities,4900-4999,B,0.0193,72.78
-711,Public Administration,9000-9999,BB-,0.0103,31.99
-712,Communications,4800-4899,BBB,0.0007,14.38
-713,Mining & Construction,1000-1999,BB+,0.0024,58.9
-714,Wholesale & Retail Trade,5000-5999,A-,0.0006,71.12
-715,Mining & Construction,1000-1999,BBB+,0.0008,64.02
-716,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,104.85
-717,Light Manufacturing,2000-2999,B-,0.031,9.2
-718,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,18.01
-719,Communications,4800-4899,B+,0.0137,38.33
-720,Transportation,4000-4799,BBB-,0.002,8.94
-721,Utilities,4900-4999,BB-,0.0103,49.14
-722,Utilities,4900-4999,BB,0.005,103.61
-723,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,1.47
-724,Transportation,4000-4799,BBB-,0.002,20.96
-725,"Finance, Insurance & Real Estate",6000-6999,A,0.0006,53.24
-726,"Finance, Insurance & Real Estate",6000-6999,A-,0.0006,96.83
-727,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,57.2
-728,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,152.96
-729,Utilities,4900-4999,BB-,0.0103,79.59
-730,Utilities,4900-4999,BBB-,0.002,111.8
-731,Heavy Manufacturing,3000-3999,CC,0.2387,15.05
-732,"Finance, Insurance & Real Estate",6000-6999,A,0.0006,131.63
-733,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,24.18
-734,Heavy Manufacturing,3000-3999,BBB+,0.0008,90.77
-735,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,31.08
-736,Communications,4800-4899,BB,0.005,66.38
-737,"Finance, Insurance & Real Estate",6000-6999,AA-,0.0007,223.03
-738,Heavy Manufacturing,3000-3999,BB-,0.0103,32.98
-739,Heavy Manufacturing,3000-3999,CCC-,0.2387,12.73
-740,Utilities,4900-4999,BBB-,0.002,107.81
-741,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,1.0
-742,"Finance, Insurance & Real Estate",6000-6999,B-,0.031,31.66
-743,Services,7000-7999,BB+,0.0024,22.64
-744,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,68.23
-745,Utilities,4900-4999,AA-,0.0007,241.35
-746,Utilities,4900-4999,B+,0.0137,47.07
-747,Heavy Manufacturing,3000-3999,BB,0.005,14.48
-748,Utilities,4900-4999,BBB+,0.0008,109.36
-749,Mining & Construction,1000-1999,BB,0.005,41.35
-750,Services,7000-7999,BBB-,0.002,29.61
-751,Heavy Manufacturing,3000-3999,BBB-,0.002,53.08
-752,Heavy Manufacturing,3000-3999,B+,0.0137,40.28
-753,"Finance, Insurance & Real Estate",6000-6999,A-,0.0006,45.7
-754,Utilities,4900-4999,B-,0.031,38.65
-755,Communications,4800-4899,A-,0.0006,152.76
-756,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,9.29
-757,Heavy Manufacturing,3000-3999,CCC-,0.2387,15.29
-758,Wholesale & Retail Trade,5000-5999,B-,0.031,8.56
-759,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,40.73
-760,Utilities,4900-4999,BBB,0.0007,60.57
-761,Communications,4800-4899,BBB-,0.002,61.98
-762,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,96.03
-763,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,18.39
-764,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,20.76
-765,Wholesale & Retail Trade,5000-5999,BB,0.005,7.68
-766,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,111.82
-767,"Finance, Insurance & Real Estate",6000-6999,A-,0.0006,76.88
-768,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,69.1
-769,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,25.95
-770,Light Manufacturing,2000-2999,A-,0.0006,27.33
-771,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,52.95
-772,Light Manufacturing,2000-2999,BBB,0.0007,87.2
-773,Light Manufacturing,2000-2999,BB,0.005,41.7
-774,Services,7000-7999,BB+,0.0024,13.76
-775,"Finance, Insurance & Real Estate",6000-6999,CCC+,0.2387,26.48
-776,Services,7000-7999,B+,0.0137,8.76
-777,Light Manufacturing,2000-2999,A-,0.0006,7.37
-778,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,56.62
-779,Mining & Construction,1000-1999,BBB,0.0007,101.12
-780,Services,7000-7999,BBB-,0.002,42.64
-781,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,32.52
-782,Wholesale & Retail Trade,5000-5999,BBB-,0.002,28.23
-783,Utilities,4900-4999,B,0.0193,56.87
-784,Light Manufacturing,2000-2999,BBB,0.0007,47.52
-785,"Health, Legal & Educational Services",8000-8999,BBB-,0.002,20.24
-786,Heavy Manufacturing,3000-3999,BBB-,0.002,8.2
-787,Mining & Construction,1000-1999,BBB-,0.002,59.19
-788,Heavy Manufacturing,3000-3999,B-,0.031,29.93
-789,Mining & Construction,1000-1999,B+,0.0137,12.04
-790,Light Manufacturing,2000-2999,CCC,0.2387,13.07
-791,"Finance, Insurance & Real Estate",6000-6999,CC,0.2387,23.32
-792,Utilities,4900-4999,BBB+,0.0008,157.51
-793,Heavy Manufacturing,3000-3999,BB,0.005,50.7
-794,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,58.75
-795,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,15.32
-796,Heavy Manufacturing,3000-3999,BBB-,0.002,35.56
-797,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,130.01
-798,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,65.61
-799,Communications,4800-4899,BB+,0.0024,39.28
-800,Communications,4800-4899,BBB+,0.0008,14.27
-801,Communications,4800-4899,B,0.0193,56.26
-802,Heavy Manufacturing,3000-3999,BBB,0.0007,79.78
-803,Wholesale & Retail Trade,5000-5999,D,1.0,9.14
-804,Light Manufacturing,2000-2999,BBB-,0.002,51.26
-805,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,64.42
-806,"Finance, Insurance & Real Estate",6000-6999,A-,0.0006,87.78
-807,Communications,4800-4899,CCC,0.2387,17.76
-808,"Finance, Insurance & Real Estate",6000-6999,B-,0.031,21.62
-809,Utilities,4900-4999,BB-,0.0103,122.44
-810,"Health, Legal & Educational Services",8000-8999,A-,0.0006,46.01
-811,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,32.64
-812,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,110.95
-813,Public Administration,9000-9999,CCC+,0.2387,5.93
-814,Light Manufacturing,2000-2999,B,0.0193,27.99
-815,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,33.47
-816,Wholesale & Retail Trade,5000-5999,AA,0.000833,88.04
-817,Services,7000-7999,BBB,0.0007,49.06
-818,Light Manufacturing,2000-2999,B+,0.0137,22.21
-819,Light Manufacturing,2000-2999,B-,0.031,14.37
-820,Heavy Manufacturing,3000-3999,B-,0.031,19.36
-821,"Finance, Insurance & Real Estate",6000-6999,A,0.0006,106.9
-822,Light Manufacturing,2000-2999,BB-,0.0103,15.37
-823,Heavy Manufacturing,3000-3999,B-,0.031,14.8
-824,Communications,4800-4899,A,0.0006,177.21
-825,Services,7000-7999,BB,0.005,18.91
-826,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,25.8
-827,Light Manufacturing,2000-2999,BB+,0.0024,22.57
-828,"Finance, Insurance & Real Estate",6000-6999,A,0.0006,170.52
-829,Services,7000-7999,BB+,0.0024,32.11
-830,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,76.81
-831,Light Manufacturing,2000-2999,BB+,0.0024,26.29
-832,Light Manufacturing,2000-2999,BBB-,0.002,44.63
-833,Heavy Manufacturing,3000-3999,BBB-,0.002,32.78
-834,Communications,4800-4899,BB,0.005,42.29
-835,Communications,4800-4899,B+,0.0137,52.0
-836,Light Manufacturing,2000-2999,BB+,0.0024,42.59
-837,Communications,4800-4899,BB+,0.0024,31.68
-838,"Health, Legal & Educational Services",8000-8999,BB,0.005,10.3
-839,Utilities,4900-4999,A+,0.00065,170.65
-840,Utilities,4900-4999,B+,0.0137,87.59
-841,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,2.11
-842,Mining & Construction,1000-1999,BB,0.005,45.57
-843,Utilities,4900-4999,B,0.0193,15.42
-844,Heavy Manufacturing,3000-3999,A+,0.00065,58.96
-845,"Finance, Insurance & Real Estate",6000-6999,A+,0.00065,102.22
-846,Wholesale & Retail Trade,5000-5999,BB-,0.0103,14.77
-847,Heavy Manufacturing,3000-3999,BB,0.005,25.39
-848,Communications,4800-4899,BB-,0.0103,40.93
-849,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,51.27
-850,Transportation,4000-4799,B+,0.0137,8.76
-851,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,45.17
-852,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,51.62
-853,Services,7000-7999,BB+,0.0024,34.12
-854,Wholesale & Retail Trade,5000-5999,A+,0.00065,12.63
-855,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,37.36
-856,Utilities,4900-4999,B-,0.031,46.9
-857,Communications,4800-4899,B+,0.0137,18.99
-858,Services,7000-7999,BBB,0.0007,32.15
-859,Heavy Manufacturing,3000-3999,B+,0.0137,24.68
-860,Utilities,4900-4999,B,0.0193,78.17
-861,Communications,4800-4899,CCC+,0.2387,36.14
-862,Communications,4800-4899,BBB,0.0007,18.21
-863,Mining & Construction,1000-1999,BB+,0.0024,107.85
-864,Light Manufacturing,2000-2999,B,0.0193,9.11
-865,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,74.52
-866,Wholesale & Retail Trade,5000-5999,BBB+,0.0008,58.82
-867,Services,7000-7999,BB-,0.0103,8.54
-868,Mining & Construction,1000-1999,B+,0.0137,37.4
-869,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,47.31
-870,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,54.28
-871,Communications,4800-4899,BB+,0.0024,63.69
-872,"Finance, Insurance & Real Estate",6000-6999,CCC+,0.2387,31.96
-873,"Health, Legal & Educational Services",8000-8999,BBB,0.0007,29.89
-874,Heavy Manufacturing,3000-3999,BBB-,0.002,44.77
-875,Communications,4800-4899,BB,0.005,72.11
-876,Wholesale & Retail Trade,5000-5999,B,0.0193,18.45
-877,Heavy Manufacturing,3000-3999,A-,0.0006,96.35
-878,Heavy Manufacturing,3000-3999,A-,0.0006,46.07
-879,Light Manufacturing,2000-2999,A+,0.00065,31.14
-880,Light Manufacturing,2000-2999,BB,0.005,18.19
-881,Heavy Manufacturing,3000-3999,BBB+,0.0008,42.89
-882,Light Manufacturing,2000-2999,BB+,0.0024,41.32
-883,Wholesale & Retail Trade,5000-5999,B+,0.0137,24.55
-884,Utilities,4900-4999,BBB-,0.002,84.48
-885,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,72.91
-886,Heavy Manufacturing,3000-3999,BB+,0.0024,71.56
-887,Heavy Manufacturing,3000-3999,B+,0.0137,29.54
-888,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,22.09
-889,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,125.14
-890,Communications,4800-4899,BB+,0.0024,55.99
-891,Heavy Manufacturing,3000-3999,B-,0.031,20.5
-892,Transportation,4000-4799,BB-,0.0103,27.1
-893,"Finance, Insurance & Real Estate",6000-6999,A-,0.0006,55.51
-894,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,9.96
-895,Communications,4800-4899,BBB+,0.0008,111.46
-896,Services,7000-7999,CCC+,0.2387,4.87
-897,Heavy Manufacturing,3000-3999,B-,0.031,49.54
-898,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,19.42
-899,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,15.78
-900,Utilities,4900-4999,BB+,0.0024,96.36
-901,Utilities,4900-4999,B+,0.0137,83.16
-902,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,61.94
-903,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,54.66
-904,Utilities,4900-4999,B,0.0193,6.3
-905,Transportation,4000-4799,BBB-,0.002,36.13
-906,Communications,4800-4899,BBB-,0.002,34.13
-907,Utilities,4900-4999,BBB+,0.0008,14.67
-908,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,95.26
-909,"Finance, Insurance & Real Estate",6000-6999,A,0.0006,1.0
-910,Heavy Manufacturing,3000-3999,B,0.0193,7.28
-911,Mining & Construction,1000-1999,CCC,0.2387,11.7
-912,Services,7000-7999,CCC+,0.2387,4.67
-913,Wholesale & Retail Trade,5000-5999,A,0.0006,57.99
-914,"Health, Legal & Educational Services",8000-8999,B,0.0193,13.49
-915,"Health, Legal & Educational Services",8000-8999,CCC+,0.2387,10.42
-916,Transportation,4000-4799,BBB-,0.002,72.16
-917,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,78.52
-918,"Finance, Insurance & Real Estate",6000-6999,A+,0.00065,124.88
-919,Heavy Manufacturing,3000-3999,BB-,0.0103,34.39
-920,Light Manufacturing,2000-2999,BBB+,0.0008,56.05
-921,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,45.51
-922,Services,7000-7999,A-,0.0006,32.06
-923,Light Manufacturing,2000-2999,B+,0.0137,15.76
-924,Light Manufacturing,2000-2999,B-,0.031,8.35
-925,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,96.86
-926,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,85.77
-927,"Finance, Insurance & Real Estate",6000-6999,AA-,0.0007,93.58
-928,Services,7000-7999,BB+,0.0024,16.05
-929,Light Manufacturing,2000-2999,BBB-,0.002,14.67
-930,Communications,4800-4899,A-,0.0006,139.07
-931,Heavy Manufacturing,3000-3999,B+,0.0137,27.31
-932,Heavy Manufacturing,3000-3999,BBB-,0.002,27.26
-933,Heavy Manufacturing,3000-3999,BBB+,0.0008,89.2
-934,Mining & Construction,1000-1999,BBB-,0.002,40.31
-935,Mining & Construction,1000-1999,B-,0.031,6.53
-936,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,56.65
-937,Transportation,4000-4799,BB,0.005,28.33
-938,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,29.83
-939,Wholesale & Retail Trade,5000-5999,BBB+,0.0008,40.42
-940,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,78.56
-941,Heavy Manufacturing,3000-3999,BB-,0.0103,30.06
-942,Services,7000-7999,BBB-,0.002,11.21
-943,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,47.7
-944,Utilities,4900-4999,BBB,0.0007,80.72
-945,Utilities,4900-4999,B+,0.0137,91.23
-946,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,37.48
-947,Communications,4800-4899,AA+,0.000967,1.0
-948,Services,7000-7999,B-,0.031,12.97
-949,Services,7000-7999,AAA,0.0011,157.78
-950,Heavy Manufacturing,3000-3999,BBB-,0.002,88.71
-951,Utilities,4900-4999,B-,0.031,65.96
-952,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,29.41
-953,"Finance, Insurance & Real Estate",6000-6999,A-,0.0006,145.61
-954,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,57.51
-955,Wholesale & Retail Trade,5000-5999,B-,0.031,13.46
-956,Wholesale & Retail Trade,5000-5999,A+,0.00065,19.99
-957,Mining & Construction,1000-1999,B-,0.031,14.91
-958,Utilities,4900-4999,BB,0.005,44.71
-959,Utilities,4900-4999,BBB+,0.0008,165.52
-960,Utilities,4900-4999,BBB-,0.002,124.63
-961,Light Manufacturing,2000-2999,BBB+,0.0008,50.98
-962,Utilities,4900-4999,B,0.0193,15.92
-963,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,27.44
-964,"Finance, Insurance & Real Estate",6000-6999,A,0.0006,68.96
-965,Transportation,4000-4799,BB+,0.0024,64.38
-966,Utilities,4900-4999,BBB,0.0007,160.55
-967,Transportation,4000-4799,CCC+,0.2387,22.81
-968,"Finance, Insurance & Real Estate",6000-6999,A-,0.0006,62.24
-969,Light Manufacturing,2000-2999,CCC,0.2387,1.0
-970,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,5.83
-971,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,153.97
-972,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,55.96
-973,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,49.97
-974,Wholesale & Retail Trade,5000-5999,BBB+,0.0008,72.12
-975,Heavy Manufacturing,3000-3999,BB,0.005,57.77
-976,Light Manufacturing,2000-2999,BBB+,0.0008,45.53
-977,Utilities,4900-4999,AA-,0.0007,157.35
-978,Heavy Manufacturing,3000-3999,BB+,0.0024,39.15
-979,Light Manufacturing,2000-2999,A,0.0006,61.0
-980,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,144.0
-981,"Health, Legal & Educational Services",8000-8999,BBB,0.0007,34.88
-982,Mining & Construction,1000-1999,BBB,0.0007,87.23
-983,Communications,4800-4899,CCC-,0.2387,29.49
-984,Utilities,4900-4999,BB,0.005,29.91
-985,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,58.54
-986,Wholesale & Retail Trade,5000-5999,A,0.0006,41.27
-987,Heavy Manufacturing,3000-3999,BBB-,0.002,1.0
-988,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,1.0
-989,Heavy Manufacturing,3000-3999,BBB+,0.0008,30.01
-990,Mining & Construction,1000-1999,B,0.0193,32.91
-991,Light Manufacturing,2000-2999,BBB+,0.0008,47.46
-992,Communications,4800-4899,BB+,0.0024,62.47
-993,Mining & Construction,1000-1999,BBB-,0.002,110.63
-994,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,15.53
-995,Wholesale & Retail Trade,5000-5999,BBB-,0.002,30.38
-996,Utilities,4900-4999,BB+,0.0024,88.96
-997,Light Manufacturing,2000-2999,BB+,0.0024,19.4
-998,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,81.13
-999,Public Administration,9000-9999,B+,0.0137,4.5
-1000,Heavy Manufacturing,3000-3999,BB-,0.0103,51.32
+1,Light Manufacturing,2000-2999,BBB,0.0007,48.19
+2,Transportation,4000-4799,BBB+,0.0008,65.28
+3,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,26.07
+4,Transportation,4000-4799,BB-,0.0103,13.22
+5,Utilities,4900-4999,B-,0.031,51.7
+6,Light Manufacturing,2000-2999,B,0.0193,18.51
+7,Services,7000-7999,BB+,0.0024,19.94
+8,Light Manufacturing,2000-2999,BBB,0.0007,28.3
+9,Heavy Manufacturing,3000-3999,BBB+,0.0008,67.45
+10,"Finance, Insurance & Real Estate",6000-6999,CC,0.2387,19.3
+11,Communications,4800-4899,B,0.0193,55.0
+12,Heavy Manufacturing,3000-3999,B+,0.0137,36.98
+13,Utilities,4900-4999,BB+,0.0024,57.31
+14,Services,7000-7999,BB+,0.0024,10.99
+15,Utilities,4900-4999,BB+,0.0024,70.28
+16,Light Manufacturing,2000-2999,BB+,0.0024,17.18
+17,"Finance, Insurance & Real Estate",6000-6999,AA-,0.0007,146.84
+18,Utilities,4900-4999,BB,0.005,77.78
+19,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,79.76
+20,Utilities,4900-4999,BB-,0.0103,66.45
+21,Communications,4800-4899,BB-,0.0103,37.68
+22,Utilities,4900-4999,B,0.0193,54.43
+23,Light Manufacturing,2000-2999,BB,0.005,14.63
+24,"Health, Legal & Educational Services",8000-8999,B,0.0193,11.39
+25,Transportation,4000-4799,AA,0.000833,169.9
+26,Communications,4800-4899,BBB+,0.0008,98.86
+27,Heavy Manufacturing,3000-3999,CCC,0.2387,5.04
+28,Utilities,4900-4999,BBB+,0.0008,56.12
+29,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,12.4
+30,"Health, Legal & Educational Services",8000-8999,B+,0.0137,25.87
+31,Light Manufacturing,2000-2999,BBB,0.0007,10.81
+32,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,35.47
+33,Mining & Construction,1000-1999,A-,0.0006,154.69
+34,Communications,4800-4899,A+,0.00065,180.96
+35,Heavy Manufacturing,3000-3999,A-,0.0006,118.56
+36,Transportation,4000-4799,A,0.0006,65.11
+37,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,69.29
+38,Heavy Manufacturing,3000-3999,BB+,0.0024,108.49
+39,Light Manufacturing,2000-2999,BB-,0.0103,21.22
+40,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,110.11
+41,Mining & Construction,1000-1999,C,0.2387,12.03
+42,Wholesale & Retail Trade,5000-5999,BB,0.005,22.23
+43,Heavy Manufacturing,3000-3999,BB,0.005,42.34
+44,Utilities,4900-4999,B+,0.0137,80.73
+45,Services,7000-7999,BB+,0.0024,13.61
+46,Light Manufacturing,2000-2999,BBB-,0.002,11.59
+47,Light Manufacturing,2000-2999,BB,0.005,25.73
+48,Communications,4800-4899,B,0.0193,34.65
+49,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,64.64
+50,Services,7000-7999,B,0.0193,17.9
+51,Mining & Construction,1000-1999,BBB-,0.002,39.53
+52,Services,7000-7999,BBB,0.0007,41.65
+53,"Finance, Insurance & Real Estate",6000-6999,CCC-,0.2387,31.53
+54,Services,7000-7999,BB+,0.0024,27.87
+55,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,31.81
+56,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,44.09
+57,Wholesale & Retail Trade,5000-5999,CCC+,0.2387,7.4
+58,Wholesale & Retail Trade,5000-5999,A-,0.0006,3.72
+59,Wholesale & Retail Trade,5000-5999,BBB-,0.002,51.85
+60,Light Manufacturing,2000-2999,BBB-,0.002,13.93
+61,Utilities,4900-4999,BB+,0.0024,67.2
+62,"Finance, Insurance & Real Estate",6000-6999,AA-,0.0007,120.27
+63,Mining & Construction,1000-1999,BB,0.005,33.97
+64,Communications,4800-4899,AA+,0.000967,148.61
+65,Services,7000-7999,BB-,0.0103,5.03
+66,Utilities,4900-4999,B+,0.0137,61.29
+67,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,38.59
+68,Mining & Construction,1000-1999,BBB+,0.0008,74.5
+69,Services,7000-7999,B,0.0193,20.16
+70,"Health, Legal & Educational Services",8000-8999,BBB,0.0007,45.05
+71,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,151.54
+72,Light Manufacturing,2000-2999,BBB,0.0007,76.07
+73,Wholesale & Retail Trade,5000-5999,BBB,0.0007,43.67
+74,Light Manufacturing,2000-2999,BB-,0.0103,5.85
+75,Heavy Manufacturing,3000-3999,B,0.0193,25.57
+76,"Finance, Insurance & Real Estate",6000-6999,A+,0.00065,127.55
+77,Mining & Construction,1000-1999,BBB-,0.002,58.71
+78,Transportation,4000-4799,B,0.0193,18.0
+79,Services,7000-7999,BB-,0.0103,9.68
+80,Wholesale & Retail Trade,5000-5999,B+,0.0137,23.3
+81,Mining & Construction,1000-1999,A-,0.0006,119.91
+82,Utilities,4900-4999,B,0.0193,21.0
+83,Communications,4800-4899,A-,0.0006,120.97
+84,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,39.5
+85,Services,7000-7999,CCC+,0.2387,6.56
+86,"Finance, Insurance & Real Estate",6000-6999,CCC-,0.2387,27.12
+87,Services,7000-7999,B+,0.0137,14.82
+88,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,23.94
+89,Utilities,4900-4999,BBB-,0.002,94.47
+90,Utilities,4900-4999,BBB-,0.002,8.25
+91,Mining & Construction,1000-1999,B-,0.031,15.77
+92,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,39.62
+93,Utilities,4900-4999,BB,0.005,23.77
+94,"Finance, Insurance & Real Estate",6000-6999,A-,0.0006,109.98
+95,Utilities,4900-4999,BB-,0.0103,62.65
+96,Light Manufacturing,2000-2999,B+,0.0137,13.51
+97,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,73.93
+98,Mining & Construction,1000-1999,BBB-,0.002,75.33
+99,Utilities,4900-4999,CCC,0.2387,38.91
+100,Communications,4800-4899,BB-,0.0103,26.88
+101,Mining & Construction,1000-1999,BB+,0.0024,56.49
+102,Light Manufacturing,2000-2999,BBB+,0.0008,67.7
+103,Wholesale & Retail Trade,5000-5999,BBB-,0.002,30.53
+104,Mining & Construction,1000-1999,BB+,0.0024,29.76
+105,Services,7000-7999,CCC+,0.2387,4.97
+106,Utilities,4900-4999,BBB-,0.002,77.86
+107,Heavy Manufacturing,3000-3999,CCC,0.2387,6.62
+108,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,160.8
+109,Public Administration,9000-9999,BB+,0.0024,25.86
+110,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,38.74
+111,Utilities,4900-4999,BB+,0.0024,84.77
+112,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,105.64
+113,Utilities,4900-4999,BB,0.005,53.54
+114,Communications,4800-4899,B+,0.0137,14.61
+115,Mining & Construction,1000-1999,A,0.0006,160.15
+116,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,57.67
+117,Utilities,4900-4999,BB,0.005,68.51
+118,Light Manufacturing,2000-2999,BB+,0.0024,32.89
+119,Mining & Construction,1000-1999,B,0.0193,42.4
+120,Light Manufacturing,2000-2999,BBB-,0.002,47.92
+121,Heavy Manufacturing,3000-3999,BB+,0.0024,67.36
+122,Services,7000-7999,BB,0.005,28.23
+123,Communications,4800-4899,B,0.0193,33.4
+124,Utilities,4900-4999,BB+,0.0024,87.19
+125,Light Manufacturing,2000-2999,CCC+,0.2387,6.44
+126,Utilities,4900-4999,BBB,0.0007,11.02
+127,"Finance, Insurance & Real Estate",6000-6999,CCC+,0.2387,17.62
+128,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,37.15
+129,Utilities,4900-4999,BB+,0.0024,171.19
+130,Utilities,4900-4999,BB-,0.0103,95.04
+131,Utilities,4900-4999,CCC-,0.2387,40.07
+132,Heavy Manufacturing,3000-3999,B,0.0193,16.32
+133,"Health, Legal & Educational Services",8000-8999,BB+,0.0024,43.85
+134,Communications,4800-4899,CCC+,0.2387,4.22
+135,Services,7000-7999,BB+,0.0024,9.52
+136,Communications,4800-4899,BBB,0.0007,49.37
+137,Heavy Manufacturing,3000-3999,B+,0.0137,13.34
+138,Transportation,4000-4799,BB,0.005,40.41
+139,Mining & Construction,1000-1999,B,0.0193,28.54
+140,Light Manufacturing,2000-2999,BBB-,0.002,67.11
+141,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,63.73
+142,Light Manufacturing,2000-2999,B+,0.0137,29.75
+143,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,51.43
+144,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,46.36
+145,Light Manufacturing,2000-2999,BBB-,0.002,23.49
+146,Services,7000-7999,B,0.0193,3.2
+147,Utilities,4900-4999,BB,0.005,38.96
+148,Communications,4800-4899,B+,0.0137,29.74
+149,Heavy Manufacturing,3000-3999,BB+,0.0024,58.51
+150,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,7.88
+151,"Health, Legal & Educational Services",8000-8999,BBB+,0.0008,10.29
+152,Utilities,4900-4999,BB,0.005,71.63
+153,Utilities,4900-4999,B,0.0193,21.83
+154,Services,7000-7999,BB,0.005,23.37
+155,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,25.83
+156,Communications,4800-4899,BB-,0.0103,26.77
+157,"Finance, Insurance & Real Estate",6000-6999,CCC+,0.2387,6.68
+158,Utilities,4900-4999,BB+,0.0024,74.67
+159,"Finance, Insurance & Real Estate",6000-6999,A,0.0006,70.0
+160,Services,7000-7999,B+,0.0137,10.41
+161,Utilities,4900-4999,BB+,0.0024,55.11
+162,"Health, Legal & Educational Services",8000-8999,BBB,0.0007,31.5
+163,Mining & Construction,1000-1999,B+,0.0137,32.24
+164,Mining & Construction,1000-1999,BB-,0.0103,4.88
+165,Heavy Manufacturing,3000-3999,B+,0.0137,24.08
+166,Utilities,4900-4999,BB+,0.0024,92.35
+167,Utilities,4900-4999,BB-,0.0103,81.76
+168,Transportation,4000-4799,BB-,0.0103,44.28
+169,"Finance, Insurance & Real Estate",6000-6999,CCC,0.2387,22.1
+170,Public Administration,9000-9999,BBB-,0.002,18.01
+171,Communications,4800-4899,BB,0.005,31.06
+172,Utilities,4900-4999,BB-,0.0103,78.57
+173,Mining & Construction,1000-1999,A,0.0006,57.1
+174,Utilities,4900-4999,A,0.0006,210.73
+175,Utilities,4900-4999,CC,0.2387,41.29
+176,Light Manufacturing,2000-2999,A,0.0006,26.96
+177,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,45.76
+178,Light Manufacturing,2000-2999,BBB,0.0007,37.85
+179,"Health, Legal & Educational Services",8000-8999,BBB,0.0007,58.0
+180,Utilities,4900-4999,A+,0.00065,225.35
+181,Communications,4800-4899,BBB,0.0007,58.83
+182,Light Manufacturing,2000-2999,B,0.0193,19.43
+183,"Finance, Insurance & Real Estate",6000-6999,A-,0.0006,54.12
+184,Wholesale & Retail Trade,5000-5999,B+,0.0137,15.25
+185,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,46.86
+186,Utilities,4900-4999,CCC-,0.2387,27.79
+187,Public Administration,9000-9999,BBB-,0.002,48.46
+188,Utilities,4900-4999,B-,0.031,20.79
+189,Services,7000-7999,B,0.0193,1.0
+190,Heavy Manufacturing,3000-3999,BB+,0.0024,34.16
+191,Services,7000-7999,A,0.0006,24.37
+192,Mining & Construction,1000-1999,CCC+,0.2387,10.4
+193,Utilities,4900-4999,A-,0.0006,258.24
+194,Communications,4800-4899,BBB-,0.002,103.02
+195,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,29.67
+196,Light Manufacturing,2000-2999,B-,0.031,4.29
+197,Utilities,4900-4999,BBB,0.0007,41.69
+198,Light Manufacturing,2000-2999,BB,0.005,29.33
+199,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,92.08
+200,"Finance, Insurance & Real Estate",6000-6999,B-,0.031,23.53
+201,Heavy Manufacturing,3000-3999,C,0.2387,13.1
+202,Utilities,4900-4999,A,0.0006,159.82
+203,Services,7000-7999,B,0.0193,19.93
+204,Heavy Manufacturing,3000-3999,AA+,0.000967,4.03
+205,Wholesale & Retail Trade,5000-5999,BB,0.005,23.72
+206,Communications,4800-4899,BBB+,0.0008,102.46
+207,Heavy Manufacturing,3000-3999,CCC-,0.2387,20.84
+208,Utilities,4900-4999,BB-,0.0103,65.35
+209,Services,7000-7999,BBB,0.0007,14.39
+210,Utilities,4900-4999,BBB-,0.002,66.62
+211,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,16.65
+212,"Health, Legal & Educational Services",8000-8999,BB-,0.0103,16.78
+213,Heavy Manufacturing,3000-3999,BB+,0.0024,46.15
+214,Communications,4800-4899,B+,0.0137,44.45
+215,Heavy Manufacturing,3000-3999,CCC+,0.2387,7.02
+216,Heavy Manufacturing,3000-3999,B+,0.0137,10.86
+217,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,158.65
+218,"Finance, Insurance & Real Estate",6000-6999,A,0.0006,120.02
+219,Mining & Construction,1000-1999,BBB,0.0007,119.87
+220,Heavy Manufacturing,3000-3999,B-,0.031,23.6
+221,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,16.15
+222,Transportation,4000-4799,BBB-,0.002,73.5
+223,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,80.88
+224,Light Manufacturing,2000-2999,A-,0.0006,39.18
+225,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,3.39
+226,Communications,4800-4899,B+,0.0137,46.98
+227,Utilities,4900-4999,BB+,0.0024,72.95
+228,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,79.72
+229,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,1.0
+230,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,86.0
+231,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,1.0
+232,Heavy Manufacturing,3000-3999,BBB-,0.002,27.14
+233,Light Manufacturing,2000-2999,B+,0.0137,26.72
+234,Transportation,4000-4799,BB,0.005,5.16
+235,Transportation,4000-4799,BBB+,0.0008,8.01
+236,Services,7000-7999,BB+,0.0024,18.6
+237,Mining & Construction,1000-1999,B+,0.0137,54.7
+238,Services,7000-7999,CCC-,0.2387,14.46
+239,Transportation,4000-4799,BBB+,0.0008,48.69
+240,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,63.74
+241,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,77.37
+242,Utilities,4900-4999,B,0.0193,47.34
+243,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,44.14
+244,Heavy Manufacturing,3000-3999,CCC+,0.2387,8.77
+245,Utilities,4900-4999,B+,0.0137,66.75
+246,Utilities,4900-4999,BBB-,0.002,135.52
+247,Utilities,4900-4999,BBB-,0.002,204.4
+248,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,61.95
+249,Communications,4800-4899,BB-,0.0103,1.0
+250,Mining & Construction,1000-1999,CC,0.2387,6.34
+251,Heavy Manufacturing,3000-3999,CCC,0.2387,16.38
+252,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,92.93
+253,Light Manufacturing,2000-2999,BB-,0.0103,2.23
+254,Mining & Construction,1000-1999,A-,0.0006,74.24
+255,"Finance, Insurance & Real Estate",6000-6999,A,0.0006,90.05
+256,Utilities,4900-4999,B,0.0193,41.19
+257,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,35.11
+258,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,131.21
+259,"Finance, Insurance & Real Estate",6000-6999,CCC,0.2387,34.6
+260,Light Manufacturing,2000-2999,BBB,0.0007,53.03
+261,Light Manufacturing,2000-2999,BBB+,0.0008,20.91
+262,Wholesale & Retail Trade,5000-5999,B+,0.0137,9.34
+263,Utilities,4900-4999,BB-,0.0103,38.24
+264,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,58.17
+265,Services,7000-7999,BB,0.005,15.69
+266,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,34.97
+267,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,26.83
+268,"Health, Legal & Educational Services",8000-8999,BB+,0.0024,31.81
+269,Communications,4800-4899,A+,0.00065,166.59
+270,Utilities,4900-4999,A-,0.0006,187.02
+271,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,35.92
+272,Utilities,4900-4999,BBB-,0.002,109.94
+273,Utilities,4900-4999,B+,0.0137,28.16
+274,Wholesale & Retail Trade,5000-5999,B-,0.031,5.96
+275,Light Manufacturing,2000-2999,BB+,0.0024,22.11
+276,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,54.85
+277,Transportation,4000-4799,CCC-,0.2387,14.1
+278,Mining & Construction,1000-1999,B+,0.0137,12.82
+279,"Finance, Insurance & Real Estate",6000-6999,CCC,0.2387,20.9
+280,"Finance, Insurance & Real Estate",6000-6999,CCC+,0.2387,24.2
+281,Light Manufacturing,2000-2999,B,0.0193,17.5
+282,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,33.27
+283,Mining & Construction,1000-1999,BBB,0.0007,65.99
+284,Heavy Manufacturing,3000-3999,BBB+,0.0008,49.27
+285,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,31.35
+286,Services,7000-7999,B+,0.0137,14.31
+287,Services,7000-7999,BB+,0.0024,33.02
+288,Transportation,4000-4799,B,0.0193,46.03
+289,Mining & Construction,1000-1999,BBB-,0.002,99.59
+290,Mining & Construction,1000-1999,B-,0.031,28.89
+291,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,39.96
+292,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,42.25
+293,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,43.32
+294,"Health, Legal & Educational Services",8000-8999,BB,0.005,28.36
+295,Mining & Construction,1000-1999,C,0.2387,1.0
+296,Transportation,4000-4799,A,0.0006,93.81
+297,Utilities,4900-4999,BB-,0.0103,4.44
+298,Communications,4800-4899,B-,0.031,26.35
+299,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,54.02
+300,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,32.67
+301,Utilities,4900-4999,CCC,0.2387,1.0
+302,Heavy Manufacturing,3000-3999,BBB+,0.0008,105.03
+303,Heavy Manufacturing,3000-3999,A-,0.0006,124.21
+304,Light Manufacturing,2000-2999,B+,0.0137,23.24
+305,Light Manufacturing,2000-2999,A-,0.0006,80.13
+306,Heavy Manufacturing,3000-3999,AA-,0.0007,57.55
+307,"Health, Legal & Educational Services",8000-8999,B,0.0193,18.56
+308,Light Manufacturing,2000-2999,B,0.0193,29.51
+309,Services,7000-7999,B,0.0193,17.16
+310,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,79.84
+311,Utilities,4900-4999,BB-,0.0103,87.97
+312,Heavy Manufacturing,3000-3999,BBB,0.0007,88.6
+313,Heavy Manufacturing,3000-3999,CCC,0.2387,8.61
+314,Utilities,4900-4999,B,0.0193,68.77
+315,Utilities,4900-4999,B,0.0193,56.77
+316,Transportation,4000-4799,A+,0.00065,102.14
+317,Mining & Construction,1000-1999,B,0.0193,42.95
+318,Heavy Manufacturing,3000-3999,CCC+,0.2387,20.66
+319,"Finance, Insurance & Real Estate",6000-6999,B-,0.031,37.76
+320,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,24.25
+321,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,70.84
+322,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,26.74
+323,"Health, Legal & Educational Services",8000-8999,B+,0.0137,12.65
+324,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,6.52
+325,Utilities,4900-4999,BB-,0.0103,11.79
+326,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,73.29
+327,Mining & Construction,1000-1999,CCC,0.2387,15.34
+328,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,93.81
+329,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,64.8
+330,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,82.25
+331,Utilities,4900-4999,B-,0.031,21.12
+332,Heavy Manufacturing,3000-3999,CCC+,0.2387,14.53
+333,Services,7000-7999,B-,0.031,10.63
+334,Utilities,4900-4999,B,0.0193,32.11
+335,Utilities,4900-4999,A-,0.0006,122.53
+336,Services,7000-7999,CCC-,0.2387,6.54
+337,Communications,4800-4899,B+,0.0137,25.29
+338,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,41.64
+339,Services,7000-7999,BB,0.005,22.35
+340,Services,7000-7999,BB+,0.0024,48.76
+341,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,25.14
+342,Mining & Construction,1000-1999,BB-,0.0103,42.87
+343,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,16.16
+344,"Finance, Insurance & Real Estate",6000-6999,AA,0.000833,287.2
+345,Light Manufacturing,2000-2999,BB,0.005,21.0
+346,Heavy Manufacturing,3000-3999,B+,0.0137,28.12
+347,Light Manufacturing,2000-2999,B+,0.0137,30.25
+348,Heavy Manufacturing,3000-3999,BB+,0.0024,63.33
+349,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,9.53
+350,Communications,4800-4899,B-,0.031,33.12
+351,Utilities,4900-4999,BBB-,0.002,81.45
+352,Wholesale & Retail Trade,5000-5999,CCC+,0.2387,11.52
+353,Light Manufacturing,2000-2999,A+,0.00065,67.07
+354,Utilities,4900-4999,BBB+,0.0008,156.75
+355,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,91.68
+356,Light Manufacturing,2000-2999,AA,0.000833,74.63
+357,Utilities,4900-4999,BBB,0.0007,160.49
+358,Mining & Construction,1000-1999,B-,0.031,5.02
+359,Light Manufacturing,2000-2999,B-,0.031,10.89
+360,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,26.11
+361,Services,7000-7999,CCC,0.2387,7.42
+362,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,33.36
+363,Services,7000-7999,BBB-,0.002,25.93
+364,Services,7000-7999,BB-,0.0103,12.83
+365,Transportation,4000-4799,BB,0.005,29.55
+366,Mining & Construction,1000-1999,B,0.0193,4.63
+367,"Finance, Insurance & Real Estate",6000-6999,A-,0.0006,98.12
+368,Light Manufacturing,2000-2999,B,0.0193,18.65
+369,Light Manufacturing,2000-2999,BBB-,0.002,24.98
+370,Mining & Construction,1000-1999,B,0.0193,17.46
+371,Utilities,4900-4999,A-,0.0006,91.33
+372,Mining & Construction,1000-1999,BB+,0.0024,88.3
+373,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,54.7
+374,Utilities,4900-4999,B,0.0193,49.81
+375,Heavy Manufacturing,3000-3999,BBB+,0.0008,53.27
+376,Light Manufacturing,2000-2999,CCC,0.2387,7.6
+377,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,21.03
+378,"Health, Legal & Educational Services",8000-8999,BBB-,0.002,44.63
+379,Mining & Construction,1000-1999,B-,0.031,3.3
+380,Services,7000-7999,BB,0.005,23.0
+381,Utilities,4900-4999,B-,0.031,35.35
+382,Transportation,4000-4799,CC,0.2387,13.36
+383,Services,7000-7999,B,0.0193,2.82
+384,"Health, Legal & Educational Services",8000-8999,BBB-,0.002,9.64
+385,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,89.45
+386,Light Manufacturing,2000-2999,B+,0.0137,12.51
+387,Utilities,4900-4999,BB-,0.0103,77.67
+388,Heavy Manufacturing,3000-3999,BBB,0.0007,75.29
+389,Utilities,4900-4999,BBB-,0.002,115.33
+390,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,51.78
+391,Light Manufacturing,2000-2999,CC,0.2387,4.19
+392,Mining & Construction,1000-1999,AA,0.000833,97.66
+393,Utilities,4900-4999,B,0.0193,55.48
+394,Public Administration,9000-9999,BB+,0.0024,13.28
+395,Utilities,4900-4999,B,0.0193,74.71
+396,Utilities,4900-4999,B,0.0193,31.34
+397,Services,7000-7999,BB,0.005,19.36
+398,Light Manufacturing,2000-2999,BBB+,0.0008,22.86
+399,Utilities,4900-4999,A-,0.0006,151.95
+400,Utilities,4900-4999,A+,0.00065,107.46
+401,Transportation,4000-4799,B-,0.031,18.5
+402,Transportation,4000-4799,BB+,0.0024,21.0
+403,Mining & Construction,1000-1999,BBB-,0.002,89.37
+404,Utilities,4900-4999,BB+,0.0024,19.23
+405,Communications,4800-4899,A-,0.0006,115.85
+406,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,47.54
+407,Utilities,4900-4999,CCC+,0.2387,31.25
+408,Heavy Manufacturing,3000-3999,B-,0.031,9.15
+409,Utilities,4900-4999,A-,0.0006,192.02
+410,Utilities,4900-4999,CCC+,0.2387,37.57
+411,"Health, Legal & Educational Services",8000-8999,BBB,0.0007,31.1
+412,"Finance, Insurance & Real Estate",6000-6999,A+,0.00065,144.54
+413,Heavy Manufacturing,3000-3999,BBB+,0.0008,57.9
+414,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,105.72
+415,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,29.47
+416,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,114.97
+417,Public Administration,9000-9999,A-,0.0006,72.19
+418,Communications,4800-4899,BB+,0.0024,20.38
+419,Wholesale & Retail Trade,5000-5999,CCC-,0.2387,1.0
+420,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,65.9
+421,Mining & Construction,1000-1999,B+,0.0137,27.58
+422,Light Manufacturing,2000-2999,BB,0.005,39.62
+423,Light Manufacturing,2000-2999,C,0.2387,8.99
+424,Communications,4800-4899,A+,0.00065,92.62
+425,Utilities,4900-4999,B-,0.031,13.31
+426,Light Manufacturing,2000-2999,BBB+,0.0008,43.09
+427,Utilities,4900-4999,BBB-,0.002,66.48
+428,Utilities,4900-4999,BB,0.005,31.92
+429,Heavy Manufacturing,3000-3999,D,1.0,9.85
+430,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,122.28
+431,Utilities,4900-4999,A+,0.00065,169.46
+432,Light Manufacturing,2000-2999,CCC+,0.2387,4.96
+433,Light Manufacturing,2000-2999,BBB,0.0007,46.28
+434,Services,7000-7999,BB+,0.0024,10.82
+435,Mining & Construction,1000-1999,BB,0.005,8.45
+436,Heavy Manufacturing,3000-3999,BB,0.005,43.9
+437,Wholesale & Retail Trade,5000-5999,BB+,0.0024,19.14
+438,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,66.16
+439,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,49.11
+440,Utilities,4900-4999,B,0.0193,26.52
+441,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,66.58
+442,Heavy Manufacturing,3000-3999,BBB,0.0007,93.31
+443,Heavy Manufacturing,3000-3999,BBB+,0.0008,56.89
+444,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,17.6
+445,Communications,4800-4899,BB,0.005,33.45
+446,Heavy Manufacturing,3000-3999,B+,0.0137,15.27
+447,Light Manufacturing,2000-2999,B+,0.0137,8.12
+448,Transportation,4000-4799,CCC,0.2387,5.89
+449,Wholesale & Retail Trade,5000-5999,BB-,0.0103,22.65
+450,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,50.53
+451,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,73.72
+452,Transportation,4000-4799,BBB+,0.0008,93.89
+453,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,87.25
+454,Communications,4800-4899,BBB+,0.0008,153.08
+455,Utilities,4900-4999,B+,0.0137,44.56
+456,Utilities,4900-4999,A-,0.0006,109.04
+457,Heavy Manufacturing,3000-3999,BB,0.005,42.58
+458,Transportation,4000-4799,AA,0.000833,127.22
+459,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,103.59
+460,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,98.9
+461,Communications,4800-4899,BB+,0.0024,46.27
+462,Utilities,4900-4999,A,0.0006,157.29
+463,Utilities,4900-4999,BB,0.005,35.56
+464,"Health, Legal & Educational Services",8000-8999,B,0.0193,10.77
+465,Utilities,4900-4999,B+,0.0137,33.6
+466,Communications,4800-4899,BBB-,0.002,43.87
+467,"Health, Legal & Educational Services",8000-8999,BBB-,0.002,22.43
+468,Communications,4800-4899,BBB+,0.0008,68.72
+469,Communications,4800-4899,B+,0.0137,42.13
+470,Communications,4800-4899,CCC+,0.2387,26.27
+471,Services,7000-7999,BBB-,0.002,7.11
+472,Utilities,4900-4999,A,0.0006,209.22
+473,Mining & Construction,1000-1999,BB-,0.0103,1.0
+474,Services,7000-7999,B+,0.0137,16.86
+475,Wholesale & Retail Trade,5000-5999,AA+,0.000967,104.35
+476,Wholesale & Retail Trade,5000-5999,BB,0.005,14.84
+477,Wholesale & Retail Trade,5000-5999,CC,0.2387,7.79
+478,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,19.8
+479,Utilities,4900-4999,B+,0.0137,68.88
+480,Light Manufacturing,2000-2999,BB-,0.0103,1.0
+481,Wholesale & Retail Trade,5000-5999,B-,0.031,6.22
+482,Light Manufacturing,2000-2999,BBB,0.0007,2.81
+483,Utilities,4900-4999,BBB,0.0007,113.04
+484,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,70.11
+485,Utilities,4900-4999,BBB-,0.002,141.05
+486,Services,7000-7999,BB-,0.0103,22.68
+487,"Finance, Insurance & Real Estate",6000-6999,A+,0.00065,140.51
+488,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,20.05
+489,Utilities,4900-4999,B,0.0193,66.01
+490,Heavy Manufacturing,3000-3999,BB,0.005,46.22
+491,Utilities,4900-4999,BB-,0.0103,33.72
+492,Wholesale & Retail Trade,5000-5999,CCC,0.2387,3.17
+493,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,61.71
+494,Heavy Manufacturing,3000-3999,BBB,0.0007,87.16
+495,Communications,4800-4899,BBB+,0.0008,135.93
+496,Transportation,4000-4799,BB+,0.0024,80.5
+497,Wholesale & Retail Trade,5000-5999,BBB+,0.0008,24.25
+498,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,41.0
+499,Services,7000-7999,BBB-,0.002,47.36
+500,Mining & Construction,1000-1999,A-,0.0006,88.8
+501,Light Manufacturing,2000-2999,A-,0.0006,68.34
+502,"Finance, Insurance & Real Estate",6000-6999,B-,0.031,9.34
+503,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,40.77
+504,Communications,4800-4899,BB+,0.0024,57.18
+505,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,41.15
+506,Utilities,4900-4999,BB,0.005,52.59
+507,Utilities,4900-4999,B,0.0193,10.42
+508,Communications,4800-4899,B+,0.0137,62.91
+509,Utilities,4900-4999,BBB-,0.002,97.26
+510,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,21.87
+511,Utilities,4900-4999,BBB+,0.0008,175.36
+512,Utilities,4900-4999,BBB+,0.0008,120.91
+513,Communications,4800-4899,CCC+,0.2387,25.57
+514,Utilities,4900-4999,BBB,0.0007,95.16
+515,Mining & Construction,1000-1999,A+,0.00065,61.35
+516,Heavy Manufacturing,3000-3999,BBB,0.0007,34.48
+517,Wholesale & Retail Trade,5000-5999,BBB,0.0007,41.47
+518,Communications,4800-4899,BB-,0.0103,55.54
+519,Utilities,4900-4999,BBB,0.0007,128.2
+520,Light Manufacturing,2000-2999,B+,0.0137,24.7
+521,Light Manufacturing,2000-2999,BB-,0.0103,33.69
+522,Wholesale & Retail Trade,5000-5999,B-,0.031,13.95
+523,"Finance, Insurance & Real Estate",6000-6999,CC,0.2387,30.24
+524,Light Manufacturing,2000-2999,D,1.0,11.57
+525,Heavy Manufacturing,3000-3999,CCC+,0.2387,16.28
+526,Light Manufacturing,2000-2999,BBB+,0.0008,43.92
+527,Heavy Manufacturing,3000-3999,BB+,0.0024,33.21
+528,Light Manufacturing,2000-2999,BB-,0.0103,9.28
+529,Light Manufacturing,2000-2999,CCC-,0.2387,2.67
+530,Mining & Construction,1000-1999,B+,0.0137,50.18
+531,Utilities,4900-4999,B-,0.031,36.1
+532,Heavy Manufacturing,3000-3999,BB+,0.0024,30.92
+533,Communications,4800-4899,B+,0.0137,62.64
+534,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,48.9
+535,Utilities,4900-4999,BBB-,0.002,95.16
+536,Transportation,4000-4799,B,0.0193,36.94
+537,"Health, Legal & Educational Services",8000-8999,B-,0.031,9.17
+538,Public Administration,9000-9999,BB+,0.0024,43.27
+539,"Finance, Insurance & Real Estate",6000-6999,B-,0.031,53.17
+540,Services,7000-7999,CCC,0.2387,12.43
+541,Transportation,4000-4799,BB,0.005,33.96
+542,Wholesale & Retail Trade,5000-5999,BB,0.005,30.19
+543,Communications,4800-4899,BB+,0.0024,90.18
+544,Mining & Construction,1000-1999,BBB-,0.002,54.23
+545,Communications,4800-4899,BB-,0.0103,34.04
+546,Heavy Manufacturing,3000-3999,BB+,0.0024,83.78
+547,Services,7000-7999,BB+,0.0024,21.19
+548,Light Manufacturing,2000-2999,BBB,0.0007,15.91
+549,"Finance, Insurance & Real Estate",6000-6999,A-,0.0006,110.61
+550,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,174.51
+551,Wholesale & Retail Trade,5000-5999,BB-,0.0103,25.34
+552,Communications,4800-4899,BBB+,0.0008,127.74
+553,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,1.0
+554,Services,7000-7999,CCC,0.2387,6.19
+555,Utilities,4900-4999,B-,0.031,57.4
+556,Mining & Construction,1000-1999,BBB-,0.002,47.8
+557,Utilities,4900-4999,B+,0.0137,80.97
+558,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,90.85
+559,"Finance, Insurance & Real Estate",6000-6999,CCC,0.2387,25.19
+560,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,133.2
+561,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,40.59
+562,"Finance, Insurance & Real Estate",6000-6999,CCC+,0.2387,16.61
+563,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,89.5
+564,Services,7000-7999,CCC+,0.2387,9.4
+565,Light Manufacturing,2000-2999,BBB,0.0007,9.96
+566,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,71.47
+567,Heavy Manufacturing,3000-3999,BB+,0.0024,49.84
+568,Heavy Manufacturing,3000-3999,BB,0.005,34.44
+569,Light Manufacturing,2000-2999,BB-,0.0103,28.96
+570,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,43.49
+571,Light Manufacturing,2000-2999,BBB+,0.0008,74.02
+572,Wholesale & Retail Trade,5000-5999,B,0.0193,15.74
+573,Utilities,4900-4999,B,0.0193,58.98
+574,Light Manufacturing,2000-2999,CCC+,0.2387,6.4
+575,Transportation,4000-4799,CCC+,0.2387,14.18
+576,"Finance, Insurance & Real Estate",6000-6999,A-,0.0006,125.38
+577,Communications,4800-4899,B-,0.031,16.59
+578,Light Manufacturing,2000-2999,CCC+,0.2387,7.47
+579,Services,7000-7999,BBB-,0.002,29.12
+580,Utilities,4900-4999,B-,0.031,56.28
+581,Heavy Manufacturing,3000-3999,CCC+,0.2387,20.42
+582,Utilities,4900-4999,BBB-,0.002,134.44
+583,Wholesale & Retail Trade,5000-5999,A-,0.0006,53.52
+584,Wholesale & Retail Trade,5000-5999,BB+,0.0024,40.0
+585,Mining & Construction,1000-1999,D,1.0,22.01
+586,"Health, Legal & Educational Services",8000-8999,BB-,0.0103,17.56
+587,Communications,4800-4899,BBB+,0.0008,108.66
+588,Services,7000-7999,BB+,0.0024,32.52
+589,Wholesale & Retail Trade,5000-5999,BBB,0.0007,2.18
+590,Utilities,4900-4999,BB+,0.0024,78.91
+591,Public Administration,9000-9999,BB,0.005,38.12
+592,Utilities,4900-4999,AA,0.000833,292.17
+593,Light Manufacturing,2000-2999,BB-,0.0103,19.22
+594,"Finance, Insurance & Real Estate",6000-6999,CCC+,0.2387,30.96
+595,Services,7000-7999,BB+,0.0024,17.76
+596,Utilities,4900-4999,BB+,0.0024,75.94
+597,Mining & Construction,1000-1999,B-,0.031,41.81
+598,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,34.48
+599,Utilities,4900-4999,BBB+,0.0008,118.92
+600,Utilities,4900-4999,A-,0.0006,127.88
+601,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,60.59
+602,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,33.46
+603,Communications,4800-4899,BB,0.005,64.62
+604,Transportation,4000-4799,B+,0.0137,15.46
+605,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,12.7
+606,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,48.37
+607,Utilities,4900-4999,BBB,0.0007,51.48
+608,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,74.09
+609,Mining & Construction,1000-1999,B-,0.031,23.26
+610,Utilities,4900-4999,BBB+,0.0008,84.93
+611,Heavy Manufacturing,3000-3999,BB+,0.0024,36.49
+612,Wholesale & Retail Trade,5000-5999,BB+,0.0024,26.25
+613,Wholesale & Retail Trade,5000-5999,BB+,0.0024,33.45
+614,Transportation,4000-4799,BBB+,0.0008,50.63
+615,Transportation,4000-4799,A-,0.0006,71.36
+616,Heavy Manufacturing,3000-3999,C,0.2387,3.73
+617,Light Manufacturing,2000-2999,B,0.0193,14.7
+618,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,5.48
+619,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,50.63
+620,Heavy Manufacturing,3000-3999,B+,0.0137,21.03
+621,Wholesale & Retail Trade,5000-5999,BB+,0.0024,54.87
+622,Light Manufacturing,2000-2999,B+,0.0137,30.88
+623,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,66.89
+624,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,90.19
+625,Communications,4800-4899,BB,0.005,55.48
+626,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,31.76
+627,"Finance, Insurance & Real Estate",6000-6999,AA,0.000833,1.0
+628,Utilities,4900-4999,BB,0.005,99.72
+629,Heavy Manufacturing,3000-3999,BB-,0.0103,36.43
+630,Services,7000-7999,B+,0.0137,1.0
+631,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,107.21
+632,Heavy Manufacturing,3000-3999,BB-,0.0103,44.36
+633,Heavy Manufacturing,3000-3999,BB-,0.0103,19.92
+634,Light Manufacturing,2000-2999,A,0.0006,76.88
+635,Heavy Manufacturing,3000-3999,AA-,0.0007,13.28
+636,Services,7000-7999,B+,0.0137,13.64
+637,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,82.84
+638,Light Manufacturing,2000-2999,B-,0.031,19.14
+639,"Finance, Insurance & Real Estate",6000-6999,CCC-,0.2387,24.32
+640,Light Manufacturing,2000-2999,BBB-,0.002,39.29
+641,Services,7000-7999,BBB-,0.002,36.23
+642,Public Administration,9000-9999,BB,0.005,20.67
+643,Light Manufacturing,2000-2999,B+,0.0137,32.33
+644,Utilities,4900-4999,BBB+,0.0008,100.26
+645,Heavy Manufacturing,3000-3999,B-,0.031,27.4
+646,Utilities,4900-4999,B,0.0193,42.74
+647,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,33.42
+648,Heavy Manufacturing,3000-3999,BBB-,0.002,64.46
+649,Services,7000-7999,B,0.0193,16.08
+650,Wholesale & Retail Trade,5000-5999,B,0.0193,24.1
+651,"Health, Legal & Educational Services",8000-8999,BBB+,0.0008,50.23
+652,Utilities,4900-4999,CCC-,0.2387,19.52
+653,Utilities,4900-4999,BB+,0.0024,97.01
+654,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,45.25
+655,Light Manufacturing,2000-2999,BBB-,0.002,22.09
+656,Services,7000-7999,BB-,0.0103,7.88
+657,"Finance, Insurance & Real Estate",6000-6999,B-,0.031,31.37
+658,Wholesale & Retail Trade,5000-5999,BBB,0.0007,26.25
+659,Communications,4800-4899,A,0.0006,39.77
+660,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,67.59
+661,Mining & Construction,1000-1999,A-,0.0006,89.86
+662,Services,7000-7999,BBB,0.0007,33.99
+663,Transportation,4000-4799,BB,0.005,16.76
+664,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,36.11
+665,Services,7000-7999,CCC+,0.2387,13.57
+666,Communications,4800-4899,BBB+,0.0008,56.84
+667,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,36.04
+668,Utilities,4900-4999,BBB-,0.002,188.7
+669,Transportation,4000-4799,CCC+,0.2387,17.86
+670,Utilities,4900-4999,C,0.2387,17.7
+671,Utilities,4900-4999,BB-,0.0103,6.19
+672,Communications,4800-4899,CCC,0.2387,22.08
+673,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,22.02
+674,Light Manufacturing,2000-2999,A,0.0006,54.78
+675,Utilities,4900-4999,BBB+,0.0008,71.07
+676,Heavy Manufacturing,3000-3999,A,0.0006,11.33
+677,Heavy Manufacturing,3000-3999,BBB,0.0007,103.99
+678,Mining & Construction,1000-1999,BB+,0.0024,45.76
+679,Light Manufacturing,2000-2999,B-,0.031,19.89
+680,Wholesale & Retail Trade,5000-5999,B+,0.0137,22.69
+681,Services,7000-7999,B+,0.0137,9.6
+682,Transportation,4000-4799,BB+,0.0024,47.72
+683,Light Manufacturing,2000-2999,BBB,0.0007,33.32
+684,Communications,4800-4899,BB,0.005,69.39
+685,Light Manufacturing,2000-2999,BB,0.005,30.26
+686,Utilities,4900-4999,BB-,0.0103,46.39
+687,Mining & Construction,1000-1999,BB-,0.0103,62.3
+688,Transportation,4000-4799,BB,0.005,47.44
+689,Services,7000-7999,A+,0.00065,61.68
+690,Utilities,4900-4999,BBB+,0.0008,75.01
+691,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,96.49
+692,Communications,4800-4899,CCC,0.2387,6.35
+693,Communications,4800-4899,BB+,0.0024,69.91
+694,Wholesale & Retail Trade,5000-5999,B+,0.0137,8.82
+695,"Finance, Insurance & Real Estate",6000-6999,CCC+,0.2387,21.87
+696,Wholesale & Retail Trade,5000-5999,BB-,0.0103,16.14
+697,Light Manufacturing,2000-2999,BB+,0.0024,33.34
+698,Utilities,4900-4999,BB+,0.0024,90.98
+699,Utilities,4900-4999,BBB+,0.0008,114.02
+700,Public Administration,9000-9999,BB-,0.0103,24.81
+701,Transportation,4000-4799,B-,0.031,6.18
+702,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,1.91
+703,Utilities,4900-4999,B,0.0193,66.85
+704,Communications,4800-4899,B,0.0193,39.41
+705,"Finance, Insurance & Real Estate",6000-6999,CCC-,0.2387,5.21
+706,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,136.82
+707,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,27.32
+708,Wholesale & Retail Trade,5000-5999,B+,0.0137,20.72
+709,Utilities,4900-4999,B-,0.031,42.77
+710,Utilities,4900-4999,AA-,0.0007,191.12
+711,Services,7000-7999,BBB-,0.002,36.52
+712,Utilities,4900-4999,BB+,0.0024,28.54
+713,Communications,4800-4899,BBB+,0.0008,84.97
+714,Utilities,4900-4999,B,0.0193,37.3
+715,Utilities,4900-4999,BB-,0.0103,57.48
+716,Utilities,4900-4999,BB+,0.0024,68.13
+717,"Finance, Insurance & Real Estate",6000-6999,A,0.0006,74.69
+718,"Finance, Insurance & Real Estate",6000-6999,A-,0.0006,63.44
+719,Wholesale & Retail Trade,5000-5999,BBB,0.0007,50.77
+720,Wholesale & Retail Trade,5000-5999,B+,0.0137,9.5
+721,Light Manufacturing,2000-2999,BBB+,0.0008,52.83
+722,Mining & Construction,1000-1999,A+,0.00065,117.49
+723,Wholesale & Retail Trade,5000-5999,A-,0.0006,41.85
+724,Utilities,4900-4999,BBB-,0.002,108.78
+725,Communications,4800-4899,CCC,0.2387,23.97
+726,Communications,4800-4899,C,0.2387,12.7
+727,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,81.77
+728,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,63.47
+729,Communications,4800-4899,CCC+,0.2387,9.78
+730,Communications,4800-4899,B-,0.031,22.74
+731,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,30.83
+732,Services,7000-7999,A-,0.0006,79.7
+733,Services,7000-7999,BBB-,0.002,8.36
+734,Utilities,4900-4999,A+,0.00065,163.03
+735,Utilities,4900-4999,BB-,0.0103,78.94
+736,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,18.39
+737,Light Manufacturing,2000-2999,A+,0.00065,58.42
+738,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,32.2
+739,Heavy Manufacturing,3000-3999,BB-,0.0103,9.24
+740,Mining & Construction,1000-1999,B-,0.031,21.22
+741,Heavy Manufacturing,3000-3999,CCC+,0.2387,17.55
+742,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,26.03
+743,Mining & Construction,1000-1999,BBB-,0.002,60.57
+744,Communications,4800-4899,BB+,0.0024,75.61
+745,"Finance, Insurance & Real Estate",6000-6999,B-,0.031,43.9
+746,Heavy Manufacturing,3000-3999,BBB-,0.002,17.89
+747,Services,7000-7999,BB,0.005,26.11
+748,"Finance, Insurance & Real Estate",6000-6999,CCC+,0.2387,13.79
+749,Wholesale & Retail Trade,5000-5999,BB,0.005,1.28
+750,"Health, Legal & Educational Services",8000-8999,A-,0.0006,22.0
+751,Communications,4800-4899,BB+,0.0024,74.49
+752,Wholesale & Retail Trade,5000-5999,B+,0.0137,19.03
+753,Utilities,4900-4999,BB+,0.0024,38.52
+754,Mining & Construction,1000-1999,B-,0.031,39.65
+755,Transportation,4000-4799,B-,0.031,24.88
+756,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,67.58
+757,Services,7000-7999,BBB-,0.002,20.41
+758,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,60.41
+759,Services,7000-7999,BBB+,0.0008,29.02
+760,Mining & Construction,1000-1999,BB-,0.0103,53.25
+761,Services,7000-7999,BB+,0.0024,27.75
+762,Utilities,4900-4999,B,0.0193,54.22
+763,Light Manufacturing,2000-2999,BBB-,0.002,29.86
+764,Transportation,4000-4799,BBB,0.0007,18.32
+765,"Finance, Insurance & Real Estate",6000-6999,CCC,0.2387,25.26
+766,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,39.71
+767,"Health, Legal & Educational Services",8000-8999,BBB-,0.002,23.86
+768,Wholesale & Retail Trade,5000-5999,BBB,0.0007,34.95
+769,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,36.63
+770,"Health, Legal & Educational Services",8000-8999,BBB,0.0007,41.57
+771,Utilities,4900-4999,BB,0.005,22.27
+772,Wholesale & Retail Trade,5000-5999,BBB-,0.002,53.69
+773,Wholesale & Retail Trade,5000-5999,BB+,0.0024,18.63
+774,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,62.91
+775,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,61.66
+776,Utilities,4900-4999,B+,0.0137,29.41
+777,Transportation,4000-4799,BBB,0.0007,39.68
+778,Services,7000-7999,BB-,0.0103,24.96
+779,Utilities,4900-4999,BB,0.005,70.58
+780,Wholesale & Retail Trade,5000-5999,BB,0.005,22.9
+781,Utilities,4900-4999,A,0.0006,22.75
+782,Utilities,4900-4999,B+,0.0137,11.95
+783,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,63.37
+784,Transportation,4000-4799,CCC,0.2387,25.48
+785,Services,7000-7999,B+,0.0137,9.71
+786,Light Manufacturing,2000-2999,BBB+,0.0008,26.4
+787,Utilities,4900-4999,A-,0.0006,142.49
+788,"Health, Legal & Educational Services",8000-8999,B-,0.031,12.19
+789,Utilities,4900-4999,BBB,0.0007,130.86
+790,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,29.29
+791,Light Manufacturing,2000-2999,BB+,0.0024,2.14
+792,Communications,4800-4899,CCC-,0.2387,31.96
+793,Communications,4800-4899,BB,0.005,37.14
+794,"Finance, Insurance & Real Estate",6000-6999,CCC+,0.2387,32.49
+795,Transportation,4000-4799,CCC+,0.2387,1.0
+796,Mining & Construction,1000-1999,BBB-,0.002,66.33
+797,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,45.09
+798,Services,7000-7999,CCC+,0.2387,3.69
+799,"Health, Legal & Educational Services",8000-8999,BB,0.005,26.68
+800,Services,7000-7999,BBB,0.0007,52.53
+801,"Finance, Insurance & Real Estate",6000-6999,B-,0.031,19.49
+802,Light Manufacturing,2000-2999,C,0.2387,11.45
+803,Heavy Manufacturing,3000-3999,BB,0.005,15.78
+804,Wholesale & Retail Trade,5000-5999,CCC+,0.2387,6.1
+805,Light Manufacturing,2000-2999,BB,0.005,22.08
+806,"Finance, Insurance & Real Estate",6000-6999,CCC+,0.2387,16.55
+807,Transportation,4000-4799,BB+,0.0024,59.3
+808,Transportation,4000-4799,CCC+,0.2387,6.57
+809,Light Manufacturing,2000-2999,B+,0.0137,27.4
+810,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,88.8
+811,Services,7000-7999,BB-,0.0103,15.16
+812,Communications,4800-4899,BBB-,0.002,30.99
+813,"Health, Legal & Educational Services",8000-8999,BBB+,0.0008,1.0
+814,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,87.18
+815,Light Manufacturing,2000-2999,BB,0.005,16.47
+816,Utilities,4900-4999,BBB+,0.0008,122.49
+817,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,17.86
+818,Communications,4800-4899,B+,0.0137,36.04
+819,Utilities,4900-4999,B+,0.0137,47.38
+820,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,70.39
+821,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,57.08
+822,Services,7000-7999,BB,0.005,22.89
+823,Heavy Manufacturing,3000-3999,CCC+,0.2387,20.93
+824,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,48.95
+825,Mining & Construction,1000-1999,BB+,0.0024,65.14
+826,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,64.78
+827,Mining & Construction,1000-1999,BB,0.005,31.73
+828,Mining & Construction,1000-1999,BBB-,0.002,28.4
+829,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,120.59
+830,Light Manufacturing,2000-2999,B-,0.031,15.32
+831,Communications,4800-4899,BBB-,0.002,51.5
+832,Communications,4800-4899,B,0.0193,32.26
+833,Communications,4800-4899,CCC-,0.2387,19.26
+834,Wholesale & Retail Trade,5000-5999,CCC+,0.2387,6.53
+835,Communications,4800-4899,A,0.0006,39.65
+836,Transportation,4000-4799,B,0.0193,26.5
+837,Light Manufacturing,2000-2999,B+,0.0137,17.32
+838,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,32.32
+839,"Finance, Insurance & Real Estate",6000-6999,A-,0.0006,148.86
+840,Utilities,4900-4999,B,0.0193,16.99
+841,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,47.66
+842,"Finance, Insurance & Real Estate",6000-6999,CCC+,0.2387,21.62
+843,Light Manufacturing,2000-2999,B-,0.031,19.21
+844,Utilities,4900-4999,C,0.2387,29.14
+845,Utilities,4900-4999,BB+,0.0024,104.02
+846,Communications,4800-4899,A-,0.0006,1.0
+847,Wholesale & Retail Trade,5000-5999,B-,0.031,15.09
+848,Wholesale & Retail Trade,5000-5999,B,0.0193,17.28
+849,Utilities,4900-4999,BB+,0.0024,102.46
+850,Communications,4800-4899,CCC+,0.2387,13.26
+851,Wholesale & Retail Trade,5000-5999,B,0.0193,17.94
+852,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,134.81
+853,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,107.76
+854,Mining & Construction,1000-1999,BB+,0.0024,54.15
+855,Utilities,4900-4999,BB,0.005,25.76
+856,"Finance, Insurance & Real Estate",6000-6999,BB-,0.0103,43.79
+857,Utilities,4900-4999,BBB-,0.002,118.04
+858,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,62.86
+859,Light Manufacturing,2000-2999,B+,0.0137,35.84
+860,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,45.23
+861,Utilities,4900-4999,BB+,0.0024,42.07
+862,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,41.38
+863,Utilities,4900-4999,BB,0.005,84.72
+864,"Finance, Insurance & Real Estate",6000-6999,A,0.0006,66.91
+865,Light Manufacturing,2000-2999,BB-,0.0103,10.84
+866,Mining & Construction,1000-1999,BBB,0.0007,37.84
+867,Utilities,4900-4999,BB-,0.0103,85.94
+868,Transportation,4000-4799,A-,0.0006,84.79
+869,Wholesale & Retail Trade,5000-5999,B,0.0193,11.99
+870,Utilities,4900-4999,BB-,0.0103,76.89
+871,"Finance, Insurance & Real Estate",6000-6999,A-,0.0006,134.43
+872,Communications,4800-4899,BB-,0.0103,22.98
+873,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,99.09
+874,Utilities,4900-4999,CCC-,0.2387,29.01
+875,Heavy Manufacturing,3000-3999,B+,0.0137,1.0
+876,Public Administration,9000-9999,BBB,0.0007,20.13
+877,Utilities,4900-4999,BB-,0.0103,62.11
+878,Light Manufacturing,2000-2999,BB,0.005,30.9
+879,Mining & Construction,1000-1999,B-,0.031,19.01
+880,Mining & Construction,1000-1999,BB-,0.0103,17.44
+881,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,42.33
+882,Heavy Manufacturing,3000-3999,BBB+,0.0008,4.84
+883,Heavy Manufacturing,3000-3999,B,0.0193,29.34
+884,Mining & Construction,1000-1999,CC,0.2387,14.92
+885,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,37.26
+886,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,34.27
+887,"Health, Legal & Educational Services",8000-8999,BB-,0.0103,21.69
+888,Services,7000-7999,BBB,0.0007,1.0
+889,Services,7000-7999,BB-,0.0103,9.85
+890,Transportation,4000-4799,BBB+,0.0008,87.47
+891,Transportation,4000-4799,BB,0.005,25.8
+892,Utilities,4900-4999,BB+,0.0024,130.65
+893,Communications,4800-4899,BBB,0.0007,92.24
+894,Mining & Construction,1000-1999,B+,0.0137,18.98
+895,Heavy Manufacturing,3000-3999,A-,0.0006,110.21
+896,Mining & Construction,1000-1999,BB,0.005,38.66
+897,Utilities,4900-4999,BBB+,0.0008,149.45
+898,Wholesale & Retail Trade,5000-5999,CCC-,0.2387,6.24
+899,Utilities,4900-4999,CCC-,0.2387,19.23
+900,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,44.4
+901,"Finance, Insurance & Real Estate",6000-6999,CCC-,0.2387,21.32
+902,Mining & Construction,1000-1999,B+,0.0137,19.3
+903,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,21.87
+904,Transportation,4000-4799,BB+,0.0024,60.24
+905,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,151.06
+906,Utilities,4900-4999,BB-,0.0103,35.12
+907,"Health, Legal & Educational Services",8000-8999,BBB-,0.002,34.17
+908,Heavy Manufacturing,3000-3999,BB+,0.0024,1.0
+909,Transportation,4000-4799,B,0.0193,9.17
+910,Services,7000-7999,BB,0.005,27.11
+911,"Finance, Insurance & Real Estate",6000-6999,A-,0.0006,180.67
+912,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,63.2
+913,Utilities,4900-4999,BBB-,0.002,115.55
+914,Wholesale & Retail Trade,5000-5999,BB+,0.0024,30.39
+915,Utilities,4900-4999,BBB+,0.0008,173.33
+916,Light Manufacturing,2000-2999,B-,0.031,7.0
+917,Light Manufacturing,2000-2999,CCC-,0.2387,13.25
+918,Utilities,4900-4999,BBB+,0.0008,96.46
+919,Services,7000-7999,B+,0.0137,12.85
+920,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,38.33
+921,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,83.08
+922,Services,7000-7999,BB-,0.0103,10.97
+923,Heavy Manufacturing,3000-3999,CCC+,0.2387,12.54
+924,Light Manufacturing,2000-2999,B,0.0193,9.35
+925,Utilities,4900-4999,CCC,0.2387,44.15
+926,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,123.36
+927,Light Manufacturing,2000-2999,BBB-,0.002,28.99
+928,Public Administration,9000-9999,BB-,0.0103,46.17
+929,Heavy Manufacturing,3000-3999,BB-,0.0103,49.96
+930,Heavy Manufacturing,3000-3999,BB,0.005,44.59
+931,Public Administration,9000-9999,BB+,0.0024,27.42
+932,Wholesale & Retail Trade,5000-5999,BB+,0.0024,30.44
+933,Public Administration,9000-9999,BBB-,0.002,54.96
+934,Transportation,4000-4799,B+,0.0137,47.73
+935,Mining & Construction,1000-1999,AA,0.000833,119.94
+936,Utilities,4900-4999,CCC,0.2387,19.91
+937,Mining & Construction,1000-1999,BBB-,0.002,120.88
+938,Utilities,4900-4999,A-,0.0006,215.4
+939,Services,7000-7999,B+,0.0137,17.71
+940,"Finance, Insurance & Real Estate",6000-6999,A-,0.0006,57.17
+941,Light Manufacturing,2000-2999,B+,0.0137,23.56
+942,Services,7000-7999,BB+,0.0024,37.89
+943,Light Manufacturing,2000-2999,B+,0.0137,25.94
+944,Heavy Manufacturing,3000-3999,B,0.0193,32.89
+945,"Finance, Insurance & Real Estate",6000-6999,CCC+,0.2387,20.95
+946,Utilities,4900-4999,BBB-,0.002,140.42
+947,Transportation,4000-4799,BB+,0.0024,33.85
+948,Mining & Construction,1000-1999,BB,0.005,32.35
+949,Utilities,4900-4999,A-,0.0006,103.45
+950,Light Manufacturing,2000-2999,B+,0.0137,13.47
+951,Communications,4800-4899,BB-,0.0103,77.8
+952,Services,7000-7999,A-,0.0006,7.51
+953,Services,7000-7999,B-,0.031,12.56
+954,Utilities,4900-4999,CCC+,0.2387,14.9
+955,"Finance, Insurance & Real Estate",6000-6999,BBB+,0.0008,36.84
+956,Mining & Construction,1000-1999,B+,0.0137,32.21
+957,Heavy Manufacturing,3000-3999,CCC+,0.2387,3.18
+958,Heavy Manufacturing,3000-3999,B,0.0193,22.24
+959,"Finance, Insurance & Real Estate",6000-6999,BBB,0.0007,172.64
+960,Utilities,4900-4999,A-,0.0006,126.08
+961,Communications,4800-4899,BB,0.005,58.94
+962,Utilities,4900-4999,BBB-,0.002,57.5
+963,Communications,4800-4899,BB,0.005,59.45
+964,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,14.13
+965,Transportation,4000-4799,B+,0.0137,31.6
+966,"Finance, Insurance & Real Estate",6000-6999,BBB-,0.002,66.95
+967,Light Manufacturing,2000-2999,BB,0.005,51.24
+968,Transportation,4000-4799,D,1.0,11.11
+969,Utilities,4900-4999,BB,0.005,55.12
+970,"Finance, Insurance & Real Estate",6000-6999,B,0.0193,23.93
+971,Public Administration,9000-9999,BB-,0.0103,10.67
+972,Wholesale & Retail Trade,5000-5999,BB-,0.0103,26.06
+973,Heavy Manufacturing,3000-3999,BBB,0.0007,98.1
+974,"Finance, Insurance & Real Estate",6000-6999,B+,0.0137,30.99
+975,Heavy Manufacturing,3000-3999,BB,0.005,48.07
+976,Utilities,4900-4999,B,0.0193,35.78
+977,"Finance, Insurance & Real Estate",6000-6999,CCC-,0.2387,24.19
+978,Transportation,4000-4799,BB-,0.0103,39.56
+979,Heavy Manufacturing,3000-3999,B,0.0193,6.31
+980,Light Manufacturing,2000-2999,BBB,0.0007,25.59
+981,"Finance, Insurance & Real Estate",6000-6999,BB,0.005,73.66
+982,Utilities,4900-4999,CCC,0.2387,3.45
+983,Wholesale & Retail Trade,5000-5999,BB,0.005,22.24
+984,Utilities,4900-4999,BBB-,0.002,77.23
+985,Utilities,4900-4999,BB-,0.0103,32.04
+986,Heavy Manufacturing,3000-3999,BB+,0.0024,43.35
+987,Utilities,4900-4999,BB+,0.0024,89.48
+988,Heavy Manufacturing,3000-3999,BB+,0.0024,53.85
+989,Communications,4800-4899,CCC-,0.2387,1.0
+990,Utilities,4900-4999,BBB,0.0007,184.82
+991,Light Manufacturing,2000-2999,BB+,0.0024,23.31
+992,Heavy Manufacturing,3000-3999,BBB-,0.002,75.44
+993,Utilities,4900-4999,B-,0.031,33.92
+994,"Finance, Insurance & Real Estate",6000-6999,BB+,0.0024,42.91
+995,"Finance, Insurance & Real Estate",6000-6999,CCC+,0.2387,19.45
+996,Heavy Manufacturing,3000-3999,BB-,0.0103,78.27
+997,Transportation,4000-4799,BB,0.005,66.26
+998,"Finance, Insurance & Real Estate",6000-6999,A-,0.0006,83.12
+999,Wholesale & Retail Trade,5000-5999,B-,0.031,13.52
+1000,"Health, Legal & Educational Services",8000-8999,B+,0.0137,21.11

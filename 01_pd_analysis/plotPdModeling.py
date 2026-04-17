@@ -285,6 +285,17 @@ heatmap_out_path = pdModelling.DATA_DIR / "analysis" / "plots" / "per_sector_bet
 plt.gcf().savefig(heatmap_out_path, dpi=200, bbox_inches="tight")
 print(f"Saved: {heatmap_out_path}")
 
+# --- Heatmap: Elastic Net variable selection ---
+plots.plot_lasso_beta_heatmap(
+    df_lasso=pdModelling.df_elastic_net,
+    macro_cols=config.ALL_MACRO_COLS,
+    gpr_cols=config.ALL_GPR_COLS,
+    title="Elastic Net Variable Selection by Sector\n(coloured = selected, grey = shrunk to zero)",
+)
+en_heatmap_path = pdModelling.DATA_DIR / "analysis" / "plots" / "per_sector_beta_heatmap_elastic_net.png"
+plt.gcf().savefig(en_heatmap_path, dpi=200, bbox_inches="tight")
+print(f"Saved: {en_heatmap_path}")
+
 plot_per_sector_grids(
     feature_cols=macro_base_cols,
     df_coef_model=df_coef,

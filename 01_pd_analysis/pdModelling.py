@@ -161,10 +161,21 @@ print(
 )
 
 # --- Per-sector regression on relative-to-last macro data ---
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression, ElasticNetCV, ElasticNet
+from sklearn.metrics import make_scorer, mean_squared_error
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import cross_val_score
+from sklearn.pipeline import Pipeline
+
 
 plots_dir = DATA_DIR / "analysis" / "plots"
 plots_dir.mkdir(parents=True, exist_ok=True)
+
+
+def _neg_rmse(y_true, y_pred) -> float:
+    return -float(np.sqrt(mean_squared_error(y_true, y_pred)))
+
+
 def run_per_sector_regression(
     df_input: pd.DataFrame,
     feature_cols: list[str],
@@ -176,6 +187,7 @@ def run_per_sector_regression(
     print("  y = logit_pd")
     print(f"  X = {feature_cols}")
 
+    rmse_scorer = make_scorer(_neg_rmse)
     rows: list[dict[str, object]] = []
     ci_rows: list[dict[str, object]] = []
 
@@ -190,6 +202,18 @@ def run_per_sector_regression(
         m_s = LinearRegression().fit(X_s, y_s)
 
         n_obs = len(df_s)
+        cv_folds = min(5, n_obs // 2)
+        if cv_folds >= 2:
+            cv_r2 = float(
+                cross_val_score(LinearRegression(), X_s, y_s, cv=cv_folds, scoring="r2").mean()
+            )
+            cv_rmse = float(
+                -cross_val_score(LinearRegression(), X_s, y_s, cv=cv_folds, scoring=rmse_scorer).mean()
+            )
+        else:
+            cv_r2 = np.nan
+            cv_rmse = np.nan
+
         n_params = X_s.shape[1] + 1  # betas + intercept
         X_design = np.column_stack([np.ones(n_obs), X_s])
         y_hat = m_s.predict(X_s)
@@ -210,6 +234,9 @@ def run_per_sector_regression(
             config.SECTOR_COL: sector,
             "n_obs": int(n_obs),
             "r2": float(m_s.score(X_s, y_s)),
+            "cv_r2": cv_r2,
+            "cv_rmse": cv_rmse,
+            "n_vars": len(feature_cols),
             "intercept": float(m_s.intercept_),
         }
         for col, beta in zip(feature_cols, m_s.coef_):
@@ -257,3 +284,175 @@ df_per_sector_lagged, df_beta_ci_lagged = run_per_sector_regression(
     coef_filename="per_sector_regression_logit_pd_vs_macro_relative_with_lags.csv",
     ci_filename="per_sector_beta_confidence_intervals_with_lags.csv",
 )
+
+
+# --- Per-sector Elastic Net variable selection ---
+def run_per_sector_elastic_net(
+    df_input: pd.DataFrame,
+    feature_cols: list[str],
+) -> pd.DataFrame:
+    """Fit ElasticNetCV per sector on standardised inputs.
+
+    Coefficients are on the standardised scale so they are comparable across
+    variables. The DataFrame is formatted for plots.plot_lasso_beta_heatmap
+    (auto-detects the 'lasso' branch via LASSO_β_ / LASSO_δ_ column names).
+    """
+    print("\nPer-sector Elastic Net variable selection:")
+
+    rmse_scorer = make_scorer(_neg_rmse)
+    rows: list[dict] = []
+    for sector, df_s in df_input.groupby(config.SECTOR_COL, sort=True):
+        df_s = df_s.dropna(subset=feature_cols + ["logit_pd"])
+        if df_s.empty:
+            continue
+
+        X = df_s[feature_cols].to_numpy()
+        y = df_s["logit_pd"].to_numpy()
+
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
+
+        en = ElasticNetCV(
+            l1_ratio=[0.1, 0.5, 0.7, 0.9, 0.95, 1.0],
+            cv=5,
+            max_iter=10_000,
+            random_state=42,
+        )
+        en.fit(X_scaled, y)
+
+        n_selected = int(np.sum(en.coef_ != 0))
+        cv_folds = min(5, len(df_s) // 2)
+        en_pipe = Pipeline([
+            ("scaler", StandardScaler()),
+            ("en", ElasticNet(alpha=en.alpha_, l1_ratio=en.l1_ratio_, max_iter=10_000)),
+        ])
+        if cv_folds >= 2:
+            cv_r2 = float(cross_val_score(en_pipe, X, y, cv=cv_folds, scoring="r2").mean())
+            cv_rmse = float(-cross_val_score(en_pipe, X, y, cv=cv_folds, scoring=rmse_scorer).mean())
+        else:
+            cv_r2 = np.nan
+            cv_rmse = np.nan
+        print(f"  {sector}: alpha={en.alpha_:.4f}, l1_ratio={en.l1_ratio_:.2f}, "
+              f"selected {n_selected}/{len(feature_cols)}, CV R²={cv_r2:.3f}")
+        row: dict = {
+            config.SECTOR_COL: sector,
+            "n_obs": len(df_s),
+            "cv_r2": cv_r2,
+            "cv_rmse": cv_rmse,
+            "n_vars": len(feature_cols),
+            "n_selected": n_selected,
+        }
+        for col, coef in zip(feature_cols, en.coef_):
+            base = col.split("_lag")[0]
+            prefix = "β_" if base in config.MACRO_COLS else "δ_"
+            row[f"LASSO_{prefix}{col}"] = float(coef)
+            row[f"{prefix}selected_{col}"] = int(coef != 0)
+        rows.append(row)
+
+    df_en = pd.DataFrame(rows).sort_values(config.SECTOR_COL).reset_index(drop=True)
+    en_out = plots_dir / "per_sector_elastic_net_betas.csv"
+    df_en.to_csv(en_out, index=False)
+    print(f"Saved: {en_out}")
+    return df_en
+
+
+df_elastic_net = run_per_sector_elastic_net(
+    df_input=df_sector_macro_relative,
+    feature_cols=lagged_feature_cols,
+)
+
+
+model_comparison_table = (
+    df_per_sector[[config.SECTOR_COL, "n_obs", "cv_r2", "cv_rmse", "n_vars"]]
+    .rename(columns={
+        "cv_r2": "OLS current CV R²",
+        "cv_rmse": "OLS current CV RMSE",
+        "n_vars": "OLS current antal variabler",
+    })
+    .merge(
+        df_per_sector_lagged[[config.SECTOR_COL, "cv_r2", "cv_rmse", "n_vars"]].rename(columns={
+            "cv_r2": "OLS lagged CV R²",
+            "cv_rmse": "OLS lagged CV RMSE",
+            "n_vars": "OLS lagged antal variabler",
+        }),
+        on=config.SECTOR_COL,
+        how="outer",
+    )
+    .merge(
+        df_elastic_net[[config.SECTOR_COL, "cv_r2", "cv_rmse", "n_vars", "n_selected"]].rename(columns={
+            "cv_r2": "Elastic Net CV R²",
+            "cv_rmse": "Elastic Net CV RMSE",
+            "n_vars": "Elastic Net antal variabler",
+            "n_selected": "Elastic Net antal valda variabler",
+        }),
+        on=config.SECTOR_COL,
+        how="outer",
+    )
+    .sort_values(config.SECTOR_COL)
+    .reset_index(drop=True)
+)
+
+model_comparison_out_path = plots_dir / "model_comparison_table.csv"
+model_comparison_table.to_csv(model_comparison_out_path, index=False)
+print("\n" + "=" * 60)
+print("Model comparison table")
+print("=" * 60)
+print(model_comparison_table.round(3).to_string(index=False))
+print(f"\nSaved: {model_comparison_out_path}")
+
+
+model_summary_table = pd.DataFrame([
+    {
+        "Model": "OLS current",
+        "Mean CV R²": model_comparison_table["OLS current CV R²"].mean(),
+        "Mean CV RMSE": model_comparison_table["OLS current CV RMSE"].mean(),
+        "Mean antal variabler": model_comparison_table["OLS current antal variabler"].mean(),
+        "Mean antal valda variabler": np.nan,
+    },
+    {
+        "Model": "OLS lagged",
+        "Mean CV R²": model_comparison_table["OLS lagged CV R²"].mean(),
+        "Mean CV RMSE": model_comparison_table["OLS lagged CV RMSE"].mean(),
+        "Mean antal variabler": model_comparison_table["OLS lagged antal variabler"].mean(),
+        "Mean antal valda variabler": np.nan,
+    },
+    {
+        "Model": "Elastic Net",
+        "Mean CV R²": model_comparison_table["Elastic Net CV R²"].mean(),
+        "Mean CV RMSE": model_comparison_table["Elastic Net CV RMSE"].mean(),
+        "Mean antal variabler": model_comparison_table["Elastic Net antal variabler"].mean(),
+        "Mean antal valda variabler": model_comparison_table["Elastic Net antal valda variabler"].mean(),
+    },
+])
+
+model_summary_out_path = plots_dir / "model_comparison_summary.csv"
+model_summary_table.to_csv(model_summary_out_path, index=False)
+print("\n" + "=" * 60)
+print("Model comparison summary")
+print("=" * 60)
+print(model_summary_table.round(3).to_string(index=False))
+print(f"\nSaved: {model_summary_out_path}")
+
+
+# --- Model comparison: 5-fold CV R² summary ---
+_cv_frames = {
+    "OLS (current)": df_per_sector,
+    "OLS (lagged)":  df_per_sector_lagged,
+    "Elastic Net":   df_elastic_net,
+}
+
+cv_summary = pd.concat(
+    [df.set_index(config.SECTOR_COL)[["cv_r2"]].rename(columns={"cv_r2": label})
+     for label, df in _cv_frames.items()],
+    axis=1,
+)
+cv_summary.loc["Mean"] = cv_summary.mean()
+
+cv_out_path = DATA_DIR / "analysis" / "plots" / "model_cv_r2_comparison.csv"
+cv_summary.to_csv(cv_out_path)
+
+print("\n" + "=" * 60)
+print("5-fold CV R² by sector and model")
+print("=" * 60)
+print(cv_summary.round(3).to_string())
+print(f"\nSaved: {cv_out_path}")
