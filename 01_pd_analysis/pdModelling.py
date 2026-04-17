@@ -138,6 +138,8 @@ print(f"\nDelta df: {len(df_delta):,} rows | {df_delta[config.SECTOR_COL].nuniqu
 print(f"Columns: {df_delta.columns.tolist()}")
 print(df_delta.head(10).to_string())
 
+
+# regression analysis for each sector
 from sklearn.linear_model import LinearRegression
 import pandas as pd
 
