@@ -64,9 +64,9 @@ from pd_pipeline.basel import asset_correlation_formula, calculate_capital_requi
 from pd_pipeline import data, config
 
 # ── Shared problem parameters ──────────────────────────────────────────────────
-LGD           = 0.40
-LOSS_QUANTILE = 0.999       # Gordy tail quantile
-MATURITY      = 2.5         # effective maturity (years)
+LGD             = 0.40
+ASRF_QUANTILE   = 0.999    # shared confidence level for Gordy loss and Basel IRB capital
+MATURITY        = 2.5       # effective maturity (years)
 
 # ── CET1 and capital-structure assumptions ─────────────────────────────────────
 # CET1_RATIO_0  : assumed bank-wide CET1 ratio at baseline
@@ -99,12 +99,12 @@ def _var_label(v: str) -> str:
 
 VAR_LABELS = {v: _var_label(v) for v in ALL_VARS}
 
-print(f'LGD              = {LGD:.0%}')
-print(f'Gordy quantile   = {LOSS_QUANTILE:.1%}')
-print(f'Initial CET1     = {CET1_RATIO_0:.1%}')
-print(f'EAD / CET1       = {EAD_CET1_RATIO:.0f}x  (portfolio leverage assumption)')
-print(f'Depletion ε    = {DEPLETION:.0%}  ({int(DEPLETION*10000)} bps absolute)')
-print(f'Threshold R_ω  = {R_OMEGA:.4%}')
+print(f'LGD                 = {LGD:.0%}')
+print(f'ASRF quantile       = {ASRF_QUANTILE:.1%}')
+print(f'Initial CET1        = {CET1_RATIO_0:.1%}')
+print(f'EAD / CET1          = {EAD_CET1_RATIO:.0f}x  (portfolio leverage assumption)')
+print(f'Depletion ε         = {DEPLETION:.0%}  ({int(DEPLETION*10000)} bps absolute)')
+print(f'Threshold R_ω       = {R_OMEGA:.4%}')
 
 
 # ## 1. Portfolio Exposures
@@ -135,7 +135,7 @@ print(df_port['sector'].value_counts().rename('count').to_frame().to_string())
 
 
 # Read OLS-on-EN-selected betas: per-variable raw-scale coefficients (NaN = not selected)
-df_ols_en = pd.read_csv(DATA_DIR / 'analysis' / 'plots' / 'per_sector_ols_on_en_selected.csv')
+df_ols_en = pd.read_csv(DATA_DIR / 'final' / 'per_sector_elastic_net_betas.csv')
 
 sens_total: dict[str, dict[str, float]] = {}
 for _, row in df_ols_en.iterrows():
@@ -147,8 +147,8 @@ for _, row in df_ols_en.iterrows():
     sens_total[sector] = betas
 
 # Print per-variable beta table (current period only for brevity)
-tbl = pd.DataFrame(sens_total).T[ALL_BASE_VARS].rename(
-    columns={v: _BASE_LABELS.get(v, v) for v in ALL_BASE_VARS}
+tbl = pd.DataFrame(sens_total).T[ALL_VARS].rename(
+    columns={v: _BASE_LABELS.get(v, v) for v in ALL_VARS}
 )
 print('Elastic-net-selected OLS sensitivity coefficients  [\u0394 logit-PD per unit of \u0394 macro var]')
 print('(showing current-period betas; lagged betas also included in B_total)')
@@ -179,12 +179,11 @@ for i, (_, row) in enumerate(df_valid.iterrows()):
     for j, v in enumerate(ALL_VARS):
         B_total[i, j] = sens_total[s][v]
 
-# Pre-compute constants for the Gordy formula
+# Pre-compute constants for the ASRF/Gordy formulas
 sqrt_rho   = np.sqrt(rho)
 sqrt_1mrho = np.sqrt(1 - rho)
-inv_q      = norm.ppf(LOSS_QUANTILE)
+inv_q      = norm.ppf(ASRF_QUANTILE)
 logit_pd0  = np.log(pd0 / (1 - pd0))   # logit(PD_base)
-
 
 # ## 3. Historical Distribution Parameters
 
@@ -229,14 +228,16 @@ for v, m, s, xl in zip(ALL_VARS, mu, stds, x_last):
 
 # ## 4. Baseline Capital Metrics
 # 
-# We compute baseline RWA at $\boldsymbol{\Delta} = \mathbf{0}$ using the Basel IRB formula,
-# then derive $\text{CET1}^0 = R^0 \cdot \text{RWA}^0$.
+# We compute baseline corporate RWA at the current macro state
+# $\boldsymbol{\Delta} = \boldsymbol{\Delta}_{\text{baseline}}$, where
+# stressed PDs equal the portfolio base PDs by construction. We then derive
+# $\text{CET1}^0$ and the implied fixed non-corporate RWA block.
 
 # In[6]:
 
 
-# ── Step 1: Corporate portfolio RWA at baseline (\u0394 = 0) ───────────────────────
-K_base     = calculate_capital_requirement(pd0, LGD, rho, maturity=MATURITY)
+# ── Step 1: Corporate portfolio RWA at current macro baseline (\u0394 = \u03b4_baseline) ──
+K_base     = calculate_capital_requirement(pd0, LGD, rho, maturity=MATURITY, quantile=ASRF_QUANTILE)
 RWA_corp_0 = float(np.sum(ead * K_base * 12.5))
 EAD_total  = float(np.sum(ead))
 
@@ -254,7 +255,7 @@ print('\u2500' * 55)
 print('Corporate portfolio')
 print('\u2500' * 55)
 print(f'  Total EAD              : {EAD_total:>10,.1f} EUR million')
-print(f'  Corporate RWA (\u0394=0)   : {RWA_corp_0:>10,.1f} EUR million')
+print(f'  Corporate RWA (\u03b4_base) : {RWA_corp_0:>10,.1f} EUR million')
 print()
 print('\u2500' * 55)
 print('Bank-wide capital structure (baseline)')
@@ -290,7 +291,7 @@ print(f'  Breakdown threshold R_\u03c9: {R_OMEGA:.4%}  ({CET1_RATIO_0:.0%} \u221
 # At δ = δ_baseline (scenario = current conditions) → adj = 0 → PD unchanged ✓
 
 def portfolio_loss(delta: np.ndarray) -> float:
-    """Gordy 99.9% portfolio loss (EUR million) under macro deviation \u0394 from \u03bc."""
+    """Gordy/ASRF portfolio loss (EUR million) under macro deviation \u0394 from \u03bc."""
     adj        = np.clip(B_total @ (delta - delta_baseline), -50, 50)
     logit_pd_s = logit_pd0 + adj
     pd_s       = 1 / (1 + np.exp(-logit_pd_s))
@@ -342,7 +343,9 @@ def stressed_rwa(delta: np.ndarray) -> float:
     """
     adj      = np.clip(B_total @ (delta - delta_baseline), -50, 50)
     pd_s     = np.clip(1 / (1 + np.exp(-(logit_pd0 + adj))), 1e-9, 1 - 1e-9)
-    K_s      = calculate_capital_requirement(pd_s, LGD, rho, maturity=MATURITY)
+    K_s      = calculate_capital_requirement(
+        pd_s, LGD, rho, maturity=MATURITY, quantile=ASRF_QUANTILE
+    )
     rwa_corp = float(np.sum(ead * K_s * 12.5))
     return RWA_other + rwa_corp
 
@@ -379,7 +382,7 @@ loss_base = portfolio_loss(delta_baseline)
 rwa_base  = stressed_rwa(delta_baseline)
 r0_check  = cet1_ratio(delta_baseline)   # must equal CET1_RATIO_0 exactly
 
-print(f'Baseline portfolio loss (current macro, q=99.9%) : {loss_base:>10,.1f} EUR million')
+print(f'Baseline portfolio loss (current macro, q={ASRF_QUANTILE:.1%}) : {loss_base:>10,.1f} EUR million')
 print(f'Baseline RWA  (current macro)                    : {rwa_base:>10,.1f} EUR million')
 print(f'Baseline CET1 ratio  R\u2070                          : {r0_check:.4%}  (should equal {CET1_RATIO_0:.2%})')
 print(f'Breakdown threshold  R_\u03c9                          : {R_OMEGA:.4%}  (gap = {(r0_check - R_OMEGA)*10000:.0f} bps)')
@@ -566,7 +569,7 @@ print()
 print(f'Portfolio loss at \u0394*       (optimum) = {L_opt:>10,.1f} EUR million')
 print(f'Portfolio loss at today  (baseline) = {loss_base:>10,.1f} EUR million')
 print(f'Stressed RWA  at \u0394*                 = {RWA_opt:>10,.1f} EUR million')
-print(f'Baseline RWA  at \u0394=0                = {RWA_total_0:>10,.1f} EUR million')
+print(f'Baseline RWA  at \u03b4_base             = {RWA_total_0:>10,.1f} EUR million')
 
 
 # ## 9. Stressed PDs and Capital at the Optimal Scenario
@@ -577,7 +580,9 @@ print(f'Baseline RWA  at \u0394=0                = {RWA_total_0:>10,.1f} EUR mil
 adj_opt     = np.clip(B_total @ (delta_opt - delta_baseline), -50, 50)
 pd_stressed = 1 / (1 + np.exp(-(logit_pd0 + adj_opt)))
 pd_stressed = np.clip(pd_stressed, 1e-9, 1 - 1e-9)
-K_stressed  = calculate_capital_requirement(pd_stressed, LGD, rho, maturity=MATURITY)
+K_stressed  = calculate_capital_requirement(
+    pd_stressed, LGD, rho, maturity=MATURITY, quantile=ASRF_QUANTILE
+)
 
 df_valid = df_valid.copy()
 df_valid['pd_base']     = pd0
@@ -659,6 +664,6 @@ print(f'Total stressed RWA        : {df_valid["rwa_stressed"].sum():,.1f} EUR mi
 # | **Breakdown threshold** $R^\omega = R^0 - \varepsilon$ | 11.00% |
 # | **Optimal Mahalanobis distance** $D_M^*$ | see cell 8 |
 # | **Scenario probability** ($\chi^2(6)$ tail) | see cell 8 |
-# | **Gordy quantile** | 99.9% |
+# | **ASRF quantile** | 99.9% |
 # | **LGD** | 40% |
 # | **Maturity** | 2.5 years |

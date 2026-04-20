@@ -45,7 +45,7 @@ cov_matrix, corr_matrix, mean_vector = data.summarize_macro_data(
 
 # Add t-1 … t-4 lags for all macro + GPR variables
 df_merged = data.add_macro_lags(df_merged, config.MACRO_COLS + config.GPR_COLS, n_lags=4)
-print(f"df_merged now has {df_merged.shape[1]} columns ({config.N_LAGS} lags added per variable)")
+# print(f"df_merged now has {df_merged.shape[1]} columns ({config.N_LAGS} lags added per variable)")
 
 # Load PDs, expand to monthly panel, and merge with macro data
 df_pds_raw = data.load_pds_data(str(DATA_DIR / 'PDs' / 'fitch_pds_20260301_sic_div2_dedup.csv'), verbose=False)
@@ -67,11 +67,11 @@ df_final_cleaned = df_final_cleaned[
     ~df_final_cleaned[config.SECTOR_COL].isin(config.EXCLUDED_SECTORS)
 ].copy()
 removed = before_excl - len(df_final_cleaned)
-print(
-    f"\nExcluded sectors {config.EXCLUDED_SECTORS}:\n"
-    f"  Removed {removed:,} rows  ->  {len(df_final_cleaned):,} rows remaining"
-)
-print("Remaining sectors:", sorted(df_final_cleaned[config.SECTOR_COL].unique()))
+# print(
+#     f"\nExcluded sectors {config.EXCLUDED_SECTORS}:\n"
+#     f"  Removed {removed:,} rows  ->  {len(df_final_cleaned):,} rows remaining"
+# )
+# print("Remaining sectors:", sorted(df_final_cleaned[config.SECTOR_COL].unique()))
 
 
 df_final_cleaned.info()
@@ -84,16 +84,16 @@ df_sector_pd = (
     .sort_values([config.SECTOR_COL, 'Date'])
     .reset_index(drop=True)
 )
-print(f"\nSector-date mean PD: {len(df_sector_pd):,} rows | "
-      f"{df_sector_pd[config.SECTOR_COL].nunique()} sectors | "
-      f"{df_sector_pd['Date'].nunique()} unique dates")
-print(df_sector_pd.head(10).to_string())
+# print(f"\nSector-date mean PD: {len(df_sector_pd):,} rows | "
+#       f"{df_sector_pd[config.SECTOR_COL].nunique()} sectors | "
+#       f"{df_sector_pd['Date'].nunique()} unique dates")
+# print(df_sector_pd.head(10).to_string())
 
 # Merge sector-date PD with macro data
 df_sector_macro = data.merge_pds_macro(df_sector_pd, df_merged, verbose=False)
 df_sector_macro = df_sector_macro.sort_values([config.SECTOR_COL, 'Date']).reset_index(drop=True)
-print(f"\nSector-macro merged: {len(df_sector_macro):,} rows | shape: {df_sector_macro.shape}")
-print(df_sector_macro.head(10).to_string())
+# print(f"\nSector-macro merged: {len(df_sector_macro):,} rows | shape: {df_sector_macro.shape}")
+# print(df_sector_macro.head(10).to_string())
 
 
 # --- Dataframe: Logit(PD) and macro/GPR variables ---
@@ -131,7 +131,7 @@ df_dataset = (
 
 out_path = out_dir / "last_common_date_dataset.csv"
 df_dataset.to_csv(out_path, index=False)
-print(f"Last common date: {last_date.strftime('%Y-%m-%d')} | dataset rows: {len(df_dataset)}")
+# print(f"Last common date: {last_date.strftime('%Y-%m-%d')} | dataset rows: {len(df_dataset)}")
 
 # --- Build dataframe relative to last date ---
 # For each Sector, compute deltas versus the value at `last_date`, then remove
@@ -155,10 +155,10 @@ for col in relative_cols:
 
 out_rel_path = out_dir / "df_sector_macro_relative_to_last.csv"
 df_sector_macro_relative.to_csv(out_rel_path, index=False)
-print(
-    f"Relative-to-last dataset: {len(df_sector_macro_relative):,} rows | "
-    f"saved to {out_rel_path}"
-)
+# print(
+#     f"Relative-to-last dataset: {len(df_sector_macro_relative):,} rows | "
+#     f"saved to {out_rel_path}"
+# )
 
 # --- Per-sector regression on relative-to-last macro data ---
 from sklearn.linear_model import LinearRegression, ElasticNetCV, ElasticNet
@@ -170,6 +170,8 @@ from sklearn.pipeline import Pipeline
 
 plots_dir = DATA_DIR / "analysis" / "plots"
 plots_dir.mkdir(parents=True, exist_ok=True)
+final_dir = DATA_DIR / "final"
+final_dir.mkdir(parents=True, exist_ok=True)
 
 
 def _neg_rmse(y_true, y_pred) -> float:
@@ -183,9 +185,9 @@ def run_per_sector_regression(
     coef_filename: str,
     ci_filename: str,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    print(f"\nPer-sector regression ({model_label}):")
-    print("  y = logit_pd")
-    print(f"  X = {feature_cols}")
+    # print(f"\nPer-sector regression ({model_label}):")
+    # print("  y = logit_pd")
+    # print(f"  X = {feature_cols}")
 
     rmse_scorer = make_scorer(_neg_rmse)
     rows: list[dict[str, object]] = []
@@ -256,14 +258,14 @@ def run_per_sector_regression(
     df_coef = pd.DataFrame(rows).sort_values(config.SECTOR_COL).reset_index(drop=True)
     out_coef_path = plots_dir / coef_filename
     df_coef.to_csv(out_coef_path, index=False)
-    print(f"Saved: {out_coef_path}")
-    print(df_coef.to_string(index=False))
+    # print(f"Saved: {out_coef_path}")
+    # print(df_coef.to_string(index=False))
 
     df_ci = pd.DataFrame(ci_rows).sort_values([config.SECTOR_COL, "variable"]).reset_index(drop=True)
     out_ci_path = plots_dir / ci_filename
     df_ci.to_csv(out_ci_path, index=False)
-    print(f"Saved: {out_ci_path}")
-    print(df_ci.to_string(index=False))
+    # print(f"Saved: {out_ci_path}")
+    # print(df_ci.to_string(index=False))
 
     return df_coef, df_ci
 
@@ -294,10 +296,11 @@ def run_per_sector_elastic_net(
     """Fit ElasticNetCV per sector on standardised inputs.
 
     Coefficients are on the standardised scale so they are comparable across
-    variables. The DataFrame is formatted for plots.plot_lasso_beta_heatmap
-    (auto-detects the 'lasso' branch via LASSO_β_ / LASSO_δ_ column names).
+    variables. The output includes both plain per-variable beta columns
+    (e.g. GDP_Growth, GDP_Growth_lag1, ...) and LASSO_β_ / LASSO_δ_ prefixed
+    columns for plotting compatibility.
     """
-    print("\nPer-sector Elastic Net variable selection:")
+    # print("\nPer-sector Elastic Net variable selection:")
 
     rmse_scorer = make_scorer(_neg_rmse)
     rows: list[dict] = []
@@ -332,8 +335,8 @@ def run_per_sector_elastic_net(
         else:
             cv_r2 = np.nan
             cv_rmse = np.nan
-        print(f"  {sector}: alpha={en.alpha_:.4f}, l1_ratio={en.l1_ratio_:.2f}, "
-              f"selected {n_selected}/{len(feature_cols)}, CV R²={cv_r2:.3f}")
+        # print(f"  {sector}: alpha={en.alpha_:.4f}, l1_ratio={en.l1_ratio_:.2f}, "
+        #       f"selected {n_selected}/{len(feature_cols)}, CV R²={cv_r2:.3f}")
         row: dict = {
             config.SECTOR_COL: sector,
             "n_obs": len(df_s),
@@ -343,6 +346,7 @@ def run_per_sector_elastic_net(
             "n_selected": n_selected,
         }
         for col, coef in zip(feature_cols, en.coef_):
+            row[col] = float(coef)
             base = col.split("_lag")[0]
             prefix = "β_" if base in config.MACRO_COLS else "δ_"
             row[f"LASSO_{prefix}{col}"] = float(coef)
@@ -352,7 +356,9 @@ def run_per_sector_elastic_net(
     df_en = pd.DataFrame(rows).sort_values(config.SECTOR_COL).reset_index(drop=True)
     en_out = plots_dir / "per_sector_elastic_net_betas.csv"
     df_en.to_csv(en_out, index=False)
-    print(f"Saved: {en_out}")
+    en_out_final = final_dir / "per_sector_elastic_net_betas.csv"
+    df_en.to_csv(en_out_final, index=False)
+    # print(f"Saved: {en_out}")
     return df_en
 
 
@@ -360,6 +366,11 @@ df_elastic_net = run_per_sector_elastic_net(
     df_input=df_sector_macro_relative,
     feature_cols=lagged_feature_cols,
 )
+
+
+
+elastic_net_beta_cols = [c for c in df_elastic_net.columns if c.startswith("LASSO_β_") or c.startswith("LASSO_δ_")]
+print(df_elastic_net[[config.SECTOR_COL] + elastic_net_beta_cols].to_string(index=False))
 
 
 model_comparison_table = (
@@ -394,11 +405,11 @@ model_comparison_table = (
 
 model_comparison_out_path = plots_dir / "model_comparison_table.csv"
 model_comparison_table.to_csv(model_comparison_out_path, index=False)
-print("\n" + "=" * 60)
-print("Model comparison table")
-print("=" * 60)
-print(model_comparison_table.round(3).to_string(index=False))
-print(f"\nSaved: {model_comparison_out_path}")
+# print("\n" + "=" * 60)
+# print("Model comparison table")
+# print("=" * 60)
+# print(model_comparison_table.round(3).to_string(index=False))
+# print(f"\nSaved: {model_comparison_out_path}")
 
 
 model_summary_table = pd.DataFrame([
@@ -427,11 +438,11 @@ model_summary_table = pd.DataFrame([
 
 model_summary_out_path = plots_dir / "model_comparison_summary.csv"
 model_summary_table.to_csv(model_summary_out_path, index=False)
-print("\n" + "=" * 60)
-print("Model comparison summary")
-print("=" * 60)
-print(model_summary_table.round(3).to_string(index=False))
-print(f"\nSaved: {model_summary_out_path}")
+# print("\n" + "=" * 60)
+# print("Model comparison summary")
+# print("=" * 60)
+# print(model_summary_table.round(3).to_string(index=False))
+# print(f"\nSaved: {model_summary_out_path}")
 
 
 # --- Model comparison: 5-fold CV R² summary ---
@@ -451,8 +462,8 @@ cv_summary.loc["Mean"] = cv_summary.mean()
 cv_out_path = DATA_DIR / "analysis" / "plots" / "model_cv_r2_comparison.csv"
 cv_summary.to_csv(cv_out_path)
 
-print("\n" + "=" * 60)
-print("5-fold CV R² by sector and model")
-print("=" * 60)
-print(cv_summary.round(3).to_string())
-print(f"\nSaved: {cv_out_path}")
+# print("\n" + "=" * 60)
+# print("5-fold CV R² by sector and model")
+# print("=" * 60)
+# print(cv_summary.round(3).to_string())
+# print(f"\nSaved: {cv_out_path}")
