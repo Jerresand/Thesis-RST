@@ -73,14 +73,12 @@ MATURITY        = 2.5       # effective maturity (years)
 # EAD_CET1_RATIO: assumed leverage ratio  EAD_portfolio / CET1  = 10
 # DEPLETION     : absolute CET1 ratio depletion for breakdown (300 bps = 3 pp)
 CET1_RATIO_0   = 0.17        # 17% initial CET1 ratio
-EAD_CET1_RATIO = 10.0        # EAD of corporate portfolio = 10 × CET1 capital
-DEPLETION      = 0.03        # 300 bps absolute depletion (ECB 2026 benchmark)
+EAD_CET1_RATIO = 6.0        # EAD of corporate portfolio = 10 × CET1 capital
+DEPLETION      = 0.03       # 300 bps absolute depletion (ECB 2026 benchmark)
 R_OMEGA        = CET1_RATIO_0 - DEPLETION   # breakdown threshold = 14%
 
-ALL_BASE_VARS  = config.MACRO_COLS + config.GPR_COLS     # 6 current-period variables
-ALL_VARS       = config.ALL_PREDICTOR_COLS_WITH_LAGS     # 18 vars (current + N_LAGS lags each)
-N_VARS         = len(ALL_VARS)
-N_BASE_VARS    = len(ALL_BASE_VARS)
+ALL_BASE_VARS  = config.MACRO_COLS + config.GPR_COLS
+ALL_PREDICTOR_VARS = config.ALL_PREDICTOR_COLS_WITH_LAGS
 
 _BASE_LABELS = {
     'GDP_Growth'    : 'GDP',
@@ -97,7 +95,18 @@ def _var_label(v: str) -> str:
     lbl  = _BASE_LABELS.get(base, base)
     return lbl if lag == 0 else f'{lbl}[t-{lag}]'
 
-VAR_LABELS = {v: _var_label(v) for v in ALL_VARS}
+def _infer_sensitivity_vars(df: pd.DataFrame) -> list[str]:
+    """Infer usable predictor coefficient columns from a sensitivity CSV."""
+    return [col for col in ALL_PREDICTOR_VARS if col in df.columns]
+
+
+def _base_var(v: str) -> str:
+    return v.split('_lag')[0]
+
+
+SENSITIVITY_CSV = pathlib.Path(
+    sys.argv[1] if len(sys.argv) > 1 else DATA_DIR / 'final' / 'per_sector_ols_betas_with_lags.csv'
+)
 
 print(f'LGD                 = {LGD:.0%}')
 print(f'ASRF quantile       = {ASRF_QUANTILE:.1%}')
@@ -105,6 +114,7 @@ print(f'Initial CET1        = {CET1_RATIO_0:.1%}')
 print(f'EAD / CET1          = {EAD_CET1_RATIO:.0f}x  (portfolio leverage assumption)')
 print(f'Depletion ε         = {DEPLETION:.0%}  ({int(DEPLETION*10000)} bps absolute)')
 print(f'Threshold R_ω       = {R_OMEGA:.4%}')
+print(f'Sensitivity CSV     = {SENSITIVITY_CSV}')
 
 
 # ## 1. Portfolio Exposures
@@ -124,34 +134,46 @@ print()
 print(df_port['sector'].value_counts().rename('count').to_frame().to_string())
 
 
-# ## 2. Elastic-Net-Selected Sensitivity Coefficients
+# ## 2. Sensitivity Coefficients
 # 
-# OLS betas re-estimated on the features selected by Elastic Net (from `pdModelling.py`).
-# The coefficient vector covers **current period + all lags** for each macro/GPR variable,
-# giving a separate $\beta_{j,t-k}$ for every lag $k$.  The optimization therefore acts in
-# the full 18-dimensional $\boldsymbol{\Delta}$ space (6 base × (1 current + 2 lags)).
+# The optimization dimension is inferred from the passed sensitivity CSV.
+# If the file only contains current-period coefficients, the problem stays in the
+# current-period space. If lagged coefficients are present, they are included too.
 
 # In[3]:
 
 
-# Read OLS-on-EN-selected betas: per-variable raw-scale coefficients (NaN = not selected)
-df_ols_en = pd.read_csv(DATA_DIR / 'final' / 'per_sector_elastic_net_betas.csv')
+# Read per-sector sensitivities from the passed CSV.
+df_ols = pd.read_csv(SENSITIVITY_CSV)
+ACTIVE_VARS = _infer_sensitivity_vars(df_ols)
+if not ACTIVE_VARS:
+    raise ValueError(
+        f'No usable predictor columns found in {SENSITIVITY_CSV}. '
+        f'Expected one or more of: {ALL_PREDICTOR_VARS}'
+    )
+
+ACTIVE_BASE_VARS: list[str] = []
+for v in ACTIVE_VARS:
+    base = _base_var(v)
+    if base not in ACTIVE_BASE_VARS:
+        ACTIVE_BASE_VARS.append(base)
+
+N_VARS      = len(ACTIVE_VARS)
+N_BASE_VARS = len(ACTIVE_BASE_VARS)
+VAR_LABELS  = {v: _var_label(v) for v in ACTIVE_VARS}
 
 sens_total: dict[str, dict[str, float]] = {}
-for _, row in df_ols_en.iterrows():
+for _, row in df_ols.iterrows():
     sector = row[config.SECTOR_COL]
     betas: dict[str, float] = {}
-    for v in ALL_VARS:
+    for v in ACTIVE_VARS:
         val = row.get(v, np.nan)
         betas[v] = 0.0 if pd.isna(val) else float(val)
     sens_total[sector] = betas
 
-# Print per-variable beta table (current period only for brevity)
-tbl = pd.DataFrame(sens_total).T[ALL_VARS].rename(
-    columns={v: _BASE_LABELS.get(v, v) for v in ALL_VARS}
-)
-print('Elastic-net-selected OLS sensitivity coefficients  [\u0394 logit-PD per unit of \u0394 macro var]')
-print('(showing current-period betas; lagged betas also included in B_total)')
+tbl = pd.DataFrame(sens_total).T[ACTIVE_VARS].rename(columns=VAR_LABELS)
+print('Sensitivity coefficients  [Δ logit-PD per unit of Δ macro var]')
+print(f'Active factors inferred from CSV ({N_VARS}): {", ".join(ACTIVE_VARS)}')
 print(tbl.round(4).to_string())
 
 
@@ -171,12 +193,11 @@ pd0   = df_valid['pd_clipped'].values
 rho   = df_valid['rho'].values
 ead   = df_valid['ead_eur_m'].values
 
-# Build sensitivity matrix B_total : shape (n_exp, N_VARS=18)
-# Each column corresponds to one element of the 18-dim delta vector (current + lagged)
+# Build sensitivity matrix B_total : shape (n_exp, N_VARS)
 B_total = np.zeros((n_exp, N_VARS))
 for i, (_, row) in enumerate(df_valid.iterrows()):
     s = row['sector']
-    for j, v in enumerate(ALL_VARS):
+    for j, v in enumerate(ACTIVE_VARS):
         B_total[i, j] = sens_total[s][v]
 
 # Pre-compute constants for the ASRF/Gordy formulas
@@ -201,28 +222,31 @@ macro_frames = data.load_macro_data(
 df_gpr    = data.load_gpr_data(str(DATA_DIR / 'geopolitical' / 'data_gpr_Data_GPR.csv'), verbose=False)
 df_merged = data.merge_macro_data(macro_frames, df_gpr)
 
-# Add quarterly lags so the Mahalanobis metric covers the full (current + lagged) variable space
-df_merged_lagged = data.add_macro_lags(
-    df_merged, config.MACRO_COLS + config.GPR_COLS, n_lags=config.N_LAGS
+needs_lags = any('_lag' in v for v in ACTIVE_VARS)
+df_macro_for_metric = (
+    data.add_macro_lags(df_merged, config.MACRO_COLS + config.GPR_COLS, n_lags=config.N_LAGS)
+    if needs_lags else
+    df_merged.copy()
 )
 
-# Covariance and mean over all 18 variables (current period + lags)
+# Covariance and mean over exactly the factors used by the loaded sensitivity CSV.
 cov_df, _, mean_series = data.summarize_macro_data(
-    df_merged_lagged, ALL_VARS, verbose=False
+    df_macro_for_metric, ACTIVE_VARS, verbose=False
 )
 
-mu        = mean_series.values          # (18,)
-Sigma     = cov_df.values               # (18×18)
+
+mu        = mean_series.values
+Sigma     = cov_df.values
 Sigma_inv = np.linalg.inv(Sigma)
 stds      = np.sqrt(np.diag(Sigma))
 
-# Last observed macro values (the regression X-origin: X was normalised to this date)
-x_last        = df_merged_lagged[ALL_VARS].dropna().iloc[-1].values   # (18,)
+# Last observed macro values restricted to the active sensitivity dimensions.
+x_last        = df_macro_for_metric[ACTIVE_VARS].dropna().iloc[-1].values
 delta_baseline = x_last - mu   # current conditions expressed as deviation from hist. mean
 
 print('Historical mean μ vs last-date values (= regression X-origin):')
 print(f'  {"Variable":40s}  {"μ":>10}  {"σ":>8}  {"x_last":>10}  {"δ_base/σ":>10}')
-for v, m, s, xl in zip(ALL_VARS, mu, stds, x_last):
+for v, m, s, xl in zip(ACTIVE_VARS, mu, stds, x_last):
     print(f'  {v:40s}: {m:>10.3f}  {s:>8.3f}  {xl:>10.3f}  {(xl-m)/s:>+10.3f}σ')
 
 
@@ -238,6 +262,7 @@ for v, m, s, xl in zip(ALL_VARS, mu, stds, x_last):
 
 # ── Step 1: Corporate portfolio RWA at current macro baseline (\u0394 = \u03b4_baseline) ──
 K_base     = calculate_capital_requirement(pd0, LGD, rho, maturity=MATURITY, quantile=ASRF_QUANTILE)
+
 RWA_corp_0 = float(np.sum(ead * K_base * 12.5))
 EAD_total  = float(np.sum(ead))
 
@@ -280,7 +305,7 @@ print(f'  Breakdown threshold R_\u03c9: {R_OMEGA:.4%}  ({CET1_RATIO_0:.0%} \u221
 # In[7]:
 
 
-# ── Shared with notebook 04 ────────────────────────────────────────────────────
+# ── Shared with notebook 04 ────────────────────────────────────────────────────´
 #
 # The betas in B_total were estimated on X = X_t − X_last (macro relative to last
 # observed date), so the logit-PD adjustment for a scenario at deviation δ from the
@@ -393,21 +418,14 @@ print(f'Breakdown threshold  R_\u03c9                          : {R_OMEGA:.4%}  
 # Each panel shows how the CET1 ratio responds to a ±3σ shift in one macro variable
 # while all others remain at their historical mean.
 
-# In[8]:
-
-
-# Sweep the 6 base variables using a *permanent shock* interpretation:
-# when base variable j shifts by dev, ALL its lagged counterparts also shift by dev.
-# This produces a 18-dim delta where delta[j] = delta[j_lag1] = ... = dev.
-
 def _permanent_delta(base_var: str, dev: float) -> np.ndarray:
-    """18-dim delta: current baseline + dev applied to base_var and all its lags.
+    """Scenario vector with dev applied to the chosen base-variable family.
 
     'dev' is a raw-unit deviation ADDED to the current-period macro value.
     The axis in the sensitivity chart is therefore (x_scenario - x_last) / σ.
     """
     d = delta_baseline.copy()
-    for k, v in enumerate(ALL_VARS):
+    for k, v in enumerate(ACTIVE_VARS):
         if v == base_var or v.startswith(base_var + '_lag'):
             d[k] += dev
     return d
@@ -427,14 +445,22 @@ constraint = {
     'jac' : cet1_constraint_grad,
 }
 
-rng18 = np.random.default_rng(42)
+rng = np.random.default_rng(42)
 
-def _permanent_start(base_sigmas: list[float]) -> np.ndarray:
-    """Build an 18-dim starting point from per-base-variable σ-multiples.
-    Each base variable and all its lags get the same σ-scaled deviation."""
+DEFAULT_START_MULTS = [
+    {'GDP_Growth': -1.5, 'Interest_Rate': +1.0, 'Brent_Oil': +2.0, 'Fuel_Index': +0.5, 'CPI': +0.5, 'GPR_Global': +1.0},
+    {'GDP_Growth': -1.0, 'Interest_Rate': +2.0, 'Brent_Oil': +2.5, 'Fuel_Index': +1.5, 'CPI': +0.5, 'GPR_Global': +0.5},
+    {'GDP_Growth': -2.0, 'Interest_Rate': +0.5, 'Brent_Oil': +1.5, 'Fuel_Index': +1.0, 'CPI': +1.0, 'GPR_Global': +2.0},
+    {'GDP_Growth': -0.5, 'Interest_Rate': +1.5, 'Brent_Oil': +3.0, 'Fuel_Index': +2.0, 'CPI': +0.5, 'GPR_Global': +0.5},
+    {'GDP_Growth': -2.5, 'Interest_Rate': +2.0, 'Brent_Oil': +1.0, 'Fuel_Index': +0.5, 'CPI': +1.0, 'GPR_Global': +1.5},
+]
+
+def _permanent_start(base_sigmas: dict[str, float]) -> np.ndarray:
+    """Build a starting point from per-base-variable σ-multiples."""
     d = np.zeros(N_VARS)
-    for bv, mult in zip(ALL_BASE_VARS, base_sigmas):
-        for k, v in enumerate(ALL_VARS):
+    for bv in ACTIVE_BASE_VARS:
+        mult = base_sigmas.get(bv, 0.0)
+        for k, v in enumerate(ACTIVE_VARS):
             if v == bv or v.startswith(bv + '_lag'):
                 d[k] = mult * stds[k]
     return d
@@ -442,12 +468,8 @@ def _permanent_start(base_sigmas: list[float]) -> np.ndarray:
 delta0_list = [
     delta_baseline,                                              # current conditions
     np.zeros(N_VARS),                                           # historical mean
-    _permanent_start([-1.5, +1.0, +2.0, +0.5, +0.5, +1.0]),
-    _permanent_start([-1.0, +2.0, +2.5, +1.5, +0.5, +0.5]),
-    _permanent_start([-2.0, +0.5, +1.5, +1.0, +1.0, +2.0]),
-    _permanent_start([-0.5, +1.5, +3.0, +2.0, +0.5, +0.5]),
-    _permanent_start([-2.5, +2.0, +1.0, +0.5, +1.0, +1.5]),
-    *(rng18.uniform(-3, 3, (8, N_VARS)) * stds),
+    *(_permanent_start(mults) for mults in DEFAULT_START_MULTS),
+    *(rng.uniform(-3, 3, (8, N_VARS)) * stds),
 ]
 
 best = None
@@ -489,8 +511,8 @@ shock_from_today = delta_opt - delta_baseline   # x_scenario - x_last
 shock_sigma      = shock_from_today / stds      # in σ units
 
 results_df = pd.DataFrame({
-    'Variable'            : ALL_VARS,
-    'Label'               : [VAR_LABELS[v] for v in ALL_VARS],
+    'Variable'            : ACTIVE_VARS,
+    'Label'               : [VAR_LABELS[v] for v in ACTIVE_VARS],
     'x_last (today)'      : x_last,
     'x* = x_last + shock' : x_last + shock_from_today,
     'shock (raw)'         : shock_from_today,
@@ -506,9 +528,9 @@ print(results_df.to_string(index=False, float_format=lambda v: f'{v:>10.3f}'))
 print()
 print('Aggregated view (base variables):')
 agg_rows = []
-for bv in ALL_BASE_VARS:
-    idx_bv = [k for k, v in enumerate(ALL_VARS) if v == bv or v.startswith(bv + '_lag')]
-    j = ALL_VARS.index(bv)
+for bv in ACTIVE_BASE_VARS:
+    idx_bv = [k for k, v in enumerate(ACTIVE_VARS) if v == bv or v.startswith(bv + '_lag')]
+    j = ACTIVE_VARS.index(bv)
     agg_rows.append({
         'Base variable'     : _BASE_LABELS[bv],
         'shock[t] (raw)'    : shock_from_today[j],

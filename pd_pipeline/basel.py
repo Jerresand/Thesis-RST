@@ -62,14 +62,13 @@ def calculate_capital_requirement(
     g_q = norm.ppf(quantile)
 
     conditional_pd_term = (
-        g_pd / np.sqrt(1 - correlation)
-        + np.sqrt(correlation / (1 - correlation)) * g_q
+        (g_pd / np.sqrt(1 - correlation))
+        + (np.sqrt(correlation / (1 - correlation)) * g_q)
     )
     n_term = norm.cdf(conditional_pd_term)
-    base_capital = lgd * n_term - pd * lgd
+    base_capital = lgd * (n_term - pd)
     maturity_adjustment = (1 + (maturity - 2.5) * b) / (1 - 1.5 * b)
     return base_capital * maturity_adjustment
-
 
 def calculate_rwa(
     pd: float | np.ndarray,

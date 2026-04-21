@@ -270,12 +270,42 @@ def run_per_sector_regression(
     return df_coef, df_ci
 
 
+def export_final_ols_sensitivities(
+    df_coef: pd.DataFrame,
+    feature_cols: list[str],
+    output_path: pathlib.Path,
+) -> None:
+    """Export non-lagged OLS sensitivities to data/final in wide sector format.
+
+    The layout mirrors the existing final beta exports:
+    one row per sector with summary stats first, followed by one column per
+    included predictor. Only current-period OLS predictors are exported.
+    """
+    ordered_cols = [
+        config.SECTOR_COL,
+        "n_obs",
+        "cv_r2",
+        "cv_rmse",
+        "n_vars",
+        *feature_cols,
+    ]
+    df_out = df_coef[[col for col in ordered_cols if col in df_coef.columns]].copy()
+    df_out.to_csv(output_path, index=False)
+
+
 df_per_sector, df_beta_ci = run_per_sector_regression(
     df_input=df_sector_macro_relative,
     feature_cols=macro_base_cols,
     model_label="current-period variables",
     coef_filename="per_sector_regression_logit_pd_vs_macro_relative.csv",
     ci_filename="per_sector_beta_confidence_intervals.csv",
+)
+
+final_ols_out = final_dir / "per_sector_ols_betas.csv"
+export_final_ols_sensitivities(
+    df_coef=df_per_sector,
+    feature_cols=macro_base_cols,
+    output_path=final_ols_out,
 )
 
 lagged_feature_cols = config.ALL_PREDICTOR_COLS_WITH_LAGS
@@ -285,6 +315,13 @@ df_per_sector_lagged, df_beta_ci_lagged = run_per_sector_regression(
     model_label="current-period + lagged variables",
     coef_filename="per_sector_regression_logit_pd_vs_macro_relative_with_lags.csv",
     ci_filename="per_sector_beta_confidence_intervals_with_lags.csv",
+)
+
+final_ols_lagged_out = final_dir / "per_sector_ols_betas_with_lags.csv"
+export_final_ols_sensitivities(
+    df_coef=df_per_sector_lagged,
+    feature_cols=lagged_feature_cols,
+    output_path=final_ols_lagged_out,
 )
 
 
@@ -340,6 +377,7 @@ def run_per_sector_elastic_net(
         row: dict = {
             config.SECTOR_COL: sector,
             "n_obs": len(df_s),
+            "r2": float(en.score(X_scaled, y)),
             "cv_r2": cv_r2,
             "cv_rmse": cv_rmse,
             "n_vars": len(feature_cols),
@@ -374,14 +412,16 @@ print(df_elastic_net[[config.SECTOR_COL] + elastic_net_beta_cols].to_string(inde
 
 
 model_comparison_table = (
-    df_per_sector[[config.SECTOR_COL, "n_obs", "cv_r2", "cv_rmse", "n_vars"]]
+    df_per_sector[[config.SECTOR_COL, "n_obs", "r2", "cv_r2", "cv_rmse", "n_vars"]]
     .rename(columns={
+        "r2": "OLS current R²",
         "cv_r2": "OLS current CV R²",
         "cv_rmse": "OLS current CV RMSE",
         "n_vars": "OLS current antal variabler",
     })
     .merge(
-        df_per_sector_lagged[[config.SECTOR_COL, "cv_r2", "cv_rmse", "n_vars"]].rename(columns={
+        df_per_sector_lagged[[config.SECTOR_COL, "r2", "cv_r2", "cv_rmse", "n_vars"]].rename(columns={
+            "r2": "OLS lagged R²",
             "cv_r2": "OLS lagged CV R²",
             "cv_rmse": "OLS lagged CV RMSE",
             "n_vars": "OLS lagged antal variabler",
@@ -390,7 +430,8 @@ model_comparison_table = (
         how="outer",
     )
     .merge(
-        df_elastic_net[[config.SECTOR_COL, "cv_r2", "cv_rmse", "n_vars", "n_selected"]].rename(columns={
+        df_elastic_net[[config.SECTOR_COL, "r2", "cv_r2", "cv_rmse", "n_vars", "n_selected"]].rename(columns={
+            "r2": "Elastic Net R²",
             "cv_r2": "Elastic Net CV R²",
             "cv_rmse": "Elastic Net CV RMSE",
             "n_vars": "Elastic Net antal variabler",
@@ -405,16 +446,17 @@ model_comparison_table = (
 
 model_comparison_out_path = plots_dir / "model_comparison_table.csv"
 model_comparison_table.to_csv(model_comparison_out_path, index=False)
-# print("\n" + "=" * 60)
-# print("Model comparison table")
-# print("=" * 60)
-# print(model_comparison_table.round(3).to_string(index=False))
-# print(f"\nSaved: {model_comparison_out_path}")
+print("\n" + "=" * 60)
+print("Model comparison table")
+print("=" * 60)
+print(model_comparison_table.round(3).to_string(index=False))
+print(f"\nSaved: {model_comparison_out_path}")
 
 
 model_summary_table = pd.DataFrame([
     {
         "Model": "OLS current",
+        "Mean R²": model_comparison_table["OLS current R²"].mean(),
         "Mean CV R²": model_comparison_table["OLS current CV R²"].mean(),
         "Mean CV RMSE": model_comparison_table["OLS current CV RMSE"].mean(),
         "Mean antal variabler": model_comparison_table["OLS current antal variabler"].mean(),
@@ -422,6 +464,7 @@ model_summary_table = pd.DataFrame([
     },
     {
         "Model": "OLS lagged",
+        "Mean R²": model_comparison_table["OLS lagged R²"].mean(),
         "Mean CV R²": model_comparison_table["OLS lagged CV R²"].mean(),
         "Mean CV RMSE": model_comparison_table["OLS lagged CV RMSE"].mean(),
         "Mean antal variabler": model_comparison_table["OLS lagged antal variabler"].mean(),
@@ -429,6 +472,7 @@ model_summary_table = pd.DataFrame([
     },
     {
         "Model": "Elastic Net",
+        "Mean R²": model_comparison_table["Elastic Net R²"].mean(),
         "Mean CV R²": model_comparison_table["Elastic Net CV R²"].mean(),
         "Mean CV RMSE": model_comparison_table["Elastic Net CV RMSE"].mean(),
         "Mean antal variabler": model_comparison_table["Elastic Net antal variabler"].mean(),
@@ -438,11 +482,11 @@ model_summary_table = pd.DataFrame([
 
 model_summary_out_path = plots_dir / "model_comparison_summary.csv"
 model_summary_table.to_csv(model_summary_out_path, index=False)
-# print("\n" + "=" * 60)
-# print("Model comparison summary")
-# print("=" * 60)
-# print(model_summary_table.round(3).to_string(index=False))
-# print(f"\nSaved: {model_summary_out_path}")
+print("\n" + "=" * 60)
+print("Model comparison summary")
+print("=" * 60)
+print(model_summary_table.round(3).to_string(index=False))
+print(f"\nSaved: {model_summary_out_path}")
 
 
 # --- Model comparison: 5-fold CV R² summary ---
@@ -461,9 +505,9 @@ cv_summary.loc["Mean"] = cv_summary.mean()
 
 cv_out_path = DATA_DIR / "analysis" / "plots" / "model_cv_r2_comparison.csv"
 cv_summary.to_csv(cv_out_path)
-
-# print("\n" + "=" * 60)
-# print("5-fold CV R² by sector and model")
-# print("=" * 60)
-# print(cv_summary.round(3).to_string())
-# print(f"\nSaved: {cv_out_path}")
+ 
+print("\n" + "=" * 60)
+print("5-fold CV R² by sector and model")
+print("=" * 60)
+print(cv_summary.round(3).to_string())
+print(f"\nSaved: {cv_out_path}")

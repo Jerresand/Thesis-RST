@@ -18,8 +18,11 @@ def plot_cet1_sensitivity(
     permanent_delta,
     r_omega,
 ):
-    fig, axes = plt.subplots(2, 3, figsize=(14, 8))
-    axes_flat = axes.flatten()
+    n = len(all_base_vars)
+    n_cols = min(3, max(1, n))
+    n_rows = int(np.ceil(n / n_cols))
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=(4.6 * n_cols, 4.0 * n_rows))
+    axes_flat = np.atleast_1d(axes).flatten()
 
     for idx, base_var in enumerate(all_base_vars):
         ax = axes_flat[idx]
@@ -40,8 +43,13 @@ def plot_cet1_sensitivity(
         ax.legend(fontsize=8)
         ax.grid(alpha=0.3)
 
+    for ax in axes_flat[n:]:
+        ax.set_visible(False)
+
+    has_lags = any('_lag' in v for v in all_vars)
+    subtitle = '(current + matching lags shift simultaneously)' if has_lags else '(current-period factors only)'
     fig.suptitle('CET1 Ratio Sensitivity to Single-Factor Permanent Macro Shocks\n'
-                 '(current + all lags shift simultaneously)',
+                 f'{subtitle}',
                  fontsize=12, fontweight='bold')
     fig.tight_layout()
     plt.savefig('cet1_sensitivity.png', dpi=150, bbox_inches='tight')
@@ -79,7 +87,9 @@ def plot_optimal_results(
                       f'{val:+.2f}σ', va='center',
                       ha='left' if val >= 0 else 'right', fontsize=6.5)
     ax_a.set_xlabel('shock / σ  (standard deviations from today)')
-    ax_a.set_title('Optimal Scenario — shock from today\n(current + lagged variables)', fontweight='bold')
+    has_lags = any('_lag' in v for v in all_vars)
+    title_suffix = '(current + lagged variables)' if has_lags else '(current-period variables)'
+    ax_a.set_title(f'Optimal Scenario — shock from today\n{title_suffix}', fontweight='bold')
     ax_a.tick_params(axis='y', labelsize=7)
     ax_a.grid(axis='x', alpha=0.3)
 
@@ -147,7 +157,15 @@ def plot_optimal_shocks_grouped_lags(
 
     Uses only the already-computed optimal point — no grids or re-optimisation.
     """
-    fig, axes = plt.subplots(2, 3, figsize=(13, 7))
+    has_lags = any('_lag' in v for v in all_vars)
+    if not has_lags:
+        print('Skipping lag-grouped shock plot: loaded sensitivity CSV has no lag columns.')
+        return
+
+    n = len(all_base_vars)
+    n_cols = min(3, max(1, n))
+    n_rows = int(np.ceil(n / n_cols))
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=(4.3 * n_cols, 3.6 * n_rows))
     axes_flat = axes.flatten()
     lag_colors = ('#2980b9', '#7fb3d5', '#bdc3c7')
     x_labels = ('t', 't-1', 't-2')
@@ -180,6 +198,9 @@ def plot_optimal_shocks_grouped_lags(
                     va='bottom' if vi >= 0 else 'top',
                     fontsize=8,
                 )
+
+    for ax in axes_flat[len(all_base_vars):]:
+        ax.set_visible(False)
 
     fig.suptitle(
         f'Optimal scenario Δ* — shocks from today by lag  '
@@ -467,11 +488,16 @@ def plot_all_factor_pairings(
     r_omega,
 ):
     n_g_all = 100
+    if len(all_base_vars) < 2:
+        print('Skipping all-factor-pairings plot: need at least two base factors.')
+        return
     base_indices = [all_vars.index(v) for v in all_base_vars]
     all_pairs = list(combinations(base_indices, 2))
-
-    fig, axes = plt.subplots(3, 5, figsize=(22, 13))
-    axes_flat = axes.flatten()
+    n_pairs = len(all_pairs)
+    n_cols = min(5, max(1, n_pairs))
+    n_rows = int(np.ceil(n_pairs / n_cols))
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=(4.4 * n_cols, 4.2 * n_rows))
+    axes_flat = np.atleast_1d(axes).flatten()
 
     d2_global = mahal_sq(delta_opt)
     dm_global = np.sqrt(d2_global)
@@ -539,7 +565,10 @@ def plot_all_factor_pairings(
         ax.set_xlim(gx.min(), gx.max())
         ax.set_ylim(gy.min(), gy.max())
         ax.grid(alpha=0.2)
-        print(f'  Pair {plot_idx+1:2d}/15  ({all_vars[ia]} vs {all_vars[ib]})  done')
+        print(f'  Pair {plot_idx+1:2d}/{n_pairs}  ({all_vars[ia]} vs {all_vars[ib]})  done')
+
+    for ax in axes_flat[n_pairs:]:
+        ax.set_visible(False)
 
     legend_elements = [
         Patch(fc='#fdb8b8', ec='crimson', alpha=0.75, label='Breach region'),
@@ -554,7 +583,7 @@ def plot_all_factor_pairings(
                bbox_to_anchor=(0.5, -0.02), frameon=True)
 
     fig.suptitle(
-        'CET1 Frontier Geometry — All 15 Factor Pairings\n'
+        f'CET1 Frontier Geometry — All {n_pairs} Factor Pairings\n'
         f'(breach region, plausibility iso-curves, global $s^\\omega$ projected, off-axis at $\\Delta^*$  |  threshold = {r_omega*100:.2f}%)',
         fontsize=12, fontweight='bold')
     fig.tight_layout(rect=[0, 0.04, 1, 1])
@@ -565,8 +594,8 @@ def plot_all_factor_pairings(
 
 def run_all_plots(model):
     plot_cet1_sensitivity(
-        all_base_vars=model.ALL_BASE_VARS,
-        all_vars=model.ALL_VARS,
+        all_base_vars=model.ACTIVE_BASE_VARS,
+        all_vars=model.ACTIVE_VARS,
         base_labels=model._BASE_LABELS,
         stds=model.stds,
         cet1_ratio=model.cet1_ratio,
@@ -575,7 +604,7 @@ def run_all_plots(model):
     )
 
     plot_optimal_results(
-        all_vars=model.ALL_VARS,
+        all_vars=model.ACTIVE_VARS,
         var_labels=model.VAR_LABELS,
         shock_sigma=model.shock_sigma,
         df_valid=model.df_valid,
@@ -591,8 +620,8 @@ def run_all_plots(model):
     )
 
     plot_optimal_shocks_grouped_lags(
-        all_base_vars=model.ALL_BASE_VARS,
-        all_vars=model.ALL_VARS,
+        all_base_vars=model.ACTIVE_BASE_VARS,
+        all_vars=model.ACTIVE_VARS,
         base_labels=model._BASE_LABELS,
         shock_sigma=model.shock_sigma,
         d_opt=model.D_opt,
@@ -610,7 +639,7 @@ def run_all_plots(model):
     )
 
     plot_hurlin_analogs(
-        all_vars=model.ALL_VARS,
+        all_vars=model.ACTIVE_VARS,
         var_labels=model.VAR_LABELS,
         shock_sigma=model.shock_sigma,
         stds=model.stds,
@@ -637,8 +666,8 @@ def run_all_plots(model):
     )
 
     plot_all_factor_pairings(
-        all_vars=model.ALL_VARS,
-        all_base_vars=model.ALL_BASE_VARS,
+        all_vars=model.ACTIVE_VARS,
+        all_base_vars=model.ACTIVE_BASE_VARS,
         var_labels=model.VAR_LABELS,
         stds=model.stds,
         delta_opt=model.delta_opt,
